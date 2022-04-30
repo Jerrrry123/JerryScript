@@ -507,9 +507,13 @@ end
         [5] = {422, 'jumping'},
         [6] = {423, 'falling'},
     }
-    function getPlayerMovementOption(ped)
+    function getMovementType(ped)
         if PED.IS_PED_RAGDOLL(ped) then
             return 'ragdolling'
+        elseif PED.IS_PED_CLIMBING(ped) then
+            return 'climbing'
+        elseif PED.IS_PED_VAULTING(ped) then
+            return 'vaulting'
         end
         for i = 1, #taskTable do
             if TASK.GET_IS_TASK_ACTIVE(ped, taskTable[i][1]) then return taskTable[i][2] end
@@ -532,6 +536,12 @@ end
             return 'swimming'
         elseif TASK.IS_PED_SPRINTING(ped) then
             return 'sprinting'
+        elseif PED.GET_PED_STEALTH_MOVEMENT(ped) then
+            return 'sneaking'
+        elseif PED.IS_PED_GOING_INTO_COVER(ped) then
+            return 'going into cover'
+        elseif PED.IS_PED_IN_COVER(ped) then
+            return 'moving in cover'
         else
             return 'moving'
         end
