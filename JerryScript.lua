@@ -342,7 +342,7 @@ local menu_root = menu.my_root()
 
         -- credit to LAZScript for inspiring this
         local fallTimeout = false
-        menu.toggle(ragdoll_types, 'Don\'t get back up', {'JSfallen'}, 'Makes you fall and prevents you from getting back up.', function(toggle)
+        menu.toggle(ragdoll_types, 'Don\'t get back up', {'JSfallen'}, 'Makes you fall over and prevents you from getting back up.', function(toggle)
             if toggle then
                 local vector = ENTITY.GET_ENTITY_FORWARD_VECTOR(PLAYER.PLAYER_PED_ID())
                 PED.SET_PED_TO_RAGDOLL_WITH_FALL(PLAYER.PLAYER_PED_ID(), 1500, 2000, 2, vector.x, -vector.y, vector.z, 1, 0, 0, 0, 0, 0, 0)
@@ -355,13 +355,8 @@ local menu_root = menu.my_root()
         end)
 
         -- credit to aaron for telling me this :p
-        local ragdollTimeout = false
-        menu.toggle(ragdoll_types, 'Ragdoll', {'JSragdoll'}, 'Makes you ragdoll.', function(toggle)
-            ragdollTimeout = toggle
-            while ragdollTimeout do
-                PED.SET_PED_TO_RAGDOLL( PLAYER.PLAYER_PED_ID(), 2000, 2000, 0, true, true, true)
-                util.yield()
-            end
+        menu.toggle_loop(ragdoll_types, 'Ragdoll', {'JSragdoll'}, 'Just makes you ragdoll.', function()
+            PED.SET_PED_TO_RAGDOLL( PLAYER.PLAYER_PED_ID(), 2000, 2000, 0, true, true, true)
         end)
     -----------------------------------
 
@@ -1094,76 +1089,76 @@ local menu_root = menu.my_root()
     ----------------------------------
     -- Block areas
     ----------------------------------
-    local block_root = menu.list(online_root, 'Block areas', {'JSblock'}, 'Block areas in online with invisible walls, but if you over use it it will crash you lol.')
+        local block_root = menu.list(online_root, 'Block areas', {'JSblock'}, 'Block areas in online with invisible walls, but if you over use it it will crash you lol.')
 
-    local blockInProgress = false
-    function blockAvailable(areaBlocked, areaName)
-        if blockInProgress then util.toast('A block is already being run.') return false end
-        if areaBlocked then util.toast(areaName..' already blocked.') return false end
-        return true
-    end
-
-    function setBlockStatus(on, areaName)
-        if on then
-            blockInProgress = true
-            startBusySpinner('Blocking')
-            return
+        local blockInProgress = false
+        function blockAvailable(areaBlocked, areaName)
+            if blockInProgress then util.toast('A block is already being run.') return false end
+            if areaBlocked then util.toast(areaName..' already blocked.') return false end
+            return true
         end
-        HUD.BUSYSPINNER_OFF()
-        if notifications then util.toast('Successfully blocked '.. areaName ..'.') end
-        blockInProgress = false
-    end
 
-    menu.toggle_loop(block_root, 'Custom block', {}, 'Makes you able to block an area in front of you by pressing "B".', function()
-        local dir, c1 = direction()
-        GRAPHICS._DRAW_SPHERE(c1.x, c1.y, c1.z, 0.3, 52, 144, 233, 0.5)
-        if PAD.IS_CONTROL_JUST_PRESSED(2, 29) then
-            if blockInProgress then util.toast('A block is already being run.') return end
-            setBlockStatus(true)
-            block({c1.x, c1.y, c1.z - 0.6})
-            setBlockStatus(false, 'area')
-        end
-    end)
-
-    local block_lsc_root = menu.list(block_root, 'Block LSC', {'JSblockLSC'}, 'Block lsc from being accessed.')
-    local block_casino_root = menu.list(block_root, 'Block casino', {'JSblockCasino'}, 'Block casino from being accessed.')
-    local block_maze_root = menu.list(block_root, 'Block maze bank', {'JSblockCasino'}, 'Block maze bank from being accessed.')
-
-    local blockAreasActions = {
-        --Orbital block
-        {root = block_root, name = 'orbital room', coordinates = {{335.95837, 4834.216, -60.99977}}, blocked = false},
-        -- Lsc blocks
-        {root = block_lsc_root, name = 'burton', coordinates = {{-357.66544, -134.26419, 38.23775}}, blocked = false},
-        {root = block_lsc_root, name = 'LSIA', coordinates = {{-1144.0569, -1989.5784, 12.9626}}, blocked = false},
-        {root = block_lsc_root, name = 'la meza', coordinates = {{721.08496, -1088.8752, 22.046721}}, blocked = false},
-        {root = block_lsc_root, name = 'blaine county', coordinates = {{115.59574, 6621.5693, 31.646144}, {110.460236, 6615.827, 31.660228}}, blocked = false},
-        {root = block_lsc_root, name = 'paleto bay', coordinates = {{115.59574, 6621.5693, 31.646144}, {110.460236, 6615.827, 31.660228}}, blocked = false},
-        {root = block_lsc_root, name = 'benny\'s', coordinates = {{-205.6571, -1309.4313, 31.093222}}, blocked = false},
-        -- Casino blocks
-        {root = block_casino_root, name = 'casino entrance', coordinates = {{923.7327, 47.40581, 81.10634}}, blocked = false},
-        {root = block_casino_root, name = 'casino garage', coordinates = {{935.29553, -0.5328601, 78.56404}}, blocked = false},
-        {root = block_casino_root, name = 'lucky wheel', coordinates = {{1110.1014, 228.71582, -49.935845}}, blocked = false},
-        --Maze bank block
-        {root = block_maze_root, name = 'maze bank entrance', coordinates = {{-81.18775, -795.82874, 44.227295}}, blocked = false},
-        {root = block_maze_root, name = 'maze bank garage', coordinates = {{-81.538155, -783.13257, 38.43969}}, blocked = false},
-        --Mc block
-        {root = block_root, name = 'hawick clubhouse', coordinates = {{-17.48541, -195.7588, 52.370953}, {-23.452509, -193.01324, 52.36245}}, blocked = false},
-        --Arena war garages
-        {root = block_root, name = 'arena war garages', coordinates = {{-365.07288, -1872.5387, 20.32783}, {-377.01108, -1876.4001, 20.327832}, {-388.02557, -1882.2357, 20.327838}}, blocked = false},
-    }
-
-    for i = 1, #blockAreasActions do
-        local areaName = blockAreasActions[i].name
-        menu.action(blockAreasActions[i].root, 'Block '..areaName, {}, '', function ()
-            if not blockAvailable(blockAreasActions[i].blocked, (areaName == 'LSIA' and areaName or string.capitalize(areaName))) then return end
-            setBlockStatus(true)
-            blockAreasActions[i].blocked = true
-            for j = 1, #blockAreasActions[i].coordinates do
-                block(blockAreasActions[i].coordinates[j])
+        function setBlockStatus(on, areaName)
+            if on then
+                blockInProgress = true
+                startBusySpinner('Blocking')
+                return
             end
-            setBlockStatus(false, areaName)
+            HUD.BUSYSPINNER_OFF()
+            if notifications then util.toast('Successfully blocked '.. areaName ..'.') end
+            blockInProgress = false
+        end
+
+        menu.toggle_loop(block_root, 'Custom block', {}, 'Makes you able to block an area in front of you by pressing "B".', function()
+            local dir, c1 = direction()
+            GRAPHICS._DRAW_SPHERE(c1.x, c1.y, c1.z, 0.3, 52, 144, 233, 0.5)
+            if PAD.IS_CONTROL_JUST_PRESSED(2, 29) then
+                if blockInProgress then util.toast('A block is already being run.') return end
+                setBlockStatus(true)
+                block({c1.x, c1.y, c1.z - 0.6})
+                setBlockStatus(false, 'area')
+            end
         end)
-    end
+
+        local block_lsc_root = menu.list(block_root, 'Block LSC', {'JSblockLSC'}, 'Block lsc from being accessed.')
+        local block_casino_root = menu.list(block_root, 'Block casino', {'JSblockCasino'}, 'Block casino from being accessed.')
+        local block_maze_root = menu.list(block_root, 'Block maze bank', {'JSblockCasino'}, 'Block maze bank from being accessed.')
+
+        local blockAreasActions = {
+            --Orbital block
+            {root = block_root, name = 'orbital room', coordinates = {{335.95837, 4834.216, -60.99977}}, blocked = false},
+            -- Lsc blocks
+            {root = block_lsc_root, name = 'burton', coordinates = {{-357.66544, -134.26419, 38.23775}}, blocked = false},
+            {root = block_lsc_root, name = 'LSIA', coordinates = {{-1144.0569, -1989.5784, 12.9626}}, blocked = false},
+            {root = block_lsc_root, name = 'la meza', coordinates = {{721.08496, -1088.8752, 22.046721}}, blocked = false},
+            {root = block_lsc_root, name = 'blaine county', coordinates = {{115.59574, 6621.5693, 31.646144}, {110.460236, 6615.827, 31.660228}}, blocked = false},
+            {root = block_lsc_root, name = 'paleto bay', coordinates = {{115.59574, 6621.5693, 31.646144}, {110.460236, 6615.827, 31.660228}}, blocked = false},
+            {root = block_lsc_root, name = 'benny\'s', coordinates = {{-205.6571, -1309.4313, 31.093222}}, blocked = false},
+            -- Casino blocks
+            {root = block_casino_root, name = 'casino entrance', coordinates = {{923.7327, 47.40581, 81.10634}}, blocked = false},
+            {root = block_casino_root, name = 'casino garage', coordinates = {{935.29553, -0.5328601, 78.56404}}, blocked = false},
+            {root = block_casino_root, name = 'lucky wheel', coordinates = {{1110.1014, 228.71582, -49.935845}}, blocked = false},
+            --Maze bank block
+            {root = block_maze_root, name = 'maze bank entrance', coordinates = {{-81.18775, -795.82874, 44.227295}}, blocked = false},
+            {root = block_maze_root, name = 'maze bank garage', coordinates = {{-81.538155, -783.13257, 38.43969}}, blocked = false},
+            --Mc block
+            {root = block_root, name = 'hawick clubhouse', coordinates = {{-17.48541, -195.7588, 52.370953}, {-23.452509, -193.01324, 52.36245}}, blocked = false},
+            --Arena war garages
+            {root = block_root, name = 'arena war garages', coordinates = {{-365.07288, -1872.5387, 20.32783}, {-377.01108, -1876.4001, 20.327832}, {-388.02557, -1882.2357, 20.327838}}, blocked = false},
+        }
+
+        for i = 1, #blockAreasActions do
+            local areaName = blockAreasActions[i].name
+            menu.action(blockAreasActions[i].root, 'Block '..areaName, {}, '', function ()
+                if not blockAvailable(blockAreasActions[i].blocked, (areaName == 'LSIA' and areaName or string.capitalize(areaName))) then return end
+                setBlockStatus(true)
+                blockAreasActions[i].blocked = true
+                for j = 1, #blockAreasActions[i].coordinates do
+                    block(blockAreasActions[i].coordinates[j])
+                end
+                setBlockStatus(false, areaName)
+            end)
+        end
 
 -----------------------------------
 -- Players
@@ -1538,7 +1533,7 @@ local runningTogglingOff = false
 
             menu.toggle_loop(trolling_root, 'Shake camera', {'JScamShake'}, 'Shakes the camera of '.. playerName ..'.', function()
                 local pos = ENTITY.GET_ENTITY_COORDS(playerPed)
-                FIRE.ADD_EXPLOSION(pos.x, pos.y, pos.z, expType, 10, false, true, 1000, true)
+                FIRE.ADD_EXPLOSION(pos.x, pos.y, pos.z, 1, 10, false, true, 1000, true)
             end)
         -----------------------------------
 
