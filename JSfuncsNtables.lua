@@ -403,11 +403,8 @@ end
     --skidded from keramisScript
     function netItAll(entity)
         local netID = NETWORK.NETWORK_GET_NETWORK_ID_FROM_ENTITY(entity)
-        if not NETWORK.NETWORK_HAS_CONTROL_OF_ENTITY(entity) then
-            for i = 1, 100 do
+        while not NETWORK.NETWORK_HAS_CONTROL_OF_ENTITY(entity) do
             NETWORK.NETWORK_REQUEST_CONTROL_OF_ENTITY(entity)
-            util.yield(50)
-            end
         end
         util.yield(10)
         NETWORK.NETWORK_REQUEST_CONTROL_OF_NETWORK_ID(netID)
@@ -416,9 +413,11 @@ end
         util.yield(10)
         NETWORK.SET_NETWORK_ID_CAN_MIGRATE(netID, false)
         util.yield(10)
-        for i = 0, 31, 1 do
+        local playerList = players.list(true, true, true)
+        for i = 1, #playerList do
             if NETWORK.NETWORK_IS_PLAYER_CONNECTED(i) then
-                NETWORK.SET_NETWORK_ID_ALWAYS_EXISTS_FOR_PLAYER(netID, i, true)
+                util.toast(playerList[i])
+                NETWORK.SET_NETWORK_ID_ALWAYS_EXISTS_FOR_PLAYER(netID, playerList[i], true)
                 util.yield(10)
             end
         end
@@ -431,7 +430,6 @@ end
         end
         util.yield(10)
         ENTITY.SET_ENTITY_VISIBLE(entity, false, 0)
-        util.yield()
     end
 
 ----------------------------------

@@ -14,11 +14,6 @@
 require 'JSfuncsNtables'
 local menu_root = menu.my_root()
 
-menu.toggle(menu_root, 'Spinner', {}, '', function(toggle)
-    if not toggle then HUD.BUSYSPINNER_OFF() return end
-    startBusySpinner('Spin!')
-end)
-
 ----------------------------------
 -- Settings
 ----------------------------------
@@ -1089,6 +1084,36 @@ end)
     -- Block areas
     ----------------------------------
         local block_root = menu.list(online_root, 'Block areas', {'JSblock'}, 'Block areas in online with invisible walls, but if you over use it it will crash you lol.')
+
+        local blockInProgress = false
+        function blockAvailable(areaBlocked, areaName)
+            if blockInProgress then util.toast('A block is already being run.') return false end
+            if areaBlocked then util.toast(areaName..' already blocked.') return false end
+            return true
+        end
+
+        function setBlockStatus(on, areaName)
+            if on then
+                blockInProgress = true
+                startBusySpinner('Blocking')
+                return
+            end
+            HUD.BUSYSPINNER_OFF()
+            if notifications then util.toast('Successfully blocked '.. areaName ..'.') end
+            blockInProgress = false
+        end
+
+        menu.toggle_loop(block_root, 'Custom block', {}, 'Makes you able to block an area in front of you by pressing "B".', function()
+            local dir, c1 = direction()
+            GRAPHICS._DRAW_SPHERE(c1.x, c1.y, c1.z, 0.3, 52, 144, 233, 0.5)
+            if PAD.IS_CONTROL_JUST_PRESSED(2, 29) then
+                if blockInProgress then util.toast('A block is already being run.') return end
+                setBlockStatus(true)
+                block({c1.x, c1.y, c1.z - 0.6})
+                setBlockStatus(false, 'area')
+            end
+        end)
+
         local block_lsc_root = menu.list(block_root, 'Block LSC', {'JSblockLSC'}, 'Block lsc from being accessed.')
         local block_casino_root = menu.list(block_root, 'Block casino', {'JSblockCasino'}, 'Block casino from being accessed.')
         local block_maze_root = menu.list(block_root, 'Block maze bank', {'JSblockCasino'}, 'Block maze bank from being accessed.')
@@ -1116,26 +1141,16 @@ end)
             {root = block_root, name = 'arena war garages', coordinates = {{-365.07288, -1872.5387, 20.32783}, {-377.01108, -1876.4001, 20.327832}, {-388.02557, -1882.2357, 20.327838}}, blocked = false},
         }
 
-        local blockInProgress = false
-        function blockAvailable(areaBlocked, areaName)
-            if blockInProgress then util.toast('A block is already being run.') return false end
-            if areaBlocked then util.toast(areaName..' already blocked.') return false end
-            return true
-        end
-
         for i = 1, #blockAreasActions do
             local areaName = blockAreasActions[i].name
             menu.action(blockAreasActions[i].root, 'Block '..areaName, {}, '', function ()
                 if not blockAvailable(blockAreasActions[i].blocked, (areaName == 'LSIA' and areaName or string.capitalize(areaName))) then return end
-                blockInProgress = true
-                startBusySpinner('Blocking')
+                setBlockStatus(true)
                 blockAreasActions[i].blocked = true
                 for j = 1, #blockAreasActions[i].coordinates do
                     block(blockAreasActions[i].coordinates[j])
                 end
-                HUD.BUSYSPINNER_OFF()
-                if notifications then util.toast('Successfully blocked '.. areaName ..'.') end
-                blockInProgress = false
+                setBlockStatus(false, areaName)
             end)
         end
 
