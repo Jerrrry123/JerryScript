@@ -1,6 +1,6 @@
 
-util.require_natives(1651208000)
-if not filesystem.exists(filesystem.scripts_dir() .. 'lib/natives-1651208000.lua') then
+util.require_natives(1640181023)
+if not filesystem.exists(filesystem.scripts_dir() .. 'lib/natives-1640181023.lua') then
     util.stop_script()
 end
 
@@ -14,6 +14,12 @@ end
 
 function sliderToScreenPos(pos)
     return pos / 200
+end
+
+function startBusySpinner(message)
+    HUD.BEGIN_TEXT_COMMAND_BUSYSPINNER_ON("STRING")
+    HUD.ADD_TEXT_COMPONENT_SUBSTRING_PLAYER_NAME(message)
+    HUD.END_TEXT_COMMAND_BUSYSPINNER_ON(5)
 end
 
 new = {
@@ -402,10 +408,6 @@ end
             NETWORK.NETWORK_REQUEST_CONTROL_OF_ENTITY(entity)
             util.yield(50)
             end
-        else
-            if notifications then
-                util.toast('Blocking in progress.')
-            end
         end
         util.yield(10)
         NETWORK.NETWORK_REQUEST_CONTROL_OF_NETWORK_ID(netID)
@@ -502,18 +504,17 @@ end
     taskTable = {
         [1] = {1, 'climbing Ladder'},
         [2] = {2, 'exiting vehicle'},
-        [3] = {160, 'entering vehicle'},
-        [4] = {335, 'parachuting'},
-        [5] = {422, 'jumping'},
-        [6] = {423, 'falling'},
+        [3] = {3, 'rolling'},
+        [4] =  {127, 'Sneaking'},
+        [5] = {160, 'entering vehicle'},
+        [6] = {270, 'strafing'},
+        [7] = {335, 'parachuting'},
+        [8] = {422, 'jumping'},
+        [9] = {423, 'falling'},
     }
-    function getMovementType(ped)
+    function getPlayerMovementOption(ped)
         if PED.IS_PED_RAGDOLL(ped) then
             return 'ragdolling'
-        elseif PED.IS_PED_CLIMBING(ped) then
-            return 'climbing'
-        elseif PED.IS_PED_VAULTING(ped) then
-            return 'vaulting'
         end
         for i = 1, #taskTable do
             if TASK.GET_IS_TASK_ACTIVE(ped, taskTable[i][1]) then return taskTable[i][2] end
@@ -536,12 +537,6 @@ end
             return 'swimming'
         elseif TASK.IS_PED_SPRINTING(ped) then
             return 'sprinting'
-        elseif PED.GET_PED_STEALTH_MOVEMENT(ped) then
-            return 'sneaking'
-        elseif PED.IS_PED_GOING_INTO_COVER(ped) then
-            return 'going into cover'
-        elseif PED.IS_PED_IN_COVER(ped) then
-            return 'moving in cover'
         else
             return 'moving'
         end
@@ -901,24 +896,21 @@ end
         rockets = 'WT_V_SPACERKT',
         tankCannon = 'WT_V_TANK',
         laser = 'WT_V_PLRLSR',
-        grenadeLauncher = 'WT_V_KHA_GL',
+        grenadeLauncher = 'WT_GL',
         minigun = 'WT_MINIGUN',
-        flameThrower = 'WT_V_FLAME',
-        dual50cal = 'WT_V_MG50_2',
-        dualLasers = 'WT_V_MG50_2L',
-        explosiveCannon = 'WT_V_ROG_CANN',
-        mine = 'WT_VEHMINE',
     }
     --i assume many of these are accurate, but many of them aren't tested
     vehicleWeaponHashToLabel = {
-        [joaat('vehicle_weapon_cannon_blazer')] = vehWeaponLabels.machineGun2, --tested
+        [joaat('vehicle_weapon_cannon_blazer')] = vehWeaponLabels.machineGun2,
         [joaat('vehicle_weapon_enemy_laser')] = 'WT_A_ENMYLSR',
+        [joaat('vehicle_weapon_nose_turret_valkyrie')] = 'WT_V_PLRBUL',
         [joaat('vehicle_weapon_plane_rocket')] = vehWeaponLabels.missiles,
         [joaat('vehicle_weapon_player_bullet')] = vehWeaponLabels.machineGun2,
         [joaat('vehicle_weapon_player_buzzard')] = vehWeaponLabels.machineGun2,
         [joaat('vehicle_weapon_player_hunter')] = vehWeaponLabels.machineGun2,
         [joaat('vehicle_weapon_player_laser')] = vehWeaponLabels.laser,
         [joaat('vehicle_weapon_player_lazer')] = vehWeaponLabels.cannon,   --tested on the hydra, and lazer
+        [joaat('vehicle_weapon_player_savage')] = vehWeaponLabels.missiles,
         [joaat('vehicle_weapon_rotors')] = 'WT_INVALID',
         [joaat('vehicle_weapon_ruiner_bullet')] = vehWeaponLabels.machineGun2,
         [joaat('vehicle_weapon_ruiner_rocket')] = vehWeaponLabels.missiles,
@@ -926,169 +918,167 @@ end
         [joaat('vehicle_weapon_radar')] = 'WT_INVALID',
         [joaat('vehicle_weapon_space_rocket')] = vehWeaponLabels.missiles, --tested on seasparrow, seems weird that it isnt rocket
         [joaat('vehicle_weapon_turret_boxville')] = vehWeaponLabels.machineGun,
+        [joaat('vehicle_weapon_turret_insurgent')] = vehWeaponLabels.machineGun,
+        [joaat('vehicle_weapon_turret_limo')] = vehWeaponLabels.machineGun,
+        [joaat('vehicle_weapon_turret_technical')] = vehWeaponLabels.machineGun,
+        [joaat('vehicle_weapon_turret_valkyrie')] = vehWeaponLabels.machineGun,
         [joaat('vehicle_weapon_tank')] = vehWeaponLabels.tankCannon,          --tested
+        [joaat("VEHICLE_WEAPON_TURRET_DINGHY5_50CAL")] = vehWeaponLabels.machineGun,
         [joaat('vehicle_weapon_akula_missile')] = vehWeaponLabels.missiles,
+        [joaat('vehicle_weapon_annihilator2_missile')] = vehWeaponLabels.missiles,
+        [joaat('vehicle_weapon_annihilator2_mini')] = vehWeaponLabels.machineGun,
+        [joaat('vehicle_weapon_oppressor2_missile')] = vehWeaponLabels.missiles,
+        [joaat('vehicle_weapon_cherno_missile')] = vehWeaponLabels.missiles,
+        [joaat('vehicle_weapon_deluxo_missile')] = vehWeaponLabels.missiles,
+        [joaat('vehicle_weapon_dogfighter_missile')] = vehWeaponLabels.missiles,
+        [joaat('vehicle_weapon_oppressor_missile')] = vehWeaponLabels.missiles,
+        [joaat('vehicle_weapon_hacker_missile')] = vehWeaponLabels.missiles,
+        [joaat('vehicle_weapon_pounder2_missile')] = vehWeaponLabels.missiles,
+        [joaat('vehicle_weapon_hunter_missile')] = vehWeaponLabels.missiles,
+        [joaat('vehicle_weapon_mule4_missile')] = vehWeaponLabels.missiles,
+        [joaat('vehicle_weapon_vigilante_missile')] = vehWeaponLabels.missiles,
+        [joaat('vehicle_weapon_trailer_missile')] = vehWeaponLabels.missiles,
+        [joaat('vehicle_weapon_scramjet_missile')] = vehWeaponLabels.missiles,
+        [joaat('vehicle_weapon_strikeforce_missile')] = vehWeaponLabels.missiles,
+        [joaat('vehicle_weapon_rogue_missile')] = vehWeaponLabels.missiles,
+        [joaat('vehicle_weapon_subcar_missile')] = vehWeaponLabels.missiles,
+        [joaat('vehicle_weapon_tampa_missile')] = vehWeaponLabels.missiles,
+        [joaat('vehicle_weapon_thruster_missile')] = vehWeaponLabels.missiles,
+        [joaat('vehicle_weapon_apc_mg')] = vehWeaponLabels.machineGun,
         [joaat('vehicle_weapon_ardent_mg')] = vehWeaponLabels.machineGun,
+        [joaat('vehicle_weapon_barrage_top_mg')] = vehWeaponLabels.machineGun,
+        [joaat('vehicle_weapon_caracara_mg')] = vehWeaponLabels.machineGun,
         [joaat('vehicle_weapon_comet_mg')] = vehWeaponLabels.machineGun,
+        [joaat('vehicle_weapon_deluxo_mg')] = vehWeaponLabels.machineGun,
+        [joaat('vehicle_weapon_dogfighter_mg')] = vehWeaponLabels.machineGun,
+        [joaat('vehicle_weapon_dune_mg')] = vehWeaponLabels.machineGun,
         [joaat('vehicle_weapon_granger2_mg')] = vehWeaponLabels.machineGun,
+        [joaat('vehicle_weapon_hunter_mg')] = vehWeaponLabels.machineGun,
+        [joaat('vehicle_weapon_jb700_mg')] = vehWeaponLabels.machineGun,
+        [joaat('vehicle_weapon_khanjali_mg')] = vehWeaponLabels.machineGun,
         [joaat('vehicle_weapon_menacer_mg')] = vehWeaponLabels.machineGun,
+        [joaat('vehicle_weapon_microlight_mg')] = vehWeaponLabels.machineGun,
+        [joaat('vehicle_weapon_mule4_mg')] = vehWeaponLabels.machineGun,
         [joaat('vehicle_weapon_nightshark_mg')] = vehWeaponLabels.machineGun,
+        [joaat('vehicle_weapon_oppressor2_mg')] = vehWeaponLabels.machineGun,
+        [joaat('vehicle_weapon_oppressor_mg')] = vehWeaponLabels.machineGun,
+        [joaat('vehicle_weapon_paragon2_mg')] = vehWeaponLabels.machineGun,
         [joaat('vehicle_weapon_revolter_mg')] = vehWeaponLabels.machineGun,
+        [joaat('vehicle_weapon_rogue_mg')] = vehWeaponLabels.machineGun,
         [joaat('vehicle_weapon_savestra_mg')] = vehWeaponLabels.machineGun,
+        [joaat('vehicle_weapon_scramjet_mg')] = vehWeaponLabels.machineGun,
+        [joaat('vehicle_weapon_seabreeze_mg')] = vehWeaponLabels.machineGun,
+        [joaat('vehicle_weapon_speedo4_mg')] = vehWeaponLabels.machineGun,
+        [joaat('vehicle_weapon_subcar_mg')] = vehWeaponLabels.machineGun,
+        [joaat('vehicle_weapon_thruster_mg')] = vehWeaponLabels.machineGun,
+        [joaat('vehicle_weapon_tula_mg')] = vehWeaponLabels.machineGun,
+        [joaat('vehicle_weapon_vigilante_mg')] = vehWeaponLabels.machineGun,
         [joaat('vehicle_weapon_viseris_mg')] = vehWeaponLabels.machineGun,
         [joaat('vehicle_weapon_akula_turret_single')] = vehWeaponLabels.machineGun,
+        [joaat('vehicle_weapon_mogul_nose')] = vehWeaponLabels.machineGun,
+        [joaat('vehicle_weapon_hunter_cannon')] = vehWeaponLabels.cannon,
+        [joaat('vehicle_weapon_apc_cannon')] = vehWeaponLabels.cannon,
         [joaat('vehicle_weapon_avenger_cannon')] = vehWeaponLabels.cannon,
+        [joaat('vehicle_weapon_bombushka_cannon')] = vehWeaponLabels.cannon,
+        [joaat('vehicle_weapon_khanjali_cannon')] = vehWeaponLabels.cannon,
         [joaat('vehicle_weapon_mobileops_cannon')] = vehWeaponLabels.cannon,
+        [joaat('vehicle_weapon_oppressor2_cannon')] = vehWeaponLabels.cannon,
         [joaat('vehicle_weapon_akula_minigun')] = vehWeaponLabels.machineGun,
-        [joaat('vehicle_weapon_insurgent_minigun')] = vehWeaponLabels.minigun,   --tested
-        [joaat('vehicle_weapon_technical_minigun')] = vehWeaponLabels.minigun,
-        [joaat('vehicle_weapon_brutus_50cal')] = vehWeaponLabels.dual50cal,
-        [joaat('vehicle_weapon_dominator4_50cal')] = vehWeaponLabels.dual50cal,
-        [joaat('vehicle_weapon_impaler2_50cal')] = vehWeaponLabels.dual50cal,
-        [joaat('vehicle_weapon_imperator_50cal')] = vehWeaponLabels.dual50cal,
-        [joaat('vehicle_weapon_slamvan4_50cal')] = vehWeaponLabels.dual50cal, --tested
-        [joaat('vehicle_weapon_zr380_50cal')] = vehWeaponLabels.dual50cal,   --tested
-        [joaat('vehicle_weapon_brutus2_50cal_laser')] = vehWeaponLabels.dualLasers,
-        [joaat('vehicle_weapon_impaler3_50cal_laser')] = vehWeaponLabels.dualLasers,
-        [joaat('vehicle_weapon_imperator2_50cal_laser')] = vehWeaponLabels.dualLasers,
-        [joaat('vehicle_weapon_slamvan5_50cal_laser')] = vehWeaponLabels.dualLasers,
-        [joaat('vehicle_weapon_zr3802_50cal_laser')] = vehWeaponLabels.dualLasers,
-        [joaat('vehicle_weapon_dominator5_50cal_laser')] = vehWeaponLabels.dualLasers,
-        --pretty much 99% accurate
-        [joaat('vehicle_weapon_khanjali_cannon_heavy')] = 'WT_V_KHA_HCA',
+        [joaat('vehicle_weapon_tula_nosemg')] = vehWeaponLabels.machineGun,
+        [joaat('vehicle_weapon_rctank_gun')] = vehWeaponLabels.machineGun,
+        [joaat('vehicle_weapon_pounder2_mini')] = vehWeaponLabels.machineGun,
+        [joaat('vehicle_weapon_dune_grenadelauncher')] = vehWeaponLabels.grenadeLauncher,
+        [joaat('vehicle_weapon_pounder2_gl')] = vehWeaponLabels.grenadeLauncher, --tested
         [joaat('vehicle_weapon_khanjali_gl')] = vehWeaponLabels.grenadeLauncher,
-        [joaat('vehicle_weapon_khanjali_mg')] = 'WT_V_KHA_MG',
-        [joaat('vehicle_weapon_khanjali_cannon')] = 'WT_V_KHA_CA',
-        [joaat('vehicle_weapon_volatol_dualmg')] = 'WT_V_VOL_MG',
-        [joaat('vehicle_weapon_akula_barrage')] = 'WT_V_AKU_BA',
-        [joaat('vehicle_weapon_akula_turret_dual')] = 'WT_V_AKU_TD',
-        [joaat('vehicle_weapon_tampa_missile')] = 'WT_V_TAM_MISS',
-        [joaat('vehicle_weapon_tampa_dualminigun')] = 'WT_V_TAM_DMINI',
-        [joaat('vehicle_weapon_tampa_fixedminigun')] = 'WT_V_TAM_FMINI',
-        [joaat('vehicle_weapon_tampa_mortar')] = 'WT_V_TAM_MORT',
-        [joaat('vehicle_weapon_apc_cannon')] = 'WT_V_APC_C',
-        [joaat('vehicle_weapon_apc_missile')] = 'WT_V_APC_M',
-        [joaat('vehicle_weapon_apc_mg')] = 'WT_V_APC_S',
-        [joaat('vehicle_weapon_kosatka_torpedo')] = 'WT_V_KOS_TO',
-        [joaat('vehicle_weapon_seasparrow2_minigun')] = 'WT_V_SPRW_MINI',
-        [joaat('vehicle_weapon_annihilator2_barrage')] = 'WT_V_ANTOR_BA',
-        [joaat('vehicle_weapon_annihilator2_missile')] = 'WT_V_ANTOR_MI',
-        [joaat('vehicle_weapon_annihilator2_mini')] = vehWeaponLabels.machineGun2,
-        [joaat('vehicle_weapon_rctank_gun')] = 'WT_V_RCT_MG',
-        [joaat('vehicle_weapon_rctank_flame')] = 'WT_V_RCT_FL',
-        [joaat('vehicle_weapon_rctank_rocket')] = 'WT_V_RCT_RK',
-        [joaat('vehicle_weapon_rctank_lazer')] = 'WT_V_RCT_LZ',
-        [joaat('vehicle_weapon_cherno_missile')] = 'WT_V_CHE_MI',
-        [joaat('vehicle_weapon_barrage_top_mg')] = 'WT_V_BAR_TMG',
-        [joaat('vehicle_weapon_barrage_top_minigun')] = 'WT_V_BAR_TMI',
-        [joaat('vehicle_weapon_barrage_rear_mg')] = 'WT_V_BAR_RMG',
-        [joaat('vehicle_weapon_barrage_rear_minigun')] = 'WT_V_BAR_RMI',
-        [joaat('vehicle_weapon_barrage_rear_gl')] = 'WT_V_BAR_RGL',
-        [joaat('vehicle_weapon_deluxo_mg')] = 'WT_V_DEL_MG',
-        [joaat('vehicle_weapon_deluxo_missile')] = 'WT_V_DEL_MI',
-        [joaat('vehicle_weapon_subcar_mg')] = 'WT_V_SUB_MG',
-        [joaat('vehicle_weapon_subcar_missile')] = 'WT_V_SUB_MI',
-        [joaat('vehicle_weapon_subcar_torpedo')] = 'WT_V_SUB_TO',
-        [joaat('vehicle_weapon_thruster_mg')] = 'WT_V_THR_MG',
-        [joaat('vehicle_weapon_thruster_missile')] = 'WT_V_THR_MI',
-        [joaat('vehicle_weapon_mogul_nose')] = 'WT_V_MOG_NOSE',
-        [joaat('vehicle_weapon_mogul_dualnose')] = 'WT_V_MOG_DNOSE',
-        [joaat('vehicle_weapon_mogul_dualturret')] = 'WT_V_MOG_DTURR',
-        [joaat('vehicle_weapon_mogul_turret')] = 'WT_V_MOG_TURR',
-        [joaat('vehicle_weapon_tula_mg')] = 'WT_V_TUL_MG',
-        [joaat('vehicle_weapon_tula_minigun')] = 'WT_V_TUL_MINI',
-        [joaat('vehicle_weapon_tula_nosemg')] = 'WT_V_TUL_NOSE',
-        [joaat('vehicle_weapon_tula_dualmg')] = 'WT_V_TUL_DUAL',
-        [joaat('vehicle_weapon_vigilante_mg')] = 'WT_V_VGL_MG',
-        [joaat('vehicle_weapon_vigilante_missile')] = 'WT_V_VGL_MISS',
-        [joaat('vehicle_weapon_seabreeze_mg')] = 'WT_V_SBZ_MG',
-        [joaat('vehicle_weapon_bombushka_cannon')] = 'WT_V_BSHK_CANN',
-        [joaat('vehicle_weapon_bombushka_dualmg')] = 'WT_V_BSHK_DUAL',
-        [joaat('vehicle_weapon_hunter_mg')] = 'WT_V_HUNT_MG',
-        [joaat('vehicle_weapon_hunter_missile')] = 'WT_V_HUNT_MISS',
-        [joaat('vehicle_weapon_hunter_barrage')] = 'WT_V_HUNT_BARR',
-        [joaat('vehicle_weapon_hunter_cannon')] = 'WT_V_HUNT_CANN',
-        [joaat('vehicle_weapon_microlight_mg')] = 'WT_V_MCRL_MG',
-        [joaat('vehicle_weapon_caracara_mg')] = 'WT_V_TURRET',
-        [joaat('vehicle_weapon_caracara_minigun')] = 'WT_V_TEC_MINI',
-        [joaat('vehicle_weapon_deathbike_dualminigun')] = 'WT_V_DBK_MINI',
-        [joaat('vehicle_weapon_deathbike2_minigun_laser')] = vehWeaponLabels.dualLasers,
-        [joaat('vehicle_weapon_trailer_quadmg')] = 'WT_V_TR_QUADMG',
-        [joaat('vehicle_weapon_trailer_dualaa')] = 'WT_V_TR_DUALAA',
-        [joaat('vehicle_weapon_trailer_missile')] = 'WT_V_TR_MISS',
-        [joaat('vehicle_weapon_halftrack_dualmg')] = 'WT_V_HT_DUALMG',
-        [joaat('vehicle_weapon_halftrack_quadmg')] = 'WT_V_HT_QUADMG',
-        [joaat('vehicle_weapon_oppressor_mg')] = 'WT_V_OP_MG',
-        [joaat('vehicle_weapon_oppressor_missile')] = 'WT_V_OP_MISS',
-        [joaat('vehicle_weapon_dune_mg')] = 'WT_V_DU_MG',
-        [joaat('vehicle_weapon_dune_grenadelauncher')] = 'WT_V_DU_GL',
-        [joaat('vehicle_weapon_dune_minigun')] = 'WT_V_DU_MINI',
-        [joaat('vehicle_weapon_nose_turret_valkyrie')] = vehWeaponLabels.machineGun2,
-        [joaat('vehicle_weapon_turret_valkyrie')] = vehWeaponLabels.machineGun,
-        [joaat('vehicle_weapon_turret_technical')] = vehWeaponLabels.machineGun,
-        [joaat('vehicle_weapon_player_savage')] = vehWeaponLabels.cannon,
-        [joaat('vehicle_weapon_turret_limo')] = vehWeaponLabels.machineGun,
-        [joaat('vehicle_weapon_speedo4_mg')] = 'WT_V_COM_MG',
-        [joaat('vehicle_weapon_speedo4_turret_mg')] = 'WT_V_SPD_TMG',
-        [joaat('vehicle_weapon_speedo4_turret_mini')] = 'WT_V_SPD_TMI',
-        [joaat('vehicle_weapon_pounder2_mini')] = 'WT_V_COM_MG',
-        [joaat('vehicle_weapon_pounder2_missile')] = 'WT_V_TAM_MISS',
-        [joaat('vehicle_weapon_pounder2_barrage')] = 'WT_V_POU_BA',
-        [joaat('vehicle_weapon_pounder2_gl')] = vehWeaponLabels.grenadeLauncher,
-        [joaat('vehicle_weapon_rogue_mg')] = 'WT_V_ROG_MG',
-        [joaat('vehicle_weapon_rogue_cannon')] = vehWeaponLabels.explosiveCannon,
-        [joaat('vehicle_weapon_rogue_missile')] = 'WT_V_ROG_MISS',
-        [joaat('vehicle_weapon_monster3_glkin')] = 'WT_V_GREN_KIN',
-        [joaat('vehicle_weapon_mortar_kinetic')] = 'WT_V_MORTAR_KIN', --??? idk
-        [joaat('vehicle_weapon_mortar_explosive')] = 'WT_V_TAM_MORT', --??? idk
-        [joaat('vehicle_weapon_scarab_50cal')] = vehWeaponLabels.dual50cal,
-        [joaat('vehicle_weapon_scarab2_50cal_laser')] = vehWeaponLabels.dualLasers,
-        [joaat('vehicle_weapon_strikeforce_barrage')] = 'WT_V_HUNT_BARR',
-        [joaat('vehicle_weapon_strikeforce_cannon')] = vehWeaponLabels.explosiveCannon,
-        [joaat('vehicle_weapon_strikeforce_missile')] = 'WT_V_HUNT_MISS',
-        [joaat('vehicle_weapon_hacker_missile')] = vehWeaponLabels.cannon, --(hacker means terrorbyte, im gonna have to test if these are accuate)
-        [joaat('vehicle_weapon_hacker_missile_homing')] = vehWeaponLabels.cannon,
-        [joaat('vehicle_weapon_flamethrower')] = vehWeaponLabels.flameThrower,     --tested
-        [joaat('vehicle_weapon_flamethrower_scifi')] = vehWeaponLabels.flameThrower,    --tested, this is the flamethrower on the future shock cerberus
-        [joaat('vehicle_weapon_havok_minigun')] = 'WT_V_HAV_MINI',
-        [joaat('vehicle_weapon_dogfighter_mg')] = 'WT_V_DGF_MG',
-        [joaat('vehicle_weapon_dogfighter_missile')] = 'WT_V_DGF_MISS',
-        [joaat('vehicle_weapon_paragon2_mg')] = 'WT_V_COM_MG',
-        [joaat('vehicle_weapon_scramjet_mg')] = 'WT_V_VGL_MG',
-        [joaat('vehicle_weapon_scramjet_missile')] = 'WT_V_VGL_MISS',
-        [joaat('vehicle_weapon_oppressor2_mg')] = 'WT_V_OP_MG',
-        [joaat('vehicle_weapon_oppressor2_cannon')] = vehWeaponLabels.explosiveCannon,
-        [joaat('vehicle_weapon_oppressor2_missile')] = 'WT_V_OP_MISS',
-        [joaat('vehicle_weapon_mule4_mg')] = 'WT_V_COM_MG',
-        [joaat('vehicle_weapon_mule4_missile')] = 'WT_V_TAM_MISS',
-        [joaat('vehicle_weapon_mule4_turret_gl')] = vehWeaponLabels.grenadeLauncher,
-        [joaat('vehicle_weapon_mine')] = vehWeaponLabels.mine, --unsure about these mines
-        [joaat('vehicle_weapon_mine_emp')] = vehWeaponLabels.mine,
-        [joaat('vehicle_weapon_mine_emp_rc')] = vehWeaponLabels.mine,
-        [joaat('vehicle_weapon_mine_kinetic')] = vehWeaponLabels.mine,
-        [joaat('vehicle_weapon_mine_kinetic_rc')] = vehWeaponLabels.mine,
-        [joaat('vehicle_weapon_mine_slick')] = vehWeaponLabels.mine,
-        [joaat('vehicle_weapon_mine_slick_rc')] = vehWeaponLabels.mine,
-        [joaat('vehicle_weapon_mine_spike')] = vehWeaponLabels.mine,
-        [joaat('vehicle_weapon_mine_spike_rc')] = vehWeaponLabels.mine,
-        [joaat('vehicle_weapon_mine_tar')] = vehWeaponLabels.mine,
-        [joaat('vehicle_weapon_mine_tar_rc')] = vehWeaponLabels.mine,
-        [joaat('vehicle_weapon_issi4_50cal')] = vehWeaponLabels.dual50cal,
-        [joaat('vehicle_weapon_issi5_50cal_laser')] = vehWeaponLabels.dualLasers,
-        [joaat('vehicle_weapon_turret_insurgent')] = vehWeaponLabels.machineGun,
-        [joaat('vehicle_weapon_jb700_mg')] = 'WT_V_COM_MG',
-        [joaat('vehicle_weapon_patrolboat_dualmg')] = 'WT_V_PAT_DUAL',
-        [joaat("vehicle_weapon_turret_dinghy5_50cal")] = 'WT_V_PAT_TURRET',
-        [joaat('vehicle_weapon_turret_patrolboat_50cal')] = 'WT_V_PAT_TURRET',
-        [joaat('vehicle_weapon_bruiser_50cal')] = vehWeaponLabels.dual50cal,
-        [joaat('vehicle_weapon_bruiser2_50cal_laser')] = vehWeaponLabels.dualLasers,
+        [joaat('vehicle_weapon_mule4_turret_gl')] = vehWeaponLabels.grenadeLauncher,  --tested
+        [joaat('vehicle_weapon_insurgent_minigun')] = vehWeaponLabels.minigun,   --tested
+        [joaat('vehicle_weapon_havok_minigun')] = vehWeaponLabels.minigun,
+        [joaat('vehicle_weapon_tula_minigun')] = vehWeaponLabels.minigun,     --tested
+        [joaat('vehicle_weapon_technical_minigun')] = vehWeaponLabels.minigun,
+        [joaat('vehicle_weapon_dune_minigun')] = vehWeaponLabels.minigun,
+        [joaat('vehicle_weapon_caracara_minigun')] = vehWeaponLabels.minigun,
+        [joaat('vehicle_weapon_seasparrow2_minigun')] = vehWeaponLabels.minigun,
+        [joaat('vehicle_weapon_barrage_rear_mg')] = vehWeaponLabels.machineGun,     --tested
+        [joaat('vehicle_weapon_barrage_top_minigun')] = vehWeaponLabels.minigun,  --tested
+        [joaat('vehicle_weapon_barrage_rear_minigun')] = vehWeaponLabels.machineGun,   --assumed
     }
     vehicleWeaponHashToString = {
+        [joaat('vehicle_weapon_strikeforce_cannon')] = 'Explosive MG', --tested
+        [joaat('vehicle_weapon_rogue_cannon')] = 'Explosive MG',  --tested
+        [joaat('vehicle_weapon_apc_missile')] = 'SAM Battery', --tested
+        [joaat('vehicle_weapon_speedo4_turret_mg')] = 'Turret Machine Gun',
+        [joaat('vehicle_weapon_trailer_quadmg')] = 'Quad MG',  --tested
+        [joaat('vehicle_weapon_akula_barrage')] = 'Barrage',
+        [joaat('vehicle_weapon_bombushka_dualmg')] = 'Dual MG', --tested
+        [joaat('vehicle_weapon_akula_turret_dual')] = 'Dual MG',    --tested
+        [joaat('vehicle_weapon_annihilator2_barrage')] = 'Barrage',
+        [joaat('vehicle_weapon_barrage_rear_gl')] = 'Rear GL',
         [joaat('vehicle_weapon_bomb')] = 'Bomb',
         [joaat('vehicle_weapon_bomb_cluster')] = 'Cluster Bomb',
         [joaat('vehicle_weapon_bomb_gas')] = 'Gas Bomb',
         [joaat('vehicle_weapon_bomb_incendiary')] = 'Incendiary Bomb',
         [joaat('vehicle_weapon_bomb_standard_wide')] = 'Standard Wide Bomb',
+        [joaat('vehicle_weapon_bruiser2_50cal_laser')] = 'Dual Lasers',
+        [joaat('vehicle_weapon_bruiser_50cal')] = 'Dual .50 cal',
+        [joaat('vehicle_weapon_brutus2_50cal_laser')] = 'Dual Lasers',
+        [joaat('vehicle_weapon_brutus_50cal')] = 'Dual .50 cal',
+        [joaat('vehicle_weapon_deathbike2_minigun_laser')] = 'Dual Lasers', -- tested
+        [joaat('vehicle_weapon_deathbike_dualminigun')] = 'Dual Minigun',
+        [joaat('vehicle_weapon_dominator4_50cal')] = 'Dual .50 cal',
+        [joaat('vehicle_weapon_dominator5_50cal_laser')] = 'Dual Lasers',
+        [joaat('vehicle_weapon_flamethrower')] = 'Flamethrower',     --tested
+        [joaat('vehicle_weapon_flamethrower_scifi')] = 'Flamethrower',    --tested, this is the flamethrower on the future shock cerberus
+        [joaat('vehicle_weapon_hacker_missile_homing')] = 'Homing Missiles',
+        [joaat('vehicle_weapon_halftrack_dualmg')] = 'Dual MG',
+        [joaat('vehicle_weapon_halftrack_quadmg')] = 'Quad MG',
+        [joaat('vehicle_weapon_hunter_barrage')] = 'Barrage',
+        [joaat('vehicle_weapon_impaler2_50cal')] = 'Dual .50 cal',
+        [joaat('vehicle_weapon_impaler3_50cal_laser')] = 'Dual Lasers',
+        [joaat('vehicle_weapon_imperator2_50cal_laser')] = 'Dual Lasers',
+        [joaat('vehicle_weapon_imperator_50cal')] = 'Dual .50 cal',
+        [joaat('vehicle_weapon_issi4_50cal')] = 'Dual .50 cal',
+        [joaat('vehicle_weapon_issi5_50cal_laser')] = 'Dual Lasers',
+        [joaat('vehicle_weapon_khanjali_cannon_heavy')] = 'Railgun Cannon',  --tested
+        [joaat('vehicle_weapon_kosatka_torpedo')] = 'Torpedo',
+        [joaat('vehicle_weapon_mine')] = 'Mine',
+        [joaat('vehicle_weapon_mine_emp')] = 'EMP Mine',
+        [joaat('vehicle_weapon_mine_emp_rc')] = 'Rc EMP Mine',
+        [joaat('vehicle_weapon_mine_kinetic')] = 'Kinetic Mine',
+        [joaat('vehicle_weapon_mine_kinetic_rc')] = 'Rc Kinetic Mine',
+        [joaat('vehicle_weapon_mine_slick')] = 'Slick Mine',
+        [joaat('vehicle_weapon_mine_slick_rc')] = 'Rc Slick Mine',
+        [joaat('vehicle_weapon_mine_spike')] = 'Spike Mine',
+        [joaat('vehicle_weapon_mine_spike_rc')] = 'Rc Spike Mine',
+        [joaat('vehicle_weapon_mine_tar')] = 'Tar Mine',
+        [joaat('vehicle_weapon_mine_tar_rc')] = 'Rc Tar Mine',
+        [joaat('vehicle_weapon_mogul_dualnose')] = 'Dual MG',     --tested
+        [joaat('vehicle_weapon_mogul_dualturret')] = 'Dual MG',     --tested
+        [joaat('vehicle_weapon_mogul_turret')] = 'Turret',
+        [joaat('vehicle_weapon_monster3_glkin')] = 'Kinetic GL',
+        [joaat('vehicle_weapon_mortar_explosive')] = 'Explosive Mortar',
+        [joaat('vehicle_weapon_mortar_kinetic')] = 'Kinetic Mortar',
+        [joaat('vehicle_weapon_patrolboat_dualmg')] = 'Dual MG',
+        [joaat('vehicle_weapon_pounder2_barrage')] = 'Missile Battery', --tested
+        [joaat('vehicle_weapon_rctank_flame')] = 'Flamethrower',    --tested
+        [joaat('vehicle_weapon_rctank_lazer')] = 'Plasma Cannon',   --tested
+        [joaat('vehicle_weapon_rctank_rocket')] = 'Charged Rockets', --tested
+        [joaat('vehicle_weapon_scarab2_50cal_laser')] = 'Dual Lasers',
+        [joaat('vehicle_weapon_scarab_50cal')] = 'Dual .50 cal',
+        [joaat('vehicle_weapon_slamvan4_50cal')] = 'Dual .50 cal', --tested
+        [joaat('vehicle_weapon_slamvan5_50cal_laser')] = 'Dual Lasers',
+        [joaat('vehicle_weapon_speedo4_turret_mini')] = 'Remote Minigun',  --tested
+        [joaat('vehicle_weapon_strikeforce_barrage')] = 'Barrage',
         [joaat('vehicle_weapon_sub_missile_homing')] = 'Homing Missiles',
+        [joaat('vehicle_weapon_subcar_torpedo')] = 'Torpedo',
+        [joaat('vehicle_weapon_tampa_dualminigun')] = 'Dual Minigun',
+        [joaat('vehicle_weapon_tampa_fixedminigun')] = 'Fixed Minigun',
+        [joaat('vehicle_weapon_tampa_mortar')] = 'Rear Mortar',         --tested
+        [joaat('vehicle_weapon_trailer_dualaa')] = 'Dual Flak',         --tested
+        [joaat('vehicle_weapon_tula_dualmg')] = 'Dual MG',
+        [joaat('vehicle_weapon_turret_dinghy5_50cal')] = 'Dual .50 cal',
+        [joaat('vehicle_weapon_turret_patrolboat_50cal')] = 'Dual .50 cal',
+        [joaat('vehicle_weapon_volatol_dualmg')] = 'Dual MG',    --tested
         [joaat('vehicle_weapon_water_cannon')] = 'Water Cannon',
+        [joaat('vehicle_weapon_zr3802_50cal_laser')] = 'Dual Lasers',
+        [joaat('vehicle_weapon_zr380_50cal')] = 'Dual .50 cal',   --tested
     }

@@ -10,8 +10,14 @@
     thx to Sai, ren, aaron, Nowry, JayMontana, IceDoomfist and scriptCat and everyone else that helped me in #programming :)
 ]]
 
+
 require 'JSfuncsNtables'
 local menu_root = menu.my_root()
+
+menu.toggle(menu_root, 'Spinner', {}, '', function(toggle)
+    if not toggle then HUD.BUSYSPINNER_OFF() return end
+    startBusySpinner('Spin!')
+end)
 
 ----------------------------------
 -- Settings
@@ -110,7 +116,7 @@ local menu_root = menu.my_root()
             {
                 name = 'Disable moving indicator', command = 'PIdisableMovement', description = '', toggle = true,
                 displayText = function(pid, ped)
-                    local movement = getMovementType(ped)
+                    local movement = getPlayerMovementOption(ped)
                     return movement and 'Player is ' .. movement
                 end
             },
@@ -301,7 +307,7 @@ local menu_root = menu.my_root()
 
         local faceFeature = {0}
         menu.slider(self_root, 'Customize face feature', {}, 'Set a value for the current face feature',0, 10, 1, 1, function(value)
-            PED._SET_PED_MICRO_MORPH_VALUE(PLAYER.PLAYER_PED_ID(), faceFeature[1], value/ 10)
+            PED._SET_PED_FACE_FEATURE(PLAYER.PLAYER_PED_ID(), faceFeature[1], value/ 10)
         end)
 
         local faceTable = {
@@ -326,44 +332,36 @@ local menu_root = menu.my_root()
         local face_feature_list = menu.list(self_root,'Current feature: Nose Width', {}, 'Choose a face feature to edit.')
         generateTableListI(face_feature_list, faceTable, faceFeature, 'Current face feature: ', 0, unFocusLists)
     -----------------------------------
-    -- Ragdoll types
-    -----------------------------------
-        local ragdoll_types = menu.list(self_root, 'Ragdoll types', {'JSragdollTypes'}, 'Different options for making yourself ragdoll.')
 
-        menu.toggle_loop(ragdoll_types, 'Clumsy', {'JSclumsy'}, 'Makes trip really easily.', function()
-            if PED.IS_PED_RAGDOLL(PLAYER.PLAYER_PED_ID()) then util.yield(3000) return end
-            PED.SET_PED_RAGDOLL_ON_COLLISION(PLAYER.PLAYER_PED_ID(), true)
-        end)
+    menu.action(self_root, 'Trip', {'JStrip'}, 'Makes you fall over, works best when running.', function()
+        local vector = ENTITY.GET_ENTITY_FORWARD_VECTOR(PLAYER.PLAYER_PED_ID())
+        PED.SET_PED_TO_RAGDOLL_WITH_FALL(PLAYER.PLAYER_PED_ID(), 1500, 2000, 2, vector.x, -vector.y, vector.z, 1, 0, 0, 0, 0, 0, 0)
+    end)
 
-        menu.action(ragdoll_types, 'Trip', {'JStrip'}, 'Makes you fall over, works best when running.', function()
+    -- credit to LAZScript for inspiring this
+    local fallTimeout = false
+    menu.toggle(self_root, 'Don\'t get back up', {'JSfallen'}, 'Makes you fall and prevents you from getting back up.', function(toggle)
+        if toggle then
             local vector = ENTITY.GET_ENTITY_FORWARD_VECTOR(PLAYER.PLAYER_PED_ID())
             PED.SET_PED_TO_RAGDOLL_WITH_FALL(PLAYER.PLAYER_PED_ID(), 1500, 2000, 2, vector.x, -vector.y, vector.z, 1, 0, 0, 0, 0, 0, 0)
-        end)
+        end
+        fallTimeout = toggle
+        while fallTimeout do
+            PED.RESET_PED_RAGDOLL_TIMER(PLAYER.PLAYER_PED_ID())
+            util.yield()
+        end
+    end)
 
-        -- credit to LAZScript for inspiring this
-        local fallTimeout = false
-        menu.toggle(ragdoll_types, 'Don\'t get back up', {'JSfallen'}, 'Makes you fall and prevents you from getting back up.', function(toggle)
-            if toggle then
-                local vector = ENTITY.GET_ENTITY_FORWARD_VECTOR(PLAYER.PLAYER_PED_ID())
-                PED.SET_PED_TO_RAGDOLL_WITH_FALL(PLAYER.PLAYER_PED_ID(), 1500, 2000, 2, vector.x, -vector.y, vector.z, 1, 0, 0, 0, 0, 0, 0)
-            end
-            fallTimeout = toggle
-            while fallTimeout do
-                PED.RESET_PED_RAGDOLL_TIMER(PLAYER.PLAYER_PED_ID())
-                util.yield()
-            end
-        end)
+    -- credit to aaron for telling me this :p
+    local ragdollTimeout = false
+    menu.toggle(self_root, 'Ragdoll', {'JSragdoll'}, 'Makes you ragdoll.', function(toggle)
+        ragdollTimeout = toggle
+        while ragdollTimeout do
+            PED.SET_PED_TO_RAGDOLL( PLAYER.PLAYER_PED_ID(), 2000, 2000, 0, true, true, true)
+            util.yield()
+        end
+    end)
 
-        -- credit to aaron for telling me this :p
-        local ragdollTimeout = false
-        menu.toggle(ragdoll_types, 'Ragdoll', {'JSragdoll'}, 'Makes you ragdoll.', function(toggle)
-            ragdollTimeout = toggle
-            while ragdollTimeout do
-                PED.SET_PED_TO_RAGDOLL( PLAYER.PLAYER_PED_ID(), 2000, 2000, 0, true, true, true)
-                util.yield()
-            end
-        end)
-    -----------------------------------
 
     menu.toggle(self_root, 'Cold blooded', {'JScoldBlooded'}, 'Removes your thermal signature.\nOther players still see it tho.', function(toggle)
         if toggle then
@@ -399,10 +397,6 @@ local menu_root = menu.my_root()
             menu.trigger_command(thermal_command, 'off')
             GRAPHICS._SEETHROUGH_SET_MAX_THICKNESS(1)
         end
-    end)
-
-    menu.toggle(weapons_root, 'Friendly fire', {'JSfriendlyFire'}, 'Makes you able to shoot peds the game count as your friends.', function(toggle)
-        PED.SET_CAN_ATTACK_FRIENDLY(PLAYER.PLAYER_PED_ID(), toggle, false)
     end)
 
     menu.toggle_loop(weapons_root, 'Reload when rolling', {'JSrollReload'}, 'Reloads your weapon when doing a roll.', function()
@@ -1134,10 +1128,12 @@ local menu_root = menu.my_root()
             menu.action(blockAreasActions[i].root, 'Block '..areaName, {}, '', function ()
                 if not blockAvailable(blockAreasActions[i].blocked, (areaName == 'LSIA' and areaName or string.capitalize(areaName))) then return end
                 blockInProgress = true
+                startBusySpinner('Blocking')
                 blockAreasActions[i].blocked = true
                 for j = 1, #blockAreasActions[i].coordinates do
                     block(blockAreasActions[i].coordinates[j])
                 end
+                HUD.BUSYSPINNER_OFF()
                 if notifications then util.toast('Successfully blocked '.. areaName ..'.') end
                 blockInProgress = false
             end)
