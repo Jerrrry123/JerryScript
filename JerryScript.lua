@@ -10,7 +10,6 @@
     thx to Sai, ren, aaron, Nowry, JayMontana, IceDoomfist and scriptCat and everyone else that helped me in #programming :)
 ]]
 
-
 require 'JSfuncsNtables'
 local menu_root = menu.my_root()
 
@@ -111,7 +110,7 @@ local menu_root = menu.my_root()
             {
                 name = 'Disable moving indicator', command = 'PIdisableMovement', description = '', toggle = true,
                 displayText = function(pid, ped)
-                    local movement = getPlayerMovementOption(ped)
+                    local movement = getMovementType(ped)
                     return movement and 'Player is ' .. movement
                 end
             },
@@ -302,7 +301,7 @@ local menu_root = menu.my_root()
 
         local faceFeature = {0}
         menu.slider(self_root, 'Customize face feature', {}, 'Set a value for the current face feature',0, 10, 1, 1, function(value)
-            PED._SET_PED_FACE_FEATURE(PLAYER.PLAYER_PED_ID(), faceFeature[1], value/ 10)
+            PED._SET_PED_MICRO_MORPH_VALUE(PLAYER.PLAYER_PED_ID(), faceFeature[1], value/ 10)
         end)
 
         local faceTable = {
@@ -327,36 +326,44 @@ local menu_root = menu.my_root()
         local face_feature_list = menu.list(self_root,'Current feature: Nose Width', {}, 'Choose a face feature to edit.')
         generateTableListI(face_feature_list, faceTable, faceFeature, 'Current face feature: ', 0, unFocusLists)
     -----------------------------------
+    -- Ragdoll types
+    -----------------------------------
+        local ragdoll_types = menu.list(self_root, 'Ragdoll types', {'JSragdollTypes'}, 'Different options for making yourself ragdoll.')
 
-    menu.action(self_root, 'Trip', {'JStrip'}, 'Makes you fall over, works best when running.', function()
-        local vector = ENTITY.GET_ENTITY_FORWARD_VECTOR(PLAYER.PLAYER_PED_ID())
-        PED.SET_PED_TO_RAGDOLL_WITH_FALL(PLAYER.PLAYER_PED_ID(), 1500, 2000, 2, vector.x, -vector.y, vector.z, 1, 0, 0, 0, 0, 0, 0)
-    end)
+        menu.toggle_loop(ragdoll_types, 'Clumsy', {'JSclumsy'}, 'Makes trip really easily.', function()
+            if PED.IS_PED_RAGDOLL(PLAYER.PLAYER_PED_ID()) then util.yield(3000) return end
+            PED.SET_PED_RAGDOLL_ON_COLLISION(PLAYER.PLAYER_PED_ID(), true)
+        end)
 
-    -- credit to LAZScript for inspiring this
-    local fallTimeout = false
-    menu.toggle(self_root, 'Don\'t get back up', {'JSfallen'}, 'Makes you fall and prevents you from getting back up.', function(toggle)
-        if toggle then
+        menu.action(ragdoll_types, 'Trip', {'JStrip'}, 'Makes you fall over, works best when running.', function()
             local vector = ENTITY.GET_ENTITY_FORWARD_VECTOR(PLAYER.PLAYER_PED_ID())
             PED.SET_PED_TO_RAGDOLL_WITH_FALL(PLAYER.PLAYER_PED_ID(), 1500, 2000, 2, vector.x, -vector.y, vector.z, 1, 0, 0, 0, 0, 0, 0)
-        end
-        fallTimeout = toggle
-        while fallTimeout do
-            PED.RESET_PED_RAGDOLL_TIMER(PLAYER.PLAYER_PED_ID())
-            util.yield()
-        end
-    end)
+        end)
 
-    -- credit to aaron for telling me this :p
-    local ragdollTimeout = false
-    menu.toggle(self_root, 'Ragdoll', {'JSragdoll'}, 'Makes you ragdoll.', function(toggle)
-        ragdollTimeout = toggle
-        while ragdollTimeout do
-            PED.SET_PED_TO_RAGDOLL( PLAYER.PLAYER_PED_ID(), 2000, 2000, 0, true, true, true)
-            util.yield()
-        end
-    end)
+        -- credit to LAZScript for inspiring this
+        local fallTimeout = false
+        menu.toggle(ragdoll_types, 'Don\'t get back up', {'JSfallen'}, 'Makes you fall and prevents you from getting back up.', function(toggle)
+            if toggle then
+                local vector = ENTITY.GET_ENTITY_FORWARD_VECTOR(PLAYER.PLAYER_PED_ID())
+                PED.SET_PED_TO_RAGDOLL_WITH_FALL(PLAYER.PLAYER_PED_ID(), 1500, 2000, 2, vector.x, -vector.y, vector.z, 1, 0, 0, 0, 0, 0, 0)
+            end
+            fallTimeout = toggle
+            while fallTimeout do
+                PED.RESET_PED_RAGDOLL_TIMER(PLAYER.PLAYER_PED_ID())
+                util.yield()
+            end
+        end)
 
+        -- credit to aaron for telling me this :p
+        local ragdollTimeout = false
+        menu.toggle(ragdoll_types, 'Ragdoll', {'JSragdoll'}, 'Makes you ragdoll.', function(toggle)
+            ragdollTimeout = toggle
+            while ragdollTimeout do
+                PED.SET_PED_TO_RAGDOLL( PLAYER.PLAYER_PED_ID(), 2000, 2000, 0, true, true, true)
+                util.yield()
+            end
+        end)
+    -----------------------------------
 
     menu.toggle(self_root, 'Cold blooded', {'JScoldBlooded'}, 'Removes your thermal signature.\nOther players still see it tho.', function(toggle)
         if toggle then
@@ -392,6 +399,10 @@ local menu_root = menu.my_root()
             menu.trigger_command(thermal_command, 'off')
             GRAPHICS._SEETHROUGH_SET_MAX_THICKNESS(1)
         end
+    end)
+
+    menu.toggle(weapons_root, 'Friendly fire', {'JSfriendlyFire'}, 'Makes you able to shoot peds the game count as your friends.', function(toggle)
+        PED.SET_CAN_ATTACK_FRIENDLY(PLAYER.PLAYER_PED_ID(), toggle, false)
     end)
 
     menu.toggle_loop(weapons_root, 'Reload when rolling', {'JSrollReload'}, 'Reloads your weapon when doing a roll.', function()
@@ -1083,76 +1094,76 @@ local menu_root = menu.my_root()
     ----------------------------------
     -- Block areas
     ----------------------------------
-        local block_root = menu.list(online_root, 'Block areas', {'JSblock'}, 'Block areas in online with invisible walls, but if you over use it it will crash you lol.')
+    local block_root = menu.list(online_root, 'Block areas', {'JSblock'}, 'Block areas in online with invisible walls, but if you over use it it will crash you lol.')
 
-        local blockInProgress = false
-        function blockAvailable(areaBlocked, areaName)
-            if blockInProgress then util.toast('A block is already being run.') return false end
-            if areaBlocked then util.toast(areaName..' already blocked.') return false end
-            return true
+    local blockInProgress = false
+    function blockAvailable(areaBlocked, areaName)
+        if blockInProgress then util.toast('A block is already being run.') return false end
+        if areaBlocked then util.toast(areaName..' already blocked.') return false end
+        return true
+    end
+
+    function setBlockStatus(on, areaName)
+        if on then
+            blockInProgress = true
+            startBusySpinner('Blocking')
+            return
         end
+        HUD.BUSYSPINNER_OFF()
+        if notifications then util.toast('Successfully blocked '.. areaName ..'.') end
+        blockInProgress = false
+    end
 
-        function setBlockStatus(on, areaName)
-            if on then
-                blockInProgress = true
-                startBusySpinner('Blocking')
-                return
-            end
-            HUD.BUSYSPINNER_OFF()
-            if notifications then util.toast('Successfully blocked '.. areaName ..'.') end
-            blockInProgress = false
+    menu.toggle_loop(block_root, 'Custom block', {}, 'Makes you able to block an area in front of you by pressing "B".', function()
+        local dir, c1 = direction()
+        GRAPHICS._DRAW_SPHERE(c1.x, c1.y, c1.z, 0.3, 52, 144, 233, 0.5)
+        if PAD.IS_CONTROL_JUST_PRESSED(2, 29) then
+            if blockInProgress then util.toast('A block is already being run.') return end
+            setBlockStatus(true)
+            block({c1.x, c1.y, c1.z - 0.6})
+            setBlockStatus(false, 'area')
         end
+    end)
 
-        menu.toggle_loop(block_root, 'Custom block', {}, 'Makes you able to block an area in front of you by pressing "B".', function()
-            local dir, c1 = direction()
-            GRAPHICS._DRAW_SPHERE(c1.x, c1.y, c1.z, 0.3, 52, 144, 233, 0.5)
-            if PAD.IS_CONTROL_JUST_PRESSED(2, 29) then
-                if blockInProgress then util.toast('A block is already being run.') return end
-                setBlockStatus(true)
-                block({c1.x, c1.y, c1.z - 0.6})
-                setBlockStatus(false, 'area')
+    local block_lsc_root = menu.list(block_root, 'Block LSC', {'JSblockLSC'}, 'Block lsc from being accessed.')
+    local block_casino_root = menu.list(block_root, 'Block casino', {'JSblockCasino'}, 'Block casino from being accessed.')
+    local block_maze_root = menu.list(block_root, 'Block maze bank', {'JSblockCasino'}, 'Block maze bank from being accessed.')
+
+    local blockAreasActions = {
+        --Orbital block
+        {root = block_root, name = 'orbital room', coordinates = {{335.95837, 4834.216, -60.99977}}, blocked = false},
+        -- Lsc blocks
+        {root = block_lsc_root, name = 'burton', coordinates = {{-357.66544, -134.26419, 38.23775}}, blocked = false},
+        {root = block_lsc_root, name = 'LSIA', coordinates = {{-1144.0569, -1989.5784, 12.9626}}, blocked = false},
+        {root = block_lsc_root, name = 'la meza', coordinates = {{721.08496, -1088.8752, 22.046721}}, blocked = false},
+        {root = block_lsc_root, name = 'blaine county', coordinates = {{115.59574, 6621.5693, 31.646144}, {110.460236, 6615.827, 31.660228}}, blocked = false},
+        {root = block_lsc_root, name = 'paleto bay', coordinates = {{115.59574, 6621.5693, 31.646144}, {110.460236, 6615.827, 31.660228}}, blocked = false},
+        {root = block_lsc_root, name = 'benny\'s', coordinates = {{-205.6571, -1309.4313, 31.093222}}, blocked = false},
+        -- Casino blocks
+        {root = block_casino_root, name = 'casino entrance', coordinates = {{923.7327, 47.40581, 81.10634}}, blocked = false},
+        {root = block_casino_root, name = 'casino garage', coordinates = {{935.29553, -0.5328601, 78.56404}}, blocked = false},
+        {root = block_casino_root, name = 'lucky wheel', coordinates = {{1110.1014, 228.71582, -49.935845}}, blocked = false},
+        --Maze bank block
+        {root = block_maze_root, name = 'maze bank entrance', coordinates = {{-81.18775, -795.82874, 44.227295}}, blocked = false},
+        {root = block_maze_root, name = 'maze bank garage', coordinates = {{-81.538155, -783.13257, 38.43969}}, blocked = false},
+        --Mc block
+        {root = block_root, name = 'hawick clubhouse', coordinates = {{-17.48541, -195.7588, 52.370953}, {-23.452509, -193.01324, 52.36245}}, blocked = false},
+        --Arena war garages
+        {root = block_root, name = 'arena war garages', coordinates = {{-365.07288, -1872.5387, 20.32783}, {-377.01108, -1876.4001, 20.327832}, {-388.02557, -1882.2357, 20.327838}}, blocked = false},
+    }
+
+    for i = 1, #blockAreasActions do
+        local areaName = blockAreasActions[i].name
+        menu.action(blockAreasActions[i].root, 'Block '..areaName, {}, '', function ()
+            if not blockAvailable(blockAreasActions[i].blocked, (areaName == 'LSIA' and areaName or string.capitalize(areaName))) then return end
+            setBlockStatus(true)
+            blockAreasActions[i].blocked = true
+            for j = 1, #blockAreasActions[i].coordinates do
+                block(blockAreasActions[i].coordinates[j])
             end
+            setBlockStatus(false, areaName)
         end)
-
-        local block_lsc_root = menu.list(block_root, 'Block LSC', {'JSblockLSC'}, 'Block lsc from being accessed.')
-        local block_casino_root = menu.list(block_root, 'Block casino', {'JSblockCasino'}, 'Block casino from being accessed.')
-        local block_maze_root = menu.list(block_root, 'Block maze bank', {'JSblockCasino'}, 'Block maze bank from being accessed.')
-
-        local blockAreasActions = {
-            --Orbital block
-            {root = block_root, name = 'orbital room', coordinates = {{335.95837, 4834.216, -60.99977}}, blocked = false},
-            -- Lsc blocks
-            {root = block_lsc_root, name = 'burton', coordinates = {{-357.66544, -134.26419, 38.23775}}, blocked = false},
-            {root = block_lsc_root, name = 'LSIA', coordinates = {{-1144.0569, -1989.5784, 12.9626}}, blocked = false},
-            {root = block_lsc_root, name = 'la meza', coordinates = {{721.08496, -1088.8752, 22.046721}}, blocked = false},
-            {root = block_lsc_root, name = 'blaine county', coordinates = {{115.59574, 6621.5693, 31.646144}, {110.460236, 6615.827, 31.660228}}, blocked = false},
-            {root = block_lsc_root, name = 'paleto bay', coordinates = {{115.59574, 6621.5693, 31.646144}, {110.460236, 6615.827, 31.660228}}, blocked = false},
-            {root = block_lsc_root, name = 'benny\'s', coordinates = {{-205.6571, -1309.4313, 31.093222}}, blocked = false},
-            -- Casino blocks
-            {root = block_casino_root, name = 'casino entrance', coordinates = {{923.7327, 47.40581, 81.10634}}, blocked = false},
-            {root = block_casino_root, name = 'casino garage', coordinates = {{935.29553, -0.5328601, 78.56404}}, blocked = false},
-            {root = block_casino_root, name = 'lucky wheel', coordinates = {{1110.1014, 228.71582, -49.935845}}, blocked = false},
-            --Maze bank block
-            {root = block_maze_root, name = 'maze bank entrance', coordinates = {{-81.18775, -795.82874, 44.227295}}, blocked = false},
-            {root = block_maze_root, name = 'maze bank garage', coordinates = {{-81.538155, -783.13257, 38.43969}}, blocked = false},
-            --Mc block
-            {root = block_root, name = 'hawick clubhouse', coordinates = {{-17.48541, -195.7588, 52.370953}, {-23.452509, -193.01324, 52.36245}}, blocked = false},
-            --Arena war garages
-            {root = block_root, name = 'arena war garages', coordinates = {{-365.07288, -1872.5387, 20.32783}, {-377.01108, -1876.4001, 20.327832}, {-388.02557, -1882.2357, 20.327838}}, blocked = false},
-        }
-
-        for i = 1, #blockAreasActions do
-            local areaName = blockAreasActions[i].name
-            menu.action(blockAreasActions[i].root, 'Block '..areaName, {}, '', function ()
-                if not blockAvailable(blockAreasActions[i].blocked, (areaName == 'LSIA' and areaName or string.capitalize(areaName))) then return end
-                setBlockStatus(true)
-                blockAreasActions[i].blocked = true
-                for j = 1, #blockAreasActions[i].coordinates do
-                    block(blockAreasActions[i].coordinates[j])
-                end
-                setBlockStatus(false, areaName)
-            end)
-        end
+    end
 
 -----------------------------------
 -- Players
