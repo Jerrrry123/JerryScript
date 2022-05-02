@@ -330,7 +330,7 @@ local menu_root = menu.my_root()
     -----------------------------------
         local ragdoll_types = menu.list(self_root, 'Ragdoll types', {'JSragdollTypes'}, 'Different options for making yourself ragdoll.')
 
-        menu.toggle_loop(ragdoll_types, 'Clumsy', {'JSclumsy'}, 'Makes trip really easily.', function()
+        menu.toggle_loop(ragdoll_types, 'Better clumsiness', {'JSclumsy'}, 'Like stands clumsiness, but you can get up after you fall.', function()
             if PED.IS_PED_RAGDOLL(PLAYER.PLAYER_PED_ID()) then util.yield(3000) return end
             PED.SET_PED_RAGDOLL_ON_COLLISION(PLAYER.PLAYER_PED_ID(), true)
         end)
