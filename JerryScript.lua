@@ -36,6 +36,11 @@ local menu_root = menu.my_root()
             maxTimeBetweenPress = value
         end)
 
+        local hornBoostMultiplier = 1.010
+        menu.slider(script_settings_root, 'Horn boost multiplier', {'JShornBoostMultiplier'}, 'Set the force applied to the car when you or another player uses horn boost.', -100000, 100000, hornBoostMultiplier * 1000, 1, function(value)
+            hornBoostMultiplier = value / 1000
+        end)
+
         local unFocusLists = {true}
         menu.toggle(script_settings_root, 'Stay in choosable lists', {'JSstayInLists'}, 'Makes you stay in lists after you\ve chosen an option.', function(toggle)
             unFocusLists[1] = not toggle
@@ -715,6 +720,11 @@ local menu_root = menu.my_root()
     -- Boosts
     -----------------------------------
         local boosts_root = menu.list(my_vehicle_root, 'Boosts', {'JSboosts'}, '')
+
+        menu.toggle_loop(boosts_root, 'Horn boost', {'JShornBoost'}, 'Makes your car speed up when you honking your horn or activating your siren.', function()
+            if not (AUDIO.IS_HORN_ACTIVE(my_cur_car) or VEHICLE.IS_VEHICLE_SIREN_ON(my_cur_car)) then return end
+            VEHICLE.SET_VEHICLE_FORWARD_SPEED(my_cur_car, ENTITY.GET_ENTITY_SPEED(my_cur_car) + hornBoostMultiplier)
+        end)
 
         local pressedW = util.current_time_millis()
         menu.toggle_loop(boosts_root, 'Vehicle jump', {'JSVehJump'}, 'Lets you jump with your car if you double tap "W".', function()
@@ -1449,6 +1459,25 @@ local menu_root = menu.my_root()
             end, blockAction = function()
                 return not PED.IS_PED_JACKING(PLAYER.PLAYER_PED_ID())
             end},
+            {name = 'Npc horn boost', command = 'JSnpcHornBoost', description = 'Boosts npcs that horn.', action = function(ped)
+                local vehicle = PED.GET_VEHICLE_PED_IS_IN(ped, false)
+                if PED.IS_PED_A_PLAYER(ped) or not PED.IS_PED_IN_ANY_VEHICLE(ped, true) or not AUDIO.IS_HORN_ACTIVE(vehicle) then return end
+                AUDIO.SET_AGGRESSIVE_HORNS(true) --Makes pedestrians sound their horn longer, faster and more agressive when they use their horn.
+                VEHICLE.SET_VEHICLE_FORWARD_SPEED(vehicle, ENTITY.GET_ENTITY_SPEED(vehicle) + 1.2)
+            end, onStop = function()
+                AUDIO.SET_AGGRESSIVE_HORNS(false)
+            end},
+
+            {name = 'Npc siren boost', command = 'JSnpcSirenBoost', description = 'Boosts npcs cars with an active siren.', action = function(ped)
+                local vehicle = PED.GET_VEHICLE_PED_IS_IN(ped, false)
+                if PED.IS_PED_A_PLAYER(ped) or not PED.IS_PED_IN_ANY_VEHICLE(ped, true) or not VEHICLE.IS_VEHICLE_SIREN_ON(vehicle) then return end
+                VEHICLE.SET_VEHICLE_FORWARD_SPEED(vehicle, ENTITY.GET_ENTITY_SPEED(vehicle) + 1.2)
+            end},
+            {name = 'Auto kill enemies', command = 'JSautokill', description = 'Just instantly kills hostile peds.', action = function(ped) --basically copy pasted form wiri script
+                local rel = PED.GET_RELATIONSHIP_BETWEEN_PEDS(PLAYER.PLAYER_PED_ID(), ped)
+                if PED.IS_PED_A_PLAYER(ped) or ENTITY.IS_ENTITY_DEAD(ped) or not( (rel == 4 or rel == 5) or PED.IS_PED_IN_COMBAT(ped, PLAYER.PLAYER_PED_ID()) ) then return end
+                ENTITY.SET_ENTITY_HEALTH(ped, 0, 0)
+            end},
         }
         for i = 1, #pedToggleLoops do
             menu.toggle_loop(peds_root, pedToggleLoops[i].name, {pedToggleLoops[i].command}, pedToggleLoops[i].description, function()
@@ -1458,6 +1487,8 @@ local menu_root = menu.my_root()
                     pedToggleLoops[i].action(pedHandles[j])
                 end
                 util.yield(10)
+            end, function()
+                if pedToggleLoops[i].onStop then pedToggleLoops[i].onStop() end
             end)
         end
 
@@ -1545,6 +1576,12 @@ local runningTogglingOff = false
                     util.trigger_script_event(1 << playerPid, {801199324, playerPid, 869796886})
                 end
             end
+        end)
+
+        menu.toggle_loop(player_root, 'Give horn boost', {'JSgiveHornBoost'}, 'Gives '.. playerName ..' the ability to speed up their car by pressing honking their horn or activating the siren.', function()
+            local vehicle = PED.GET_VEHICLE_PED_IS_IN(playerPed, false)
+            if not (AUDIO.IS_HORN_ACTIVE(vehicle) or VEHICLE.IS_VEHICLE_SIREN_ON(vehicle)) then return end
+            VEHICLE.SET_VEHICLE_FORWARD_SPEED(vehicle, ENTITY.GET_ENTITY_SPEED(vehicle) + hornBoostMultiplier)
         end)
 
         -----------------------------------
