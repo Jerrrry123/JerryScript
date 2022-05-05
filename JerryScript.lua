@@ -13,6 +13,7 @@
 require 'JSfuncsNtables'
 local menu_root = menu.my_root()
 
+local whitelistGroups = {user = true, friends = true, strangers  = true}
 ----------------------------------
 -- Settings
 ----------------------------------
@@ -1228,7 +1229,6 @@ local menu_root = menu.my_root()
     -----------------------------------
         local Whitelist_settings_root = menu.list(players_root, 'Whitelist', {'JSwhitelist'}, 'Applies to all options in this section.')
 
-        local whitelistGroups = {user = true, friends = true, strangers  = true}
         menu.toggle(Whitelist_settings_root, 'Exclude self', {'JSWhitelistSelf'}, 'Will make you not explode yourself. Pretty cool option if you ask me ;P', function(toggle)
             whitelistGroups.user = not toggle
         end)
