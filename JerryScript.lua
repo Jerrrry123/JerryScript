@@ -36,11 +36,6 @@ local menu_root = menu.my_root()
             maxTimeBetweenPress = value
         end)
 
-        local hornBoostMultiplier = 1.010
-        menu.slider(script_settings_root, 'Horn boost multiplier', {'JShornBoostMultiplier'}, 'Set the force applied to the car when you or another player uses horn boost.', -100000, 100000, hornBoostMultiplier * 1000, 1, function(value)
-            hornBoostMultiplier = value / 1000
-        end)
-
         local unFocusLists = {true}
         menu.toggle(script_settings_root, 'Stay in choosable lists', {'JSstayInLists'}, 'Makes you stay in lists after you\ve chosen an option.', function(toggle)
             unFocusLists[1] = not toggle
@@ -284,6 +279,11 @@ local menu_root = menu.my_root()
             menu.set_menu_name(exp_blame_toggle, 'Blame: Random')
         end)
 
+        local hornBoostMultiplier = 1.000
+        menu.slider(settings_root, 'Horn boost multiplier', {'JShornBoostMultiplier'}, 'Set the force applied to the car when you or another player uses horn boost.', -100000, 100000, hornBoostMultiplier * 1000, 1, function(value)
+            hornBoostMultiplier = value / 1000
+        end)
+
 -----------------------------------
 -- Self
 -----------------------------------
@@ -400,6 +400,54 @@ local menu_root = menu.my_root()
             GRAPHICS._SEETHROUGH_SET_MAX_THICKNESS(1)
         end
     end)
+
+    -----------------------------------
+    -- Proxy stickys
+    -----------------------------------
+        local proxy_sticky_root = menu.list(weapons_root, 'Proxy stickys', {}, '')
+
+        local proxyStickySettings = {players = true, npcs = false, radius = 2}
+        local function autoExplodeStickys(ped)
+            local pos = ENTITY.GET_ENTITY_COORDS(ped, true)
+            if not MISC.IS_PROJECTILE_TYPE_WITHIN_DISTANCE(pos.x, pos.y, pos.z, util.joaat('weapon_stickybomb'), proxyStickySettings.radius, true) then return end
+            WEAPON.EXPLODE_PROJECTILES(PLAYER.PLAYER_PED_ID(), util.joaat('weapon_stickybomb'))
+        end
+
+        menu.toggle_loop(proxy_sticky_root, 'Proxy stickys', {'JSrollReload'}, 'Makes your sticky bombs automatically detonate around players or npcs, works with the player whitelist.', function()
+            if proxyStickySettings.players then
+                local playerList = getNonWhitelistedPlayers(whitelistListTable, {false,  whitelistGroups.friends, whitelistGroups.strangers}, whitelistedName)
+                for i = 1, #playerList do
+                    local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(playerList[i])
+                    autoExplodeStickys(ped)
+                end
+            end
+            if proxyStickySettings.npcs then
+                local pedHandles = entities.get_all_peds_as_handles()
+                for i = 1, #pedHandles do
+                    if not PED.IS_PED_A_PLAYER(pedHandles[i]) then
+                        autoExplodeStickys(pedHandles[i])
+                    end
+                end
+            end
+            util.yield(5)
+        end)
+
+        menu.toggle(proxy_sticky_root, 'Detonate near players', {'JSStickyProxyPlayers'}, 'If your sticky bombs automatically detonate near players.', function(toggle)
+            proxyStickySettings.players = toggle
+        end, proxyStickySettings.players)
+
+        menu.toggle(proxy_sticky_root, 'Detonate near npcs', {'JSStickyProxyNpcs'}, 'If your sticky bombs automatically detonate near npcs.', function(toggle)
+            proxyStickySettings.npcs = toggle
+        end, proxyStickySettings.npcs)
+
+        menu.slider(proxy_sticky_root, 'Detonation radius', {'JSstickyRadius'}, 'How close the sticky bombs have to be to the target to detonate.', 1, 10, proxyStickySettings.radius, 1, function(value)
+            proxyStickySettings.radius = value
+        end)
+
+        menu.action(proxy_sticky_root, 'Remove all sticky bombs', {'JSremoveStickys'}, 'Removes every single sticky bomb that exists (not only yours).', function()
+            WEAPON.REMOVE_ALL_PROJECTILES_OF_TYPE(util.joaat('weapon_stickybomb'), false)
+        end)
+    -----------------------------------
 
     menu.toggle(weapons_root, 'Friendly fire', {'JSfriendlyFire'}, 'Makes you able to shoot peds the game count as your friends.', function(toggle)
         PED.SET_CAN_ATTACK_FRIENDLY(PLAYER.PLAYER_PED_ID(), toggle, false)
