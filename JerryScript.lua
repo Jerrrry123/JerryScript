@@ -1577,6 +1577,24 @@ local runningTogglingOff = false
                     end
                 end
             end)
+        ----------------------------------
+
+        local explosive_ammo_components = {
+            "0x3BE4465D",
+            "0x89EBDAA7",
+        }
+        menu.toggle_loop(player_root, 'Auto remove explosive ammo', {'JSnoExpAmmo'}, 'Automatically removes explosive ammo from player guns.', function()
+            local playerWeapon = WEAPON.GET_SELECTED_PED_WEAPON(playerPed)
+            for i = 1, #explosive_ammo_components do
+                if WEAPON.HAS_PED_GOT_WEAPON_COMPONENT(playerPed, playerWeapon, explosive_ammo_components[i]) then
+                    WEAPON.REMOVE_WEAPON_COMPONENT_FROM_PED(playerPed, playerWeapon, explosive_ammo_components[i])
+                    if notifications then
+                        util.toast('Removed explosive ammo from ' .. playerName .. '\'s ' .. getWeaponName(playerWeapon))
+                    end
+                end
+            end
+        end)
+
 
         -----------------------------------
         -- Trolling
