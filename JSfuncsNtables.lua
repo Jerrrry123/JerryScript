@@ -534,10 +534,14 @@ end
             return 'driving'
         elseif PED.IS_PED_SWIMMING(ped) then
             return 'swimming'
+        elseif TASK.IS_PED_STRAFING(ped) then
+            return 'strafing'
         elseif TASK.IS_PED_SPRINTING(ped) then
             return 'sprinting'
         elseif PED.GET_PED_STEALTH_MOVEMENT(ped) then
             return 'sneaking'
+        elseif TASK.IS_PED_GETTING_UP(ped) then
+            return 'getting up'
         elseif PED.IS_PED_GOING_INTO_COVER(ped) then
             return 'going into cover'
         elseif PED.IS_PED_IN_COVER(ped) then
