@@ -1583,7 +1583,7 @@ local runningTogglingOff = false
             "0x3BE4465D",
             "0x89EBDAA7",
         }
-        menu.toggle_loop(player_root, 'Auto remove explosive ammo', {'JSnoExpAmmo'}, 'Automatically removes explosive ammo from player guns.', function()
+        menu.toggle_loop(player_root, 'Auto remove explosive ammo', {'JSnoExpAmmo'}, 'Automatically removes explosive ammo from ' .. playerName .. '\'s guns.', function()
             local playerWeapon = WEAPON.GET_SELECTED_PED_WEAPON(playerPed)
             for i = 1, #explosive_ammo_components do
                 if WEAPON.HAS_PED_GOT_WEAPON_COMPONENT(playerPed, playerWeapon, explosive_ammo_components[i]) then
