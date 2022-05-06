@@ -331,7 +331,9 @@ local whitelistedName = false
             [15] = 'Chimp Bone Lowering',
             [16] = 'Chimp Bone Length',
         }
-        local face_feature_list = menu.list(self_root,'Current feature: Nose Width', {}, 'Choose a face feature to edit.')
+        local face_feature_list = menu.list(self_root,'Current feature: Nose Width', {}, 'Choose a face feature to edit.', function()
+            if faceFeature[2] then menu.focus(faceFeature[2]) end
+        end)
         generateTableListI(face_feature_list, faceTable, faceFeature, 'Current face feature: ', 0, unFocusLists)
     -----------------------------------
     -- Ragdoll types
@@ -433,7 +435,6 @@ local whitelistedName = false
                     end
                 end
             end
-            util.yield(5)
         end)
 
         menu.toggle(proxy_sticky_root, 'Detonate near players', {'JSProxyStickyPlayers'}, 'If your sticky bombs automatically detonate near players.', function(toggle)
@@ -605,7 +606,9 @@ local whitelistedName = false
         Ball = util.joaat('weapon_ball'),
         Pipe_Bomb = util.joaat('weapon_pipebomb'),
     }
-    local throwable_list = menu.list(weapons_root, 'Current throwable: Grenade', {}, 'Choose what animal the explosive animal gun has.')
+    local throwable_list = menu.list(weapons_root, 'Current throwable: Grenade', {}, 'Choose what animal the explosive animal gun has.', function()
+        if launcherThrowable[2] then menu.focus(launcherThrowable[2]) end
+    end)
     generateTableList(throwable_list, throwablesTable, launcherThrowable, 'Current throwable: ', unFocusLists)
 
     local disable_firing = false
@@ -667,7 +670,9 @@ local whitelistedName = false
         Retriever = 'a_c_retriever',
         Rottweiler = 'a_c_rottweiler',
     }
-    local exp_type_list = menu.list(weapons_root,'Current animal: Killerwhale', {}, 'Choose wat animal the explosive animal gun has.')
+    local exp_type_list = menu.list(weapons_root,'Current animal: Killerwhale', {}, 'Choose wat animal the explosive animal gun has.', function()
+        if exp_animal[2] then menu.focus(exp_animal[2]) end
+    end)
     generateTableList(exp_type_list, animalsTable, exp_animal, 'Current animal: ', unFocusLists)
 
 -----------------------------------
@@ -942,6 +947,25 @@ local whitelistedName = false
 
         menu.toggle(plane_root, 'Lock vtol', {'JSlockVtol'}, 'Locks the angle of planes vtol propellers.', function(toggle)
             VEHICLE._SET_DISABLE_VEHICLE_FLIGHT_NOZZLE_POSITION(my_cur_car, toggle)
+        end)
+
+        local minHeightAboveGround = 100
+        menu.toggle_loop(plane_root, 'Flight control', {'JSflightFontrol'}, '', function(toggle)
+            local height = ENTITY.GET_ENTITY_HEIGHT_ABOVE_GROUND(my_cur_car, toggle)
+            if height > 2 and height < minHeightAboveGround and not PAD.IS_CONTROL_PRESSED(2, 122) then
+                util.toast('Flying higher')
+                local rot = ENTITY.GET_ENTITY_ROTATION(my_cur_car, 2)
+                if rot.x < 20 then rot.x = rot.x + 0.5 end
+                ENTITY.SET_ENTITY_ROTATION(my_cur_car, rot.x,  rot.y,  rot.z, 2, true)
+                VEHICLE.SET_VEHICLE_FORCE_AFTERBURNER(my_cur_car, true)
+            end
+            if height > minHeightAboveGround - 2 and height < minHeightAboveGround + 2  then
+                VEHICLE.SET_VEHICLE_FORCE_AFTERBURNER(my_cur_car, false)
+            end
+        end)
+
+        menu.slider(plane_root, 'Min height above ground', {'JSminflyHeight'}, 'How high above the ground flight control kicks in.',0 , 5000, minHeightAboveGround, 1, function(value)
+            minHeightAboveGround = value
         end)
     -----------------------------------
 

@@ -106,8 +106,9 @@ end
 ----------------------------------
     function generateTableList(list, table, value, label, unfocus)
         for k, v in pairsByKeys(table) do
-            menu.action(list, string.space(k), {}, '', function()
+            local option option = menu.action(list, string.space(k), {}, '', function()
                 value[1] = v
+                value[2] = option
                 menu.set_menu_name(list, label .. string.space(k))
                 if unfocus[1] then
                     menu.focus(list)
@@ -118,8 +119,9 @@ end
     --i only use this one once
     function generateTableListI(list, table, value, label, index, unfocus)
         for i = index, #table do
-            menu.action(list, table[i], {}, '', function()
+            local option option = menu.action(list, table[i], {}, '', function()
                 value[1] = i
+                value[2] = option
                 menu.set_menu_name(list, label .. table[i])
                 if unfocus[1] then
                     menu.focus(list)
