@@ -14,6 +14,8 @@ require 'JSfuncsNtables'
 local menu_root = menu.my_root()
 
 local whitelistGroups = {user = true, friends = true, strangers  = true}
+local whitelistListTable = {}
+local whitelistedName = false
 ----------------------------------
 -- Settings
 ----------------------------------
@@ -414,9 +416,10 @@ local whitelistGroups = {user = true, friends = true, strangers  = true}
             WEAPON.EXPLODE_PROJECTILES(PLAYER.PLAYER_PED_ID(), util.joaat('weapon_stickybomb'))
         end
 
-        menu.toggle_loop(proxy_sticky_root, 'Proxy stickys', {'JSrollReload'}, 'Makes your sticky bombs automatically detonate around players or npcs, works with the player whitelist.', function()
+        menu.toggle_loop(proxy_sticky_root, 'Proxy stickys', {'JSproxyStickys'}, 'Makes your sticky bombs automatically detonate around players or npcs, works with the player whitelist.', function()
             if proxyStickySettings.players then
-                local playerList = getNonWhitelistedPlayers(whitelistListTable, {false,  whitelistGroups.friends, whitelistGroups.strangers}, whitelistedName)
+                local specificWhitelistGroup = {user = false,  friends = whitelistGroups.friends, strangers = whitelistGroups.strangers}
+                local playerList = getNonWhitelistedPlayers(whitelistListTable, specificWhitelistGroup, whitelistedName)
                 for i = 1, #playerList do
                     local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(playerList[i])
                     autoExplodeStickys(ped)
@@ -433,11 +436,11 @@ local whitelistGroups = {user = true, friends = true, strangers  = true}
             util.yield(5)
         end)
 
-        menu.toggle(proxy_sticky_root, 'Detonate near players', {'JSStickyProxyPlayers'}, 'If your sticky bombs automatically detonate near players.', function(toggle)
+        menu.toggle(proxy_sticky_root, 'Detonate near players', {'JSProxyStickyPlayers'}, 'If your sticky bombs automatically detonate near players.', function(toggle)
             proxyStickySettings.players = toggle
         end, proxyStickySettings.players)
 
-        menu.toggle(proxy_sticky_root, 'Detonate near npcs', {'JSStickyProxyNpcs'}, 'If your sticky bombs automatically detonate near npcs.', function(toggle)
+        menu.toggle(proxy_sticky_root, 'Detonate near npcs', {'JSProxyStickyNpcs'}, 'If your sticky bombs automatically detonate near npcs.', function(toggle)
             proxyStickySettings.npcs = toggle
         end, proxyStickySettings.npcs)
 
@@ -1241,14 +1244,12 @@ local whitelistGroups = {user = true, friends = true, strangers  = true}
             whitelistGroups.strangers = not toggle
         end)
 
-        local whitelistedName = false
         menu.text_input(Whitelist_settings_root, 'Whitelist player', {'JSWhitelistPlayer'}, 'Lets you whitelist a single player by name.', function(name)
             whitelistedName = name
         end, '')
 
         local whitelist_list_root = menu.list(Whitelist_settings_root, 'Whitelist player list', {'JSwhitelistList'}, 'Custom player list for selecting  players you wanna whitelist.')
 
-        local whitelistListTable = {}
         local whitelistTogglesTable = {}
         players.on_join(function(pid)
             local playerName = players.get_name(pid)
