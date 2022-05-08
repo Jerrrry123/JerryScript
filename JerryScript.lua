@@ -1578,6 +1578,9 @@ local whitelistedName = false
             MISC.SET_RIOT_MODE_ENABLED(toggle)
         end)
 
+
+menu.hyperlink(menu_root, 'Join the discord server', 'https://discord.gg/QzqBdHQC9S', 'Join the JerryScript discord server to suggest features, report bugs and test upcoming features.')
+
 local playerInfoPid = nil
 local playerInfoTogglesTable = {}
 local runningTogglingOff = false
