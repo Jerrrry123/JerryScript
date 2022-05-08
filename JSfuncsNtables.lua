@@ -1,4 +1,3 @@
-
 util.require_natives(1651208000)
 if not filesystem.exists(filesystem.scripts_dir() .. 'lib/natives-1651208000.lua') then
     util.stop_script()
