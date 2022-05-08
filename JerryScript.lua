@@ -293,8 +293,8 @@ local whitelistedName = false
     local self_root = menu.list(menu_root, 'Self', {'JSself'}, '')
 
     --Transition points
-    -- 49 -> 50
-    -- 87 -> 88
+    -- 49  -> 50
+    -- 87  -> 88
     -- 159 -> 160
     -- 207 -> 208
     local alphaPoints = {0, 87, 159, 207, 255}
@@ -1672,6 +1672,7 @@ local runningTogglingOff = false
         menu.toggle_loop(player_root, 'Give horn boost', {'JSgiveHornBoost'}, 'Gives '.. playerName ..' the ability to speed up their car by pressing honking their horn or activating the siren.', function()
             local vehicle = PED.GET_VEHICLE_PED_IS_IN(playerPed, false)
             if not (AUDIO.IS_HORN_ACTIVE(vehicle) or VEHICLE.IS_VEHICLE_SIREN_ON(vehicle)) then return end
+            NETWORK.NETWORK_REQUEST_CONTROL_OF_ENTITY(vehicle)
             VEHICLE.SET_VEHICLE_FORWARD_SPEED(vehicle, ENTITY.GET_ENTITY_SPEED(vehicle) + hornBoostMultiplier)
         end)
 
