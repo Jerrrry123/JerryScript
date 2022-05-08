@@ -720,6 +720,10 @@ local whitelistedName = false
         npcHorn = {on = false, setOption = function(toggle)
             VEHICLE._SET_VEHICLE_SILENT(my_cur_car, toggle)
         end},
+        lowTraction = {on = false, setOption = function(toggle)
+            VEHICLE.SET_VEHICLE_REDUCE_GRIP(my_cur_car, toggle)
+            VEHICLE._SET_VEHICLE_REDUCE_TRACTION(my_cur_car, toggle and 0 or 3)
+        end},
     }
     local function setCarOptions(toggle)
         for k, option in pairs(carSettings) do
@@ -732,7 +736,12 @@ local whitelistedName = false
     -----------------------------------
         local speedHandling_root = menu.list(my_vehicle_root, 'Speed and handling', {'JSspeedHandling'}, '')
 
-        menu.toggle(speedHandling_root, 'Alternate handling', {'JSaltHandling'}, 'Might slightly increase the turning rate, top speed and acceleration on some vehicles', function(toggle)
+        menu.toggle(speedHandling_root, 'Low traction', {'JSlowTraction'}, 'Makes your vehicle have low traction, I recommend setting this to a hotkey.', function(toggle)
+            carSettings.lowTraction.on = toggle
+            carSettings.lowTraction.setOption(toggle)
+        end)
+
+        menu.toggle(speedHandling_root, 'Alternate handling', {'JSaltHandling'}, 'Might slightly increase the turning rate, top speed and acceleration on some vehicles.', function(toggle)
             carSettings.alternateHandling.on = toggle
             carSettings.alternateHandling.setOption(toggle)
         end)
@@ -747,7 +756,7 @@ local whitelistedName = false
             carSettings.launchControl.setOption(toggle)
         end)
 
-        menu.toggle(speedHandling_root, 'Enable slipstreaming', {'JSslipstream'}, 'Enables global slipstream physics', function(toggle)
+        menu.toggle(speedHandling_root, 'Enable slipstreaming', {'JSslipstream'}, 'Enables global slipstream physics.', function(toggle)
             carSettings.slipstream.on = toggle
             carSettings.slipstream.setOption(toggle)
         end)
