@@ -1620,7 +1620,6 @@ local runningTogglingOff = false
             end
         end)
 
-
         -----------------------------------
         -- Trolling
         -----------------------------------
