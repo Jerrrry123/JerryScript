@@ -1672,49 +1672,53 @@ local runningTogglingOff = false
             --made by scriptcat#6566 ;) || requested by Erstarisk#5763
             local yeet_multiplier = 5
             local yeet_range = 100
-            menu.action(trolling_root, 'YEET All Peds, Vehs into Them', {'JSyeetthings'}, 'Requires you to be near them or spectating them. Will YEET all peds and vehicles near them.. into them ;)', function ()
-                local targetpos = ENTITY.GET_ENTITY_COORDS(playerPed)
-                local ppointers = entities.get_all_peds_as_pointers()
-                local vpointers = entities.get_all_vehicles_as_pointers()
-                local bighandles = {}
+            local yeet_delay = 1000
+            local function yeetEntities()
+                local targetPos = ENTITY.GET_ENTITY_COORDS(playerPed)
+                local pointerTables = {
+                    entities.get_all_peds_as_pointers(),
+                    entities.get_all_vehicles_as_pointers()
+                }
                 local range = yeet_range*yeet_range --squaring it, for VDIST2
-                --table generating for peds/vehicles nearest to player.
-                for _, pp in pairs(ppointers) do
-                    local p0s = entities.get_position(pp)
-                    local vd = SYSTEM.VDIST2(p0s.x, p0s.y, p0s.z, targetpos.x, targetpos.y, targetpos.z)
-                    if vd < range then
-                        local ph = entities.pointer_to_handle(pp)
-                        --check if in car
-                        if not PED.IS_PED_IN_ANY_VEHICLE(ph, true) and (not PED.IS_PED_A_PLAYER(ph)) then --if not, then add to table.
-                            bighandles[#bighandles+1] = ph
+                for _, pointerTable in pairs(pointerTables) do
+                    for _, entityPointer in pairs(pointerTable) do
+                        local pos = entities.get_position(entityPointer)
+                        local distance = SYSTEM.VDIST2(pos.x, pos.y, pos.z, targetPos.x, targetPos.y, targetPos.z)
+                        if distance < range then
+                            local entityHandle = entities.pointer_to_handle(entityPointer)
+                            --check the entity is a ped in a car
+                            if ENTITY.IS_ENTITY_A_PED(entityHandle) and (PED.IS_PED_IN_ANY_VEHICLE(entityHandle, true) or PED.IS_PED_A_PLAYER(entityHandle)) then goto continue end
+                            NETWORK.NETWORK_REQUEST_CONTROL_OF_ENTITY(entityHandle)
+                            local targetV3 = v3.new(targetPos)
+                            local buf = v3.new(ENTITY.GET_ENTITY_COORDS(entityHandle))
+                            v3.sub(targetV3, buf) --subtract here, for launch.
+                            ENTITY.APPLY_FORCE_TO_ENTITY_CENTER_OF_MASS(entityHandle, 1, v3.getX(targetV3) * yeet_multiplier, v3.getY(targetV3) * yeet_multiplier, v3.getZ(targetV3) * yeet_multiplier, true, false, true, true)
+                            v3.free(targetV3)
+                            v3.free(buf)
+                            ::continue::
                         end
                     end
                 end
-                for _, vp in pairs(vpointers) do
-                    local p0s = entities.get_position(vp)
-                    local vd = SYSTEM.VDIST2(p0s.x, p0s.y, p0s.z, targetpos.x, targetpos.y, targetpos.z)
-                    if vd < range then
-                        bighandles[#bighandles+1] = entities.pointer_to_handle(vp)
-                    end
-                end
-                for _, v in pairs(bighandles) do
-                    for i = 1, 20 do -- request control 
-                        NETWORK.NETWORK_REQUEST_CONTROL_OF_ENTITY(v)
-                    end
-                    local target2 = v3.new(ENTITY.GET_ENTITY_COORDS(playerPed))
-                    local buf = v3.new(ENTITY.GET_ENTITY_COORDS(v))
-                    v3.sub(target2, buf) --subtract here, for launch.
-                    ENTITY.APPLY_FORCE_TO_ENTITY_CENTER_OF_MASS(v, 1, v3.getX(target2) * yeet_multiplier, v3.getY(target2) * yeet_multiplier, v3.getZ(target2) * yeet_multiplier, true, false, true, true)
-                    v3.free(target2)
-                    v3.free(buf)
-                end
+            end
+
+            menu.action(trolling_root, 'Entity YEET', {'JSentityYeet'}, 'Pushes all peds and vehicles near them.. into them ;)\nRequires you to be near them or spectating them.', function ()
+                yeetEntities()
             end)
 
-            menu.slider(trolling_root, 'Range for YEET', {'JSyeetrange'}, 'Range for the YEET function above.', 1, 1000, 100, 10, function (value)
+            menu.toggle_loop(trolling_root, 'Entity Storm', {'JSentityStorm'}, 'Constantly pushes all peds and vehicles near them.. into them :p\nRequires you to be near them or spectating them.', function ()
+                yeetEntities()
+                util.yield(yeet_delay)
+            end)
+
+            menu.slider(trolling_root, 'Delay for Entity Storm', {'JSstormdelay'}, 'The delay, in MS, that is for Entity Storm.', function(value)
+                yeet_delay = value
+            end)
+
+            menu.slider(trolling_root, 'Range for YEET/Storm', {'JSpushRange'}, 'How close nearby entities have to be to get pushed towards '.. playerName ..'.', 1, 1000, yeet_range, 10, function (value)
                 yeet_range = value
             end)
 
-            menu.slider(trolling_root, 'Multiplier for YEET', {'JSyeetmultiplier'}, 'Multiplier for force for the YEET function above.', 1, 1000, 5, 5, function(value)
+            menu.slider(trolling_root, 'Multiplier for YEET/Storm', {'JSpushMultiplier'}, 'Multiplier for how much force is applied to entities when they get pushed towards '.. playerName ..'.', 1, 1000, yeet_multiplier, 5, function(value)
                 yeet_multiplier = value
             end)
         -----------------------------------
