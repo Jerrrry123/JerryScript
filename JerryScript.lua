@@ -1668,6 +1668,55 @@ local runningTogglingOff = false
                 local pos = ENTITY.GET_ENTITY_COORDS(playerPed)
                 FIRE.ADD_EXPLOSION(pos.x, pos.y, pos.z, 1, 10, false, true, 1000, true)
             end)
+        
+            --made by scriptcat#6566 ;) || requested by Erstarisk#5763
+            local yeet_multiplier = 5
+            local yeet_range = 100
+            menu.action(trolling_root, 'YEET All Peds, Vehs into Them', {'JSyeetthings'}, 'Requires you to be near them or spectating them. Will YEET all peds and vehicles near them.. into them ;)', function ()
+                local targetpos = ENTITY.GET_ENTITY_COORDS(playerPed)
+                local ppointers = entities.get_all_peds_as_pointers()
+                local vpointers = entities.get_all_vehicles_as_pointers()
+                local bighandles = {}
+                local range = yeet_range*yeet_range --squaring it, for VDIST2
+                --table generating for peds/vehicles nearest to player.
+                for _, pp in pairs(ppointers) do
+                    local p0s = entities.get_position(pp)
+                    local vd = SYSTEM.VDIST2(p0s.x, p0s.y, p0s.z, targetpos.x, targetpos.y, targetpos.z)
+                    if vd < range then
+                        local ph = entities.pointer_to_handle(pp)
+                        --check if in car
+                        if not PED.IS_PED_IN_ANY_VEHICLE(ph, true) and (not PED.IS_PED_A_PLAYER(ph)) then --if not, then add to table.
+                            bighandles[#bighandles+1] = ph
+                        end
+                    end
+                end
+                for _, vp in pairs(vpointers) do
+                    local p0s = entities.get_position(vp)
+                    local vd = SYSTEM.VDIST2(p0s.x, p0s.y, p0s.z, targetpos.x, targetpos.y, targetpos.z)
+                    if vd < range then
+                        bighandles[#bighandles+1] = entities.pointer_to_handle(vp)
+                    end
+                end
+                for _, v in pairs(bighandles) do
+                    for i = 1, 20 do -- request control 
+                        NETWORK.NETWORK_REQUEST_CONTROL_OF_ENTITY(v)
+                    end
+                    local target2 = v3.new(ENTITY.GET_ENTITY_COORDS(playerPed))
+                    local buf = v3.new(ENTITY.GET_ENTITY_COORDS(v))
+                    v3.sub(target2, buf) --subtract here, for launch.
+                    ENTITY.APPLY_FORCE_TO_ENTITY_CENTER_OF_MASS(v, 1, v3.getX(target2) * yeet_multiplier, v3.getY(target2) * yeet_multiplier, v3.getZ(target2) * yeet_multiplier, true, false, true, true)
+                    v3.free(target2)
+                    v3.free(buf)
+                end
+            end)
+
+            menu.slider(trolling_root, 'Range for YEET', {'JSyeetrange'}, 'Range for the YEET function above.', 1, 1000, 100, 10, function (value)
+                yeet_range = value
+            end)
+
+            menu.slider(trolling_root, 'Multiplier for YEET', {'JSyeetmultiplier'}, 'Multiplier for force for the YEET function above.', 1, 1000, 5, 5, function(value)
+                yeet_multiplier = value
+            end)
         -----------------------------------
 
         menu.toggle_loop(player_root, 'Give shoot gods', {'JSgiveShootGods'}, 'Gives '.. playerName ..' the ability to disable players god mode when shooting them.', function()
