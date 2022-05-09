@@ -1685,7 +1685,7 @@ local runningTogglingOff = false
                     if vd < range then
                         local ph = entities.pointer_to_handle(pp)
                         --check if in car
-                        if not PED.IS_PED_IN_ANY_VEHICLE(ph, true) then --if not, then add to table.
+                        if not PED.IS_PED_IN_ANY_VEHICLE(ph, true) and (not PED.IS_PED_A_PLAYER(ph)) then --if not, then add to table.
                             bighandles[#bighandles+1] = ph
                         end
                     end
