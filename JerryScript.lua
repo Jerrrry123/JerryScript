@@ -1672,7 +1672,7 @@ local runningTogglingOff = false
             --made by scriptcat#6566 ;) || requested by Erstarisk#5763
             local yeetMultiplier = 5
             local yeetRange = 100
-            local stormDelay = new.delay(500, 1, 0)
+            local stormDelay = new.delay(250, 0, 0)
             local function yeetEntities()
                 local targetPos = ENTITY.GET_ENTITY_COORDS(playerPed)
                 local pointerTables = {
