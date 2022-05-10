@@ -1277,8 +1277,8 @@ local whitelistedName = false
             whitelistGroups.strangers = not toggle
         end)
 
-        menu.text_input(Whitelist_settings_root, 'Whitelist player', {'JSWhitelistPlayer'}, 'Lets you whitelist a single player by name.', function(name)
-            whitelistedName = name
+        menu.text_input(Whitelist_settings_root, 'Whitelist player', {'JSWhitelistPlayer'}, 'Lets you whitelist a single player by name.', function(input)
+            whitelistedName = input
         end, '')
 
         local whitelist_list_root = menu.list(Whitelist_settings_root, 'Whitelist player list', {'JSwhitelistList'}, 'Custom player list for selecting  players you wanna whitelist.')
