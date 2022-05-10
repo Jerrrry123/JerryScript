@@ -1668,18 +1668,18 @@ local runningTogglingOff = false
                 local pos = ENTITY.GET_ENTITY_COORDS(playerPed)
                 FIRE.ADD_EXPLOSION(pos.x, pos.y, pos.z, 1, 10, false, true, 1000, true)
             end)
-        
+
             --made by scriptcat#6566 ;) || requested by Erstarisk#5763
-            local yeet_multiplier = 5
-            local yeet_range = 100
-            local yeet_delay = 1000
+            local yeetMultiplier = 5
+            local yeetRange = 100
+            local stormDelay = new.delay(500, 1, 0)
             local function yeetEntities()
                 local targetPos = ENTITY.GET_ENTITY_COORDS(playerPed)
                 local pointerTables = {
                     entities.get_all_peds_as_pointers(),
                     entities.get_all_vehicles_as_pointers()
                 }
-                local range = yeet_range*yeet_range --squaring it, for VDIST2
+                local range = yeetRange * yeetRange --squaring it, for VDIST2
                 for _, pointerTable in pairs(pointerTables) do
                     for _, entityPointer in pairs(pointerTable) do
                         local pos = entities.get_position(entityPointer)
@@ -1692,7 +1692,7 @@ local runningTogglingOff = false
                                 local targetV3 = v3.new(targetPos)
                                 local buf = v3.new(ENTITY.GET_ENTITY_COORDS(entityHandle))
                                 v3.sub(targetV3, buf) --subtract here, for launch.
-                                ENTITY.APPLY_FORCE_TO_ENTITY_CENTER_OF_MASS(entityHandle, 1, v3.getX(targetV3) * yeet_multiplier, v3.getY(targetV3) * yeet_multiplier, v3.getZ(targetV3) * yeet_multiplier, true, false, true, true)
+                                ENTITY.APPLY_FORCE_TO_ENTITY_CENTER_OF_MASS(entityHandle, 1, v3.getX(targetV3) * yeetMultiplier, v3.getY(targetV3) * yeetMultiplier, v3.getZ(targetV3) * yeetMultiplier, true, false, true, true)
                                 v3.free(targetV3)
                                 v3.free(buf)
                             end
@@ -1707,20 +1707,19 @@ local runningTogglingOff = false
 
             menu.toggle_loop(trolling_root, 'Entity Storm', {'JSentityStorm'}, 'Constantly pushes all peds and vehicles near them.. into them :p\nRequires you to be near them or spectating them.', function ()
                 yeetEntities()
-                util.yield(yeet_delay)
+                util.yield(getTotalDelay(stormDelay))
             end)
 
-            menu.slider(trolling_root, 'Delay for Entity Storm', {'JSentstormdelay'}, 'The delay for the loop fo the entity storm function above.', function (value)
-                yeet_delay = value
+            menu.slider(trolling_root, 'Range for YEET/Storm', {'JSpushRange'}, 'How close nearby entities have to be to get pushed towards '.. playerName ..'.', 1, 1000, yeetRange, 10, function (value)
+                yeetRange = value
             end)
 
-            menu.slider(trolling_root, 'Range for YEET/Storm', {'JSpushRange'}, 'How close nearby entities have to be to get pushed towards '.. playerName ..'.', 1, 1000, yeet_range, 10, function (value)
-                yeet_range = value
+            menu.slider(trolling_root, 'Multiplier for YEET/Storm', {'JSpushMultiplier'}, 'Multiplier for how much force is applied to entities when they get pushed towards '.. playerName ..'.', 1, 1000, yeetMultiplier, 5, function(value)
+                yeetMultiplier = value
             end)
 
-            menu.slider(trolling_root, 'Multiplier for YEET/Storm', {'JSpushMultiplier'}, 'Multiplier for how much force is applied to entities when they get pushed towards '.. playerName ..'.', 1, 1000, yeet_multiplier, 5, function(value)
-                yeet_multiplier = value
-            end)
+            local strom_delay_root = menu.list(trolling_root, 'Storm delay: '.. getDelayDisplayValue(stormDelay), {'JSentStormDelay'}, 'Lets you set the delay for how often entities are pushed in entity storm.')
+            generateDelaySettings(strom_delay_root, 'Loop delay', stormDelay)
         -----------------------------------
 
         menu.toggle_loop(player_root, 'Give shoot gods', {'JSgiveShootGods'}, 'Gives '.. playerName ..' the ability to disable players god mode when shooting them.', function()
