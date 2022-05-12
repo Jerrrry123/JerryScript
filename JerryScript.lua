@@ -1579,6 +1579,82 @@ local whitelistedName = false
 
 menu.hyperlink(menu_root, 'Join the discord server', 'https://discord.gg/QzqBdHQC9S', 'Join the JerryScript discord server to suggest features, report bugs and test upcoming features.')
 
+local JS_logo = directx.create_texture(filesystem.resources_dir() .. "JS.png")
+
+local black = new.color(0, 0, 1 / 255, 1)
+local white = new.color(1, 1, 1, 1)
+local creditText = {
+    [1] = {line = 'Coded by Jerry123#4508 & scriptcat#6566', bold = true, wait = 120},
+    [2] = {line = 'Skids from:', bold = true, wait = 35},
+    [3] = {line = 'LanceScript by lance#8213', bold = false, wait = 25},
+    [4] = {line = 'WiriScript by Nowiry#2663', bold = false, wait = 25},
+    [5] = {line = 'KeramisScript by scriptCat#6566', bold = false, wait = 25},
+    [6] = {line = 'Heist control by IceDoomfist#0001', bold = false, wait = 100},
+    [7] = {line = 'Thanks to', bold = false, wait = 25},
+    [8] = {line = 'Ren#5219 and JayMontana36#9565', bold = true, wait = 30},
+    [9] = {line = 'for reviewing my code', bold = false, wait = 100},
+    [10] = {line = 'Big thanks to all the cool people who helped me in #programming in the stand discord', bold = false, wait = 25},
+    [11] = {line = 'Sapphire#1053', bold = false, wait = 25},
+    [12] = {line = 'aaronlink127#0127', bold = false, wait = 100},
+    [13] = {line = 'Goddess Sainan#0001', bold = true, wait = 25},
+    [14] = {line = 'For making stand and providing such a great api and documentation', bold = false, wait = 25},
+}
+local playingCredits = false
+local creditsSpeed = 1
+local play_credits_toggle
+local function creditsPlaying(toggle)
+    playingCredits = toggle
+    menu.trigger_commands('anticrashcam '.. (toggle and 'on' or 'off'))
+    util.create_tick_handler(function()
+        directx.draw_rect(0, 0, 1, 1, black)
+        directx.draw_texture(JS_logo, 0.25, 0.25, 0.5, 0.5, 0.14, 0.5, 0 , white)
+        if PAD.IS_CONTROL_JUST_PRESSED(2, 202) and playingCredits then menu.trigger_command(play_credits_toggle, 'off') end
+        creditsSpeed = (PAD.IS_CONTROL_PRESSED(2, 22) and 2.5 or 1)
+        HUD.HUD_FORCE_WEAPON_WHEEL(false)
+        return playingCredits
+    end)
+    util.yield(900)
+    AUDIO.SET_RADIO_FRONTEND_FADE_TIME(3)
+    AUDIO.SET_AUDIO_FLAG('MobileRadioInGame',toggle)
+    AUDIO.SET_FRONTEND_RADIO_ACTIVE(toggle)
+    AUDIO.SET_RADIO_STATION_MUSIC_ONLY('RADIO_18_90S_ROCK', true)
+    AUDIO.SET_RADIO_TO_STATION_NAME('RADIO_16_SILVERLAKE')
+    AUDIO._FORCE_RADIO_TRACK_LIST_POSITION("RADIO_16_SILVERLAKE", "MIRRORPARK_LOCKED", 3 * 61000)
+end
+local function scrollCreditsLine(textTable, index)
+    local i = 0
+    while i <= 1000 do
+        if not playingCredits then return end
+        i = i + creditsSpeed
+        directx.draw_text(0.5, 1  - i / 1000, textTable.line, 1, textTable.bold and  0.7 or 0.5, white, false)
+        util.yield(10)
+    end
+    if index == #creditText then
+        for i = 0, 500 do
+            directx.draw_text(0.5, 0.5, 'And thank you ' .. players.get_name(players.user()) .. ' for using JerryScript', 1, 0.7, white, false)
+            util.yield(10)
+        end
+        util.yield(750)
+        menu.trigger_command(play_credits_toggle, 'off')
+    end
+end
+play_credits_toggle = menu.toggle(menu_root, 'Play credits', {}, '', function(toggle)
+    creditsPlaying(toggle)
+    if not toggle then return end
+    -- AUIO.START_AUDIO_SCENE('END_CREDITS_SCENE')
+    for i = 1, #creditText do
+        if not playingCredits then return end
+        util.create_thread(function()
+            scrollCreditsLine(creditText[i], i)
+        end)
+        local wait = 0
+        while wait < creditText[i].wait / creditsSpeed do -- i determine the line spacing is by this wait so i have to constantly check if credits are speed up to not fuck it up
+            util.yield(1)
+            wait = wait + 1
+        end
+    end
+end)
+
 local playerInfoPid = nil
 local playerInfoTogglesTable = {}
 local runningTogglingOff = false
