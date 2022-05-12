@@ -1535,12 +1535,6 @@ local whitelistedName = false
                 if PED.IS_PED_A_PLAYER(ped) then return end
                 AUDIO.STOP_PED_SPEAKING(ped, true)
             end},
-            {name = 'Kill peds when steeling their car', command = 'JSkillJackedPeds', description = 'They always get so salty smh.', action = function(ped)
-                if PED.IS_PED_A_PLAYER(ped) or not PED.IS_PED_BEING_JACKED(ped) then return end
-                ENTITY.SET_ENTITY_HEALTH(ped, 0, 0)
-            end, blockAction = function()
-                return not PED.IS_PED_JACKING(PLAYER.PLAYER_PED_ID())
-            end},
             {name = 'Npc horn boost', command = 'JSnpcHornBoost', description = 'Boosts npcs that horn.', action = function(ped)
                 local vehicle = PED.GET_VEHICLE_PED_IS_IN(ped, false)
                 if PED.IS_PED_A_PLAYER(ped) or not PED.IS_PED_IN_ANY_VEHICLE(ped, true) or not AUDIO.IS_HORN_ACTIVE(vehicle) then return end
@@ -1549,7 +1543,6 @@ local whitelistedName = false
             end, onStop = function()
                 AUDIO.SET_AGGRESSIVE_HORNS(false)
             end},
-
             {name = 'Npc siren boost', command = 'JSnpcSirenBoost', description = 'Boosts npcs cars with an active siren.', action = function(ped)
                 local vehicle = PED.GET_VEHICLE_PED_IS_IN(ped, false)
                 if PED.IS_PED_A_PLAYER(ped) or not PED.IS_PED_IN_ANY_VEHICLE(ped, true) or not VEHICLE.IS_VEHICLE_SIREN_ON(vehicle) then return end
@@ -1563,7 +1556,6 @@ local whitelistedName = false
         }
         for i = 1, #pedToggleLoops do
             menu.toggle_loop(peds_root, pedToggleLoops[i].name, {pedToggleLoops[i].command}, pedToggleLoops[i].description, function()
-                if pedToggleLoops[i].blockAction and pedToggleLoops[i].blockAction() then return end --checks if blockAction is defined before calling it
                 local pedHandles = entities.get_all_peds_as_handles()
                 for j = 1, #pedHandles do
                     pedToggleLoops[i].action(pedHandles[j])
@@ -1573,6 +1565,12 @@ local whitelistedName = false
                 if pedToggleLoops[i].onStop then pedToggleLoops[i].onStop() end
             end)
         end
+
+        menu.toggle_loop(peds_root, 'Kill jacked peds', {'JSkillJackedPeds'}, 'Automatically kills peds when stealing their car.', function(toggle)
+            if not PED.IS_PED_JACKING(PLAYER.PLAYER_PED_ID()) then return end
+            local jackedPed = PED.GET_JACK_TARGET(PLAYER.PLAYER_PED_ID())
+            ENTITY.SET_ENTITY_HEALTH(jackedPed, 0, 0)
+        end)
 
         menu.toggle(peds_root, 'Riot mode', {'JSriot'}, 'Makes peds hostile.', function(toggle)
             MISC.SET_RIOT_MODE_ENABLED(toggle)
