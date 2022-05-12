@@ -369,6 +369,12 @@ local whitelistedName = false
             PED.SET_PED_TO_RAGDOLL( PLAYER.PLAYER_PED_ID(), 2000, 2000, 0, true, true, true)
         end)
     -----------------------------------
+    menu.toggle_loop(self_root, 'Full regen', {'JSfullRegen'}, 'Makes your hp regenerate until you\'re at full health.', function()
+        local health = ENTITY.GET_ENTITY_HEALTH(PLAYER.PLAYER_PED_ID())
+        if ENTITY.GET_ENTITY_MAX_HEALTH(PLAYER.PLAYER_PED_ID()) == health then return end
+        ENTITY.SET_ENTITY_HEALTH(PLAYER.PLAYER_PED_ID(), health + 5, 0)
+        util.yield(255)
+    end)
 
     menu.toggle(self_root, 'Cold blooded', {'JScoldBlooded'}, 'Removes your thermal signature.\nOther players still see it tho.', function(toggle)
         if toggle then
