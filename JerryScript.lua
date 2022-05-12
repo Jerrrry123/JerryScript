@@ -1457,6 +1457,31 @@ local whitelistedName = false
         end)
     end)
 
+    local numpadControls = {
+        -- plane
+            107,
+            108,
+            109,
+            110,
+            111,
+            112,
+            117,
+            118,
+        --sub
+            123,
+            124,
+            125,
+            126,
+            127,
+            128,
+    }
+    menu.toggle_loop(menu_root, 'Disable numpad', {'JSdisableNumpad'}, 'Disables numpad so you don\'t rotate your plane/submarine while navigating stand', function()
+        if PAD.IS_CONTROL_PRESSED(2, 122) then return end --so you can rortate the plane with your mouse
+        for _, control in pairs(numpadControls) do
+            PAD.DISABLE_CONTROL_ACTION(2, control, true)
+        end
+    end)
+
     menu.toggle_loop(world_root, 'Disable all map notifications', {'JSnoMapNotifications'}, 'Removes that constant spam.', function()
         HUD.THEFEED_HIDE_THIS_FRAME()
     end)
