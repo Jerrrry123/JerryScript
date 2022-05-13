@@ -1452,7 +1452,7 @@ local whitelistedName = false
             127,
             128,
     }
-    menu.toggle_loop(menu_root, 'Disable numpad', {'JSdisableNumpad'}, 'Disables numpad so you don\'t rotate your plane/submarine while navigating stand', function()
+    menu.toggle_loop(world_root, 'Disable numpad', {'JSdisableNumpad'}, 'Disables numpad so you don\'t rotate your plane/submarine while navigating stand', function()
         if PAD.IS_CONTROL_PRESSED(2, 122) then return end --so you can rortate the plane with your mouse
         for _, control in pairs(numpadControls) do
             PAD.DISABLE_CONTROL_ACTION(2, control, true)
