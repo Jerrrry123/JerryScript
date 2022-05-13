@@ -74,18 +74,13 @@ local whitelistedName = false
                 displayText = function(pid, ped, weaponHash)
                     local damageType = WEAPON.GET_WEAPON_DAMAGE_TYPE(weaponHash)
                     if not (damageType == 12 or damageType == 1 or damageType == 3 or damageType == 5 or damageType == 13) or util.joaat('weapon_raypistol') == weaponHash then return end
-                    local maxAmmo = WEAPON.GET_AMMO_IN_PED_WEAPON(ped, weaponHash)
-                    local ammoCount = nil
+                    local ammoCount
                     local ammo_ptr = memory.alloc_int()
                     if WEAPON.GET_AMMO_IN_CLIP(ped, weaponHash, ammo_ptr) and WEAPON.GET_WEAPONTYPE_GROUP(weaponHash) ~= util.joaat('GROUP_THROWN') then
                         ammoCount = memory.read_int(ammo_ptr)
                         memory.free(ammo_ptr)
                         local clipSize = WEAPON.GET_MAX_AMMO_IN_CLIP(ped, weaponHash, 1)
-                        if ammoCount == maxAmmo then return 'Total: ' .. maxAmmo .. ' / ' .. (clipSize < 10000 and clipSize or 9999) end
-                        return ammoCount and 'Clip: ' .. ammoCount .. ' / ' .. clipSize .. ' || Total: ' .. maxAmmo
-                    end
-                    if not WEAPON.GET_CURRENT_PED_VEHICLE_WEAPON(ped, 'any') then
-                        return 'Total: ' .. maxAmmo
+                        return ammoCount and 'Clip: ' .. ammoCount .. ' / ' .. clipSize
                     end
                 end
             },
@@ -1837,25 +1832,27 @@ local runningTogglingOff = false
             end
         end)
 
-        menu.toggle_loop(player_root, 'Give horn boost', {'JSgiveHornBoost'}, 'Gives '.. playerName ..' the ability to speed up their car by pressing honking their horn or activating the siren.', function()
-            local vehicle = PED.GET_VEHICLE_PED_IS_IN(playerPed, false)
-            if not (AUDIO.IS_HORN_ACTIVE(vehicle) or VEHICLE.IS_VEHICLE_SIREN_ON(vehicle)) then return end
-            NETWORK.NETWORK_REQUEST_CONTROL_OF_ENTITY(vehicle)
-            VEHICLE.SET_VEHICLE_FORWARD_SPEED(vehicle, ENTITY.GET_ENTITY_SPEED(vehicle) + hornBoostMultiplier)
-        end)
+        --dosnt work
+        -- menu.toggle_loop(player_root, 'Give horn boost', {'JSgiveHornBoost'}, 'Gives '.. playerName ..' the ability to speed up their car by pressing honking their horn or activating the siren.', function()
+        --     local vehicle = PED.GET_VEHICLE_PED_IS_IN(playerPed, false)
+        --     if not (AUDIO.IS_HORN_ACTIVE(vehicle) or VEHICLE.IS_VEHICLE_SIREN_ON(vehicle)) then return end
+        --     NETWORK.NETWORK_REQUEST_CONTROL_OF_ENTITY(vehicle)
+        --     VEHICLE.SET_VEHICLE_FORWARD_SPEED(vehicle, ENTITY.GET_ENTITY_SPEED(vehicle) + hornBoostMultiplier)
+        -- end)
 
         -----------------------------------
         -- Give aim karma
         -----------------------------------
             local give_karma_root = menu.list(player_root, 'Give aim karma', {'JSgiveAimKarma'}, 'Allows you to to stuff to players who target '.. playerName ..'.')
 
-            menu.toggle_loop(give_karma_root, 'Shoot', {'JSgiveBulletAimKarma'}, 'Shoots players that aim at '.. playerName ..'.', function()
-                if playerIsTargetingEntity(playerPed) and karma[playerPed] then
-                    local pos = ENTITY.GET_ENTITY_COORDS(karma[playerPed].ped)
-                    MISC.SHOOT_SINGLE_BULLET_BETWEEN_COORDS(pos.x, pos.y, pos.z, pos.x, pos.y, pos.z +0.1, 100, true, 100416529, PLAYER.PLAYER_PED_ID(), true, false, 100.0)
-                    util.yield(getTotalDelay(expLoopDelay))
-                end
-            end)
+            --dosnt work
+            -- menu.toggle_loop(give_karma_root, 'Shoot', {'JSgiveBulletAimKarma'}, 'Shoots players that aim at '.. playerName ..'.', function()
+            --     if playerIsTargetingEntity(playerPed) and karma[playerPed] then
+            --         local pos = ENTITY.GET_ENTITY_COORDS(karma[playerPed].ped)
+            --         MISC.SHOOT_SINGLE_BULLET_BETWEEN_COORDS(pos.x, pos.y, pos.z, pos.x, pos.y, pos.z +0.1, 100, true, 100416529, PLAYER.PLAYER_PED_ID(), true, false, 100.0)
+            --         util.yield(getTotalDelay(expLoopDelay))
+            --     end
+            -- end)
 
             menu.toggle_loop(give_karma_root, 'Explode', {'JSgiveExpAimKarma'}, 'Explosions with your custom explosion settings.', function()
                 if playerIsTargetingEntity(playerPed) and karma[playerPed] then
