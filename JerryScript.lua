@@ -703,15 +703,6 @@ local whitelistedName = false
                 ENTITY.SET_ENTITY_ALPHA(my_cur_car, alphaPoints[index], true)
             end
         end},
-        slipstream = {on = false, setOption = function(toggle)
-            VEHICLE.SET_ENABLE_VEHICLE_SLIPSTREAMING(toggle)
-        end},
-        alternateHandling = {on = false, setOption = function(toggle)
-            VEHICLE.SET_VEHICLE_USE_ALTERNATE_HANDLING(my_cur_car, toggle)
-        end},
-        raceHandling = {on = false, setOption = function(toggle)
-            VEHICLE.SET_VEHICLE_IS_RACING(my_cur_car, toggle)
-        end},
         indestructibleDoors = {on = false, setOption = function(toggle)
             local vehicleDoorCount =  VEHICLE._GET_NUMBER_OF_VEHICLE_DOORS(my_cur_car)
             for i = -1, vehicleDoorCount do
@@ -742,24 +733,9 @@ local whitelistedName = false
             carSettings.lowTraction.setOption(toggle)
         end)
 
-        menu.toggle(speedHandling_root, 'Alternate handling', {'JSaltHandling'}, 'Might slightly increase the turning rate, top speed and acceleration on some vehicles.', function(toggle)
-            carSettings.alternateHandling.on = toggle
-            carSettings.alternateHandling.setOption(toggle)
-        end)
-
-        menu.toggle(speedHandling_root, 'Race mode', {'JSraceMode'}, 'Might increase handling.', function(toggle)
-            carSettings.raceHandling.on = toggle
-            carSettings.raceHandling.setOption(toggle)
-        end)
-
         menu.toggle(speedHandling_root, 'Launch control', {'JSlaunchControl'}, 'Limits how much force your car applies when accelerating so it doesn\'t burnout, very noticeable in a Emerus.', function(toggle)
             carSettings.launchControl.on = toggle
             carSettings.launchControl.setOption(toggle)
-        end)
-
-        menu.toggle(speedHandling_root, 'Enable slipstreaming', {'JSslipstream'}, 'Enables global slipstream physics.', function(toggle)
-            carSettings.slipstream.on = toggle
-            carSettings.slipstream.setOption(toggle)
         end)
 
         local my_torque = 1000
