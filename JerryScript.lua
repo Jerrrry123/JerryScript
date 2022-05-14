@@ -70,7 +70,7 @@ local whitelistedName = false
                 end
             },
             {
-                name = 'Disable ammo info', command = 'PIdisableAmmo', description = 'Displays ', toggle = true,
+                name = 'Disable ammo info', command = 'PIdisableAmmo', description = '', toggle = true,
                 displayText = function(pid, ped, weaponHash)
                     local damageType = WEAPON.GET_WEAPON_DAMAGE_TYPE(weaponHash)
                     if not (damageType == 12 or damageType == 1 or damageType == 3 or damageType == 5 or damageType == 13) or util.joaat('weapon_raypistol') == weaponHash then return end
@@ -130,7 +130,7 @@ local whitelistedName = false
     -----------------------------------
     -- Safe monitor settings
     -----------------------------------
-        local sm_settings_root = menu.list(settings_root, 'Safe monitor settings', {'SMsettings'},'Settings for the on screen text')
+        local sm_settings_root = menu.list(settings_root, 'Safe monitor settings', {'SMsettings'}, 'Settings for the on screen text')
 
         smSettings = new.hudSettings(-3, 0, 2)
         generateHudSettings(sm_settings_root, 'SM', smSettings)
@@ -1004,7 +1004,7 @@ local whitelistedName = false
                 displayText = function() return 'Nightclub Cash: ' .. STAT_GET_INT('CLUB_SAFE_CASH_VALUE')  / 1000  .. 'k / 210k' end
             },
             {
-                name = 'Nightclub Popularity', command = 'SMclubPopularity', description = 'Nightclub popularity.\nMaximum daily earnings at 100% and 95% popularity.', toggle = false,
+                name = 'Nightclub Popularity', command = 'SMclubPopularity', description = '', toggle = false,
                 displayText = function() return 'Nightclub Popularity: ' .. math.floor(STAT_GET_INT('CLUB_POPULARITY') / 10)  .. '%' end
             },
             {   name = 'Nightclub Daily Earnings', command = 'SMnightclubEarnings', description = 'Nightclub daily earnings.\nMaximum daily earnings is 10k.', toggle = false,
