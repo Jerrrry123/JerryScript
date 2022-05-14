@@ -557,25 +557,17 @@ end
 ----------------------------------
     function getNightclubDailyEarnings()
         local popularity = math.floor(STAT_GET_INT('CLUB_POPULARITY') / 10)
-        if popularity > 90 then return 10000
-        elseif popularity > 85 then return 9000
-        elseif popularity > 80 then return 8000
-        elseif popularity > 75 then return 7000
-        elseif popularity > 70 then return 6000
-        elseif popularity > 65 then return 5500
-        elseif popularity > 60 then return 5000
-        elseif popularity > 55 then return 4500
-        elseif popularity > 50 then return 4000
-        elseif popularity > 45 then return 3500
-        elseif popularity > 40 then return 3000
-        elseif popularity > 35 then return 2500
-        elseif popularity > 30 then return 2000
-        elseif popularity > 25 then return 1500
-        elseif popularity > 20 then return 1000
-        elseif popularity > 15 then return 750
-        elseif popularity > 10 then return 500
-        elseif popularity > 5 then return 250
-        else return 100
+        if popularity == 100 then return 50000
+        elseif popularity >= 90 then return 45000
+        elseif popularity >= 80 then return 24000
+        elseif popularity >= 70 then return 22000
+        elseif popularity >= 60 then return 20000
+        elseif popularity >= 50 then return 9500
+        elseif popularity >= 40 then return 8500
+        elseif popularity >= 30 then return 2500
+        elseif popularity >= 20 then return 2000
+        elseif popularity >= 10 then return 1600
+        else return 1500
         end
     end
 

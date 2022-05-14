@@ -1035,7 +1035,7 @@ local whitelistedName = false
         end)
 
         menu.toggle_loop(SM_earnings_root, 'Auto nightclub popularity', {'SMautoClubPop'}, 'Automatically sets the nightclubs popularity to 100 if it results in less than max daily income.', function(toggle)
-            if getNightclubDailyEarnings() < 10000 then
+            if getNightclubDailyEarnings() < 50000 then
                 menu.trigger_commands('clubPopularity 100')
             end
         end)
