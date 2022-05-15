@@ -1705,14 +1705,13 @@ local function creditsPlaying(toggle)
         HUD.HUD_FORCE_WEAPON_WHEEL(false)
         return playingCredits
     end)
-    --only works in sp
-    -- util.yield(900)
-    -- AUDIO.SET_RADIO_FRONTEND_FADE_TIME(3)
-    -- AUDIO.SET_AUDIO_FLAG('MobileRadioInGame',toggle)
-    -- AUDIO.SET_FRONTEND_RADIO_ACTIVE(toggle)
-    -- AUDIO.SET_RADIO_STATION_MUSIC_ONLY('RADIO_18_90S_ROCK', true)
-    -- AUDIO.SET_RADIO_TO_STATION_NAME('RADIO_16_SILVERLAKE')
-    -- AUDIO._FORCE_RADIO_TRACK_LIST_POSITION("RADIO_16_SILVERLAKE", "MIRRORPARK_LOCKED", 3 * 61000)
+    util.yield(900)
+    AUDIO.SET_RADIO_FRONTEND_FADE_TIME(3)
+    AUDIO.SET_AUDIO_FLAG('MobileRadioInGame',toggle)
+    AUDIO.SET_FRONTEND_RADIO_ACTIVE(toggle)
+    AUDIO.SET_RADIO_STATION_MUSIC_ONLY('RADIO_18_90S_ROCK', true)
+    AUDIO.SET_RADIO_TO_STATION_NAME('RADIO_16_SILVERLAKE')
+    AUDIO._FORCE_RADIO_TRACK_LIST_POSITION("RADIO_16_SILVERLAKE", "MIRRORPARK_LOCKED", 3 * 61000)
 end
 local function scrollCreditsLine(textTable, index)
     local i = 0
