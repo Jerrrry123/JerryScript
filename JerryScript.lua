@@ -1359,6 +1359,16 @@ local whitelistedName = false
             whitelistListTable[pid] = nil --removes the player from the whitelist
         end)
 
+        menu.toggle_loop(players_root, 'No cops', {'JSnoCops'}, 'Automatically calls off the cops on anyone in your lobby when they get a wanted level.', function()
+            local playerList = players.list(true, true, true)
+            for i = 1, #playerList do
+                local wantedLvl = PLAYER.GET_PLAYER_WANTED_LEVEL(playerList[i])
+                if wantedLvl > 0 then
+                    util.trigger_script_event(1 << playerList[i], {1722873242, players.user(), 0, 0, util.current_time_millis(), 0, memory.read_int(memory.script_global(1893551 + (1 + (playerList[i] * 599) + 510)))})
+                end
+            end
+        end)
+
         menu.toggle_loop(players_root, 'No fly zone', {'JSnoFly'}, 'Forces all players in air born vehicles into the ground.', function()
             local playerList = getNonWhitelistedPlayers(whitelistListTable, whitelistGroups, whitelistedName)
             for i = 1, #playerList do
