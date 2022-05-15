@@ -298,15 +298,9 @@ local whitelistedName = false
     end)
 
     -----------------------------------
-    -- Ped customization
+    -- Fire wings
     -----------------------------------
-        --local custom_Ped_root = menu.list(self_root, 'Ped customization', {'JScustomPed'}, 'Options to customize how your ped looks, none of these options stick after game restart.')
-
-        local faceFeature = {0}
-        menu.slider(self_root, 'Customize face feature', {}, 'Set a value for the current face feature',0, 10, 1, 1, function(value)
-            PED._SET_PED_MICRO_MORPH_VALUE(PLAYER.PLAYER_PED_ID(), faceFeature[1], value/ 10)
-        end)
-
+        local fire_wings_list = menu.list(self_root,'Fire wings', {}, '', function()end)
         local fireWings = {
             [1] = {pos = {[1] = 120, [2] =  75}},
             [2] = {pos = {[1] = 120, [2] = -75}},
@@ -333,7 +327,7 @@ local whitelistedName = false
         end
         local ptfxEgg
         local firewingPtfx = 'muz_xs_turret_flamethrower_looping'
-        menu.toggle(self_root, 'Fire Wings', {'JSfireWings'}, 'Puts flames made of fire on your back', function (toggle)
+        menu.toggle(fire_wings_list, 'Fire Wings', {'JSfireWings'}, 'Puts flames made of fire on your back.', function (toggle)
             fireWingsSettings.on = toggle
             if fireWingsSettings.on then
                 ENTITY.SET_ENTITY_PROOFS(PLAYER.PLAYER_PED_ID(), false, true, false, false, false, false, 1, false)
@@ -379,14 +373,17 @@ local whitelistedName = false
             end
         end)
 
-        menu.slider(self_root, 'Fire wings scale', {'JSfireWingsScale'}, '', 1, 10, 3, 1, function(value)
+        menu.slider(fire_wings_list, 'Fire wings scale', {'JSfireWingsScale'}, '', 1, 10, 3, 1, function(value)
             fireWingsSettings.scale = value / 10
         end)
 
-        menu.colour(self_root, 'Fire wings colour', {'JSfireWingsColour'}, '', fireWingsSettings.fireColor, false, function(colour)
+        menu.colour(fire_wings_list, 'Fire wings colour', {'JSfireWingsColour'}, '', fireWingsSettings.fireColor, false, function(colour)
             fireWingsSettings.fireColor = colour
         end)
 
+    -----------------------------------
+    -- Ped customization
+    -----------------------------------
         local faceTable = {
             [0]  = 'Nose Width',
             [1]  = 'Nose Peak Hight',
@@ -406,10 +403,13 @@ local whitelistedName = false
             [15] = 'Chimp Bone Lowering',
             [16] = 'Chimp Bone Length',
         }
-        local face_feature_list = menu.list(self_root,'Current feature: Nose Width', {}, 'Choose a face feature to edit.', function()
-            if faceFeature[2] then menu.focus(faceFeature[2]) end
-        end)
-        generateTableListI(face_feature_list, faceTable, faceFeature, 'Current face feature: ', 0, unFocusLists)
+        local face_feature_list = menu.list(self_root,'Customize face features', {}, 'Customize the proportions of your players face.', function()end)
+
+        for i = 0, #faceTable do
+            menu.slider(face_feature_list, faceTable[i], {}, '',0, 10, 1, 1, function(value)
+                PED._SET_PED_MICRO_MORPH_VALUE(PLAYER.PLAYER_PED_ID(), i, value / 10)
+            end)
+        end
     -----------------------------------
     -- Ragdoll types
     -----------------------------------

@@ -115,19 +115,6 @@ end
             end)
         end
     end
-    --i only use this one once
-    function generateTableListI(list, table, value, label, index, unfocus)
-        for i = index, #table do
-            local option option = menu.action(list, table[i], {}, '', function()
-                value[1] = i
-                value[2] = option
-                menu.set_menu_name(list, label .. table[i])
-                if unfocus[1] then
-                    menu.focus(list)
-                end
-            end)
-        end
-    end
 
     function generateHudSettings(root, prefix, settingsTable)
         menu.slider(root, 'X position', {prefix..'XPos'}, '', -200, 0, settingsTable.xOffset, 1, function(value)
