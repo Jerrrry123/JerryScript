@@ -1870,13 +1870,14 @@ local runningTogglingOff = false
             end
         end)
 
-        --dosnt work
-        -- menu.toggle_loop(player_root, 'Give horn boost', {'JSgiveHornBoost'}, 'Gives '.. playerName ..' the ability to speed up their car by pressing honking their horn or activating the siren.', function()
-        --     local vehicle = PED.GET_VEHICLE_PED_IS_IN(playerPed, false)
-        --     if not (AUDIO.IS_HORN_ACTIVE(vehicle) or VEHICLE.IS_VEHICLE_SIREN_ON(vehicle)) then return end
-        --     NETWORK.NETWORK_REQUEST_CONTROL_OF_ENTITY(vehicle)
-        --     VEHICLE.SET_VEHICLE_FORWARD_SPEED(vehicle, ENTITY.GET_ENTITY_SPEED(vehicle) + hornBoostMultiplier)
-        -- end)
+        menu.toggle_loop(player_root, 'Give horn boost', {'JSgiveHornBoost'}, 'Gives '.. playerName ..' the ability to speed up their car by pressing honking their horn or activating the siren.', function()
+            local vehicle = PED.GET_VEHICLE_PED_IS_IN(playerPed, false)
+            if not (AUDIO.IS_HORN_ACTIVE(vehicle) or VEHICLE.IS_VEHICLE_SIREN_ON(vehicle)) then return end
+            NETWORK.NETWORK_REQUEST_CONTROL_OF_ENTITY(vehicle)
+            if AUDIO.IS_HORN_ACTIVE(vehicle) then
+                ENTITY.APPLY_FORCE_TO_ENTITY_CENTER_OF_MASS(vehicle, 1, 0.0, 1.0, 0.0, true, true, true, true)
+            end
+        end)
 
         -----------------------------------
         -- Give aim karma
