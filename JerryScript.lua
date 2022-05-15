@@ -307,6 +307,86 @@ local whitelistedName = false
             PED._SET_PED_MICRO_MORPH_VALUE(PLAYER.PLAYER_PED_ID(), faceFeature[1], value/ 10)
         end)
 
+        local fireWings = {
+            [1] = {pos = {[1] = 120, [2] =  75}},
+            [2] = {pos = {[1] = 120, [2] = -75}},
+            [3] = {pos = {[1] = 135, [2] =  75}},
+            [4] = {pos = {[1] = 135, [2] = -75}},
+            [5] = {pos = {[1] = 180, [2] =  75}},
+            [6] = {pos = {[1] = 180, [2] = -75}},
+            [7] = {pos = {[1] = 195, [2] =  75}},
+            [8] = {pos = {[1] = 195, [2] = -75}},
+        }
+        local fireWingsSettings = {
+            scale = 0.3,
+            fireColor = new.color(255 / 255, 127 / 255, 80 / 255, 1),
+            on = false
+        }
+        function set_entity_coords(entity, pos)
+            NETWORK.NETWORK_REQUEST_CONTROL_OF_ENTITY(entity)
+            while not NETWORK.NETWORK_HAS_CONTROL_OF_ENTITY(entity) do
+                NETWORK.NETWORK_REQUEST_CONTROL_OF_ENTITY(entity)
+                util.yield()
+            end
+            ENTITY.SET_ENTITY_VELOCITY(entity, 0, 0, 0)
+            ENTITY.SET_ENTITY_COORDS_NO_OFFSET(entity, pos.x, pos.y, pos.z)
+        end
+        local ptfxEgg
+        local firewingPtfx = 'muz_xs_turret_flamethrower_looping'
+        menu.toggle(self_root, 'Fire Wings', {'JSfireWings'}, 'Puts flames made of fire on your back', function (toggle)
+            fireWingsSettings.on = toggle
+            if fireWingsSettings.on then
+                ENTITY.SET_ENTITY_PROOFS(PLAYER.PLAYER_PED_ID(), false, true, false, false, false, false, 1, false)
+                if ptfxEgg == nil then
+                    local eggHash = 1803116220
+                    STREAMING.REQUEST_MODEL(eggHash)
+                    yieldModelLoad(eggHash)
+                    ptfxEgg = entities.create_object(eggHash, ENTITY.GET_ENTITY_COORDS(PLAYER.PLAYER_PED_ID(), true))
+                    ENTITY.SET_ENTITY_COLLISION(ptfxEgg, false, false)
+                    ENTITY.SET_ENTITY_VISIBLE(ptfxEgg, false)
+                    STREAMING.SET_MODEL_AS_NO_LONGER_NEEDED(eggHash)
+                end
+                for i = 1, #fireWings do
+                    while not STREAMING.HAS_NAMED_PTFX_ASSET_LOADED('weap_xs_vehicle_weapons') do
+                        STREAMING.REQUEST_NAMED_PTFX_ASSET('weap_xs_vehicle_weapons')
+                        util.yield()
+                    end
+                    GRAPHICS.USE_PARTICLE_FX_ASSET('weap_xs_vehicle_weapons')
+                    fireWings[i].ptfx = GRAPHICS.START_NETWORKED_PARTICLE_FX_LOOPED_ON_ENTITY(firewingPtfx, ptfxEgg, 0, 0, 0.1, fireWings[i].pos[1], 0, fireWings[i].pos[2], fireWingsSettings.scale, false, false, false)
+                    util.create_tick_handler(function()
+                        for i = 1, #fireWings do
+                            set_entity_coords(ptfxEgg, ENTITY.GET_ENTITY_COORDS(PLAYER.PLAYER_PED_ID(), true))
+                            local rot = ENTITY.GET_ENTITY_ROTATION(PLAYER.PLAYER_PED_ID(), 2)
+                            ENTITY.SET_ENTITY_ROTATION(ptfxEgg, rot.x, rot.y, rot.z, 2, true)
+                            GRAPHICS.SET_PARTICLE_FX_LOOPED_SCALE(fireWings[i].ptfx, fireWingsSettings.scale)
+                            GRAPHICS.SET_PARTICLE_FX_LOOPED_COLOUR(fireWings[i].ptfx, fireWingsSettings.fireColor.r, fireWingsSettings.fireColor.g, fireWingsSettings.fireColor.b)
+                        end
+                        return fireWingsSettings.on
+                    end)
+                end
+            else
+                for i = 1, #fireWings do
+                    if fireWings[i].ptfx then
+                        GRAPHICS.REMOVE_PARTICLE_FX(fireWings[i].ptfx, true)
+                        fireWings[i].ptfx = nil
+                    end
+                    if ptfxEgg then
+                        entities.delete_by_handle(ptfxEgg)
+                        ptfxEgg = nil
+                    end
+                end
+                STREAMING.REMOVE_NAMED_PTFX_ASSET('weap_xs_vehicle_weapons')
+            end
+        end)
+
+        menu.slider(self_root, 'Fire wings scale', {'JSfireWingsScale'}, '', 1, 10, 3, 1, function(value)
+            fireWingsSettings.scale = value / 10
+        end)
+
+        menu.colour(self_root, 'Fire wings colour', {'JSfireWingsColour'}, '', fireWingsSettings.fireColor, false, function(colour)
+            fireWingsSettings.fireColor = colour
+        end)
+
         local faceTable = {
             [0]  = 'Nose Width',
             [1]  = 'Nose Peak Hight',
