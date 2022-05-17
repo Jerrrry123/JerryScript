@@ -429,8 +429,8 @@ local whitelistedName = false
         local face_overlay_list = menu.list(self_root,'Customize face overlays', {}, 'Customizations reset after restarting the game.', function()end)
 
         for i = 0, #faceOverlays do
-            local value = PED._GET_PED_HEAD_OVERLAY_VALUE(PLAYER.PLAYER_PED_ID(), i)
-            menu.slider(face_overlay_list, faceOverlays[i].name, {}, '', faceOverlays[i].min, faceOverlays[i].max, (ovae == 255 and -1 or feature), 1, function(value)
+            local overlayValue = PED._GET_PED_HEAD_OVERLAY_VALUE(PLAYER.PLAYER_PED_ID(), i)
+            menu.slider(face_overlay_list, faceOverlays[i].name, {}, '', faceOverlays[i].min, faceOverlays[i].max, (overlayValue == 255 and -1 or overlayValue), 1, function(value)
                 PED.SET_PED_HEAD_OVERLAY(PLAYER.PLAYER_PED_ID(), i, (value == 255 and -1 or value), 1)
             end)
         end
