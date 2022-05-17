@@ -257,8 +257,8 @@ local whitelistedName = false
             menu.delete(blamesTogglesTable[pid])
             if expSettings.blamedPlayer == pid then
                 local playerList = players.list(true, true, true)
-                for i = 1, #playerList do
-                    menu.trigger_commands('JSexplodeLoop' .. players.get_name(playerList[i]) .. ' off')
+                for _, pid in pairs(playerList) do
+                    menu.trigger_commands('JSexplodeLoop' .. players.get_name(pid) .. ' off')
                 end
                 menu.trigger_command(explodeLoopAll, 'off')
                 expSettings.blamedPlayer = false
@@ -528,16 +528,16 @@ local whitelistedName = false
             if proxyStickySettings.players then
                 local specificWhitelistGroup = {user = false,  friends = whitelistGroups.friends, strangers = whitelistGroups.strangers}
                 local playerList = getNonWhitelistedPlayers(whitelistListTable, specificWhitelistGroup, whitelistedName)
-                for i = 1, #playerList do
-                    local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(playerList[i])
+                for _, pid in pairs(playerList) do
+                    local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
                     autoExplodeStickys(ped)
                 end
             end
             if proxyStickySettings.npcs then
                 local pedHandles = entities.get_all_peds_as_handles()
-                for i = 1, #pedHandles do
-                    if not PED.IS_PED_A_PLAYER(pedHandles[i]) then
-                        autoExplodeStickys(pedHandles[i])
+                for _, ped in pairs(pedHandles) do
+                    if not PED.IS_PED_A_PLAYER(ped) then
+                        autoExplodeStickys(ped)
                     end
                 end
             end
@@ -1398,16 +1398,16 @@ local whitelistedName = false
     -----------------------------------
         menu.action(players_root, 'Explode all', {'JSexplodeAll'}, 'Makes everyone explode.', function()
             local playerList = getNonWhitelistedPlayers(whitelistListTable, whitelistGroups, whitelistedName)
-            for i = 1, #playerList do
-                local playerPed = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(playerList[i])
+            for _, pid in pairs(playerList) do
+                local playerPed = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
                 explodePlayer(playerPed, false, expSettings)
             end
         end)
 
         explodeLoopAll = menu.toggle_loop(players_root, 'Explode all loop', {'JSexplodeAllLoop'}, 'Constantly explodes everyone.', function()
             local playerList = getNonWhitelistedPlayers(whitelistListTable, whitelistGroups, whitelistedName)
-            for i = 1, #playerList do
-                local playerPed = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(playerList[i])
+            for _, pid in pairs(playerList) do
+                local playerPed = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
                 explodePlayer(playerPed, true, expSettings)
             end
             util.yield(getTotalDelay(expLoopDelay))
@@ -1427,14 +1427,14 @@ local whitelistedName = false
     }
     menu.toggle_loop(players_root, 'Orbital cannon detection', {'JSorbDetection'}, 'Tells you when anyone starts using the orbital cannon', function()
         local playerList = players.list(false, true, true)
-        for i = 1, #playerList do
-            local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(playerList[i])
+        for _, pid in pairs(playerList) do
+            local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
             if TASK.GET_IS_TASK_ACTIVE(ped, 135) and ENTITY.GET_ENTITY_SPEED(ped) == 0 then
-                util.toast(players.get_name(playerList[i]) ..' using the right tasks')
-                local pos = NETWORK._NETWORK_GET_PLAYER_COORDS(playerList[i])
+                util.toast(players.get_name(pid) ..' using the right tasks')
+                local pos = NETWORK._NETWORK_GET_PLAYER_COORDS(pid)
                 for j = 1, #orbitalTableCords do
                     if roundDecimals(pos.x, 3) == roundDecimals(orbitalTableCords[j].x, 3) and roundDecimals(pos.y, 3) == roundDecimals(orbitalTableCords[j].y, 3) and roundDecimals(pos.z, 3) == roundDecimals(orbitalTableCords[j].z, 3) then
-                        util.show_corner_help(players.get_name(playerList[i]) ..' is using the orbital cannon')
+                        util.show_corner_help(players.get_name(pid) ..' is using the orbital cannon')
                     end
                 end
             end
@@ -1538,8 +1538,8 @@ local whitelistedName = false
 
     menu.toggle_loop(players_root, 'No fly zone', {'JSnoFly'}, 'Forces all players in air born vehicles into the ground.', function()
         local playerList = getNonWhitelistedPlayers(whitelistListTable, whitelistGroups, whitelistedName)
-        for i = 1, #playerList do
-            local playerPed = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(playerList[i])
+        for _, pid in pairs(playerList) do
+            local playerPed = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
             local playerVehicle = PED.GET_VEHICLE_PED_IS_IN(playerPed, false)
             if ENTITY.IS_ENTITY_IN_AIR(playerVehicle) then
                 NETWORK.NETWORK_REQUEST_CONTROL_OF_ENTITY(playerVehicle)
