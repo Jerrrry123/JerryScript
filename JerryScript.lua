@@ -384,7 +384,7 @@ local whitelistedName = false
     -----------------------------------
     -- Ped customization
     -----------------------------------
-        local faceTable = {
+        local faceFeatures = {
             [0]  = 'Nose Width',
             [1]  = 'Nose Peak Hight',
             [2]  = 'Nose Peak Length',
@@ -403,13 +403,38 @@ local whitelistedName = false
             [15] = 'Chimp Bone Lowering',
             [16] = 'Chimp Bone Length',
         }
-        local face_feature_list = menu.list(self_root,'Customize face features', {}, 'Customize the proportions of your players face.', function()end)
+        local face_feature_list = menu.list(self_root,'Customize face features', {}, 'Customizations reset after restarting the game.', function()end)
 
-        for i = 0, #faceTable do
-            menu.slider(face_feature_list, faceTable[i], {}, '',0, 10, 1, 1, function(value)
+        for i = 0, #faceFeatures do
+            menu.slider(face_feature_list, faceFeatures[i], {}, '',0, 10, 1, 1, function(value)
                 PED._SET_PED_MICRO_MORPH_VALUE(PLAYER.PLAYER_PED_ID(), i, value / 10)
             end)
         end
+
+        local faceOverlays = {
+            [0]  = { name = 'Blemishes',          min = -1, max = 23 },
+            [1]  = { name = 'Facial Hair',        min = -1, max = 28 },
+            [2]  = { name = 'Eyebrows',           min = -1, max = 33 },
+            [3]  = { name = 'Ageing',             min = -1, max = 14 },
+            [4]  = { name = 'Makeup',             min = -1, max = 74 },
+            [5]  = { name = 'Blush',              min = -1, max = 6  },
+            [6]  = { name = 'Complexion',         min = -1, max = 11 },
+            [7]  = { name = 'Sun Damage',         min = -1, max = 10 },
+            [8]  = { name = 'Lipstick',           min = -1, max = 9  },
+            [9]  = { name = 'Moles/Freckles',     min = -1, max = 17 },
+            [10] = { name = 'Chest Hair',         min = -1, max = 16 },
+            [11] = { name = 'Body Blemishes',     min = -1, max = 11 },
+            [12] = { name = 'Add Body Blemishes', min = -1, max = 1  },
+        }
+        local face_overlay_list = menu.list(self_root,'Customize face overlays', {}, 'Customizations reset after restarting the game.', function()end)
+
+        for i = 0, #faceOverlays do
+            local value = PED._GET_PED_HEAD_OVERLAY_VALUE(PLAYER.PLAYER_PED_ID(), i)
+            menu.slider(face_overlay_list, faceOverlays[i].name, {}, '', faceOverlays[i].min, faceOverlays[i].max, (ovae == 255 and -1 or feature), 1, function(value)
+                PED.SET_PED_HEAD_OVERLAY(PLAYER.PLAYER_PED_ID(), i, (value == 255 and -1 or value), 1)
+            end)
+        end
+
     -----------------------------------
     -- Ragdoll types
     -----------------------------------
