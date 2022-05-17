@@ -300,7 +300,7 @@ local whitelistedName = false
     -----------------------------------
     -- Fire wings
     -----------------------------------
-        local fire_wings_list = menu.list(self_root,'Fire wings', {}, '', function()end)
+        local fire_wings_list = menu.list(self_root,'Fire wings', {}, '')
         local fireWings = {
             [1] = {pos = {[1] = 120, [2] =  75}},
             [2] = {pos = {[1] = 120, [2] = -75}},
@@ -403,7 +403,7 @@ local whitelistedName = false
             [15] = 'Chimp Bone Lowering',
             [16] = 'Chimp Bone Length',
         }
-        local face_feature_list = menu.list(self_root,'Customize face features', {}, 'Customizations reset after restarting the game.', function()end)
+        local face_feature_list = menu.list(self_root,'Customize face features', {}, 'Customizations reset after restarting the game.')
 
         for i = 0, #faceFeatures do
             menu.slider(face_feature_list, faceFeatures[i], {}, '',0, 10, 1, 1, function(value)
@@ -417,14 +417,14 @@ local whitelistedName = false
             [2]  = { name = 'Eyebrows',           min = -1, max = 33 },
             [3]  = { name = 'Ageing',             min = -1, max = 14 },
             [4]  = { name = 'Makeup',             min = -1, max = 74 },
-            [5]  = { name = 'Blush',              min = -1, max =  6 },
+            [5]  = { name = 'Blush',              min = -1, max = 6  },
             [6]  = { name = 'Complexion',         min = -1, max = 11 },
             [7]  = { name = 'Sun Damage',         min = -1, max = 10 },
-            [8]  = { name = 'Lipstick',           min = -1, max =  9 },
+            [8]  = { name = 'Lipstick',           min = -1, max = 9  },
             [9]  = { name = 'Moles/Freckles',     min = -1, max = 17 },
             [10] = { name = 'Chest Hair',         min = -1, max = 16 },
             [11] = { name = 'Body Blemishes',     min = -1, max = 11 },
-            [12] = { name = 'Add Body Blemishes', min = -1, max =  1 },
+            [12] = { name = 'Add Body Blemishes', min = -1, max = 1  },
         }
         local face_overlay_list = menu.list(self_root,'Customize face overlays', {}, 'Customizations reset after restarting the game.', function()end)
 
@@ -1254,7 +1254,7 @@ local whitelistedName = false
     ----------------------------------
     -- Time trial
     ----------------------------------
-        local tt_root = menu.list(online_root, 'Time trials', {'JStt'}, '', function()end)
+        local tt_root = menu.list(online_root, 'Time trials', {'JStt'}, '')
 
         menu.toggle_loop(tt_root, 'Best rc time trial time', {'JSbestRcTT'}, '', function()
             util.toast('Best Time: ' .. ttTimeToString(STAT_GET_INT_MPPLY('mpply_rcttbesttime')))
