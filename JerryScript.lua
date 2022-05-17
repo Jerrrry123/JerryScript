@@ -1399,6 +1399,40 @@ local whitelistedName = false
             end
         end)
 
+        local markedPlayers = {}
+        local function unMarkPlayers()
+            local playerList = players.list(false, true, true)
+            for i, pid in pairs(playerList) do
+                if markedPlayers[pid] then
+                    HUD.SET_BLIP_ALPHA(markedPlayers[pid], 0)
+                end
+            end
+        end
+        local otrBlipColor = 58
+        menu.toggle_loop(players_root, 'Colored otr reveal', {'JScoloredOtrReveal'}, 'Marks otr players with colored blips.', function()
+            local playerList = players.list(false, true, true)
+            for i, pid in pairs(playerList) do
+                if players.is_otr(pid) and not markedPlayers[pid] then
+                    local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
+                    markedPlayers[pid] = HUD.ADD_BLIP_FOR_ENTITY(ped)
+                    HUD.SET_BLIP_COLOUR(markedPlayers[pid], otrBlipColor)
+                elseif players.is_otr(pid) then
+                    HUD.SET_BLIP_COLOUR(markedPlayers[pid], otrBlipColor)
+                    HUD.SET_BLIP_ALPHA(markedPlayers[pid], 9999999999)
+                elseif not players.is_otr(pid) and markedPlayers[pid] then
+                    HUD.SET_BLIP_ALPHA(markedPlayers[pid], 0)
+                end
+            end
+        end, function()
+            unMarkPlayers()
+        end)
+        menu.slider(players_root, 'Otr reveal color', {}, '',1, 84, otrBlipColor, 1, function(value)
+            otrBlipColor = value
+        end)
+        util.on_stop(function()
+            unMarkPlayers()
+        end)
+
     -----------------------------------
     -- Explosions
     -----------------------------------
