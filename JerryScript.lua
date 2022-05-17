@@ -52,80 +52,80 @@ local whitelistedName = false
         local piSettings = new.hudSettings(-151, 1, 3)
         generateHudSettings(pi_settings_root, 'PI', piSettings)
 
-    ----------------------------------
-    -- Player info toggles
-    ----------------------------------
-        local pi_display_options_root = menu.list(pi_settings_root, 'Display options', {'PIDisplay'}, '')
+        ----------------------------------
+        -- Player info toggles
+        ----------------------------------
+            local pi_display_options_root = menu.list(pi_settings_root, 'Display options', {'PIDisplay'}, '')
 
-        local playerInfoTogglesOptions = {
-            {
-                name = 'Disable name', command = 'PIdisableName', description = '', toggle = true,
-                displayText = function(pid) return 'Player: ' .. players.get_name(pid) end
-            },
-            {
-                name = 'Disable weapon', command = 'PIdisableWeapon', description = '', toggle = true,
-                displayText = function(pid, ped, weaponHash)
-                    local weaponName = getWeaponName(weaponHash)
-                    return weaponName and 'Weapon: '.. weaponName
-                end
-            },
-            {
-                name = 'Disable ammo info', command = 'PIdisableAmmo', description = '', toggle = true,
-                displayText = function(pid, ped, weaponHash)
-                    local damageType = WEAPON.GET_WEAPON_DAMAGE_TYPE(weaponHash)
-                    if not (damageType == 12 or damageType == 1 or damageType == 3 or damageType == 5 or damageType == 13) or util.joaat('weapon_raypistol') == weaponHash then return end
-                    local ammoCount
-                    local ammo_ptr = memory.alloc_int()
-                    if WEAPON.GET_AMMO_IN_CLIP(ped, weaponHash, ammo_ptr) and WEAPON.GET_WEAPONTYPE_GROUP(weaponHash) ~= util.joaat('GROUP_THROWN') then
-                        ammoCount = memory.read_int(ammo_ptr)
-                        memory.free(ammo_ptr)
-                        local clipSize = WEAPON.GET_MAX_AMMO_IN_CLIP(ped, weaponHash, 1)
-                        return ammoCount and 'Clip: ' .. ammoCount .. ' / ' .. clipSize
+            local playerInfoTogglesOptions = {
+                {
+                    name = 'Disable name', command = 'PIdisableName', description = '', toggle = true,
+                    displayText = function(pid) return 'Player: ' .. players.get_name(pid) end
+                },
+                {
+                    name = 'Disable weapon', command = 'PIdisableWeapon', description = '', toggle = true,
+                    displayText = function(pid, ped, weaponHash)
+                        local weaponName = getWeaponName(weaponHash)
+                        return weaponName and 'Weapon: '.. weaponName
                     end
-                end
-            },
-            {   name = 'Disable damage type', command = 'PIdisableDamage', description = 'Displays the type of damage the players weapon does, like melee / fire / bullets / mk2 ammo.', toggle = true,
-                displayText = function(pid, ped, weaponHash)
-                    local damageType = getDamageType(ped, weaponHash)
-                    return damageType and 'Damage type: ' .. damageType
-                end
-            },
-            {
-                name = 'Disable vehicle', command = 'PIdisableVehicle', description = '', toggle = true,
-                displayText = function(pid, ped)
-                    local vehicleName = getPlayerVehicleName(ped)
-                    return vehicleName and 'Vehicle: ' .. vehicleName
-                end
-            },
-            {
-                name = 'Disable score', command = 'PIdisableScore', description = 'Only shows when you or they have kills.', toggle = true,
-                displayText = function(pid)
-                    local myScore = GET_INT_GLOBAL(2863967 + 386 + 1 + pid)
-                    local theirScore = GET_INT_GLOBAL(2863967 + 353 + 1 + pid)
-                    return (myScore > 0 or theirScore > 0) and (myScore ..' Vs '.. theirScore) --only returns score if either part has kills
-                end
-            },
-            {
-                name = 'Disable moving indicator', command = 'PIdisableMovement', description = '', toggle = true,
-                displayText = function(pid, ped)
-                    local movement = getMovementType(ped)
-                    return movement and 'Player is ' .. movement
-                end
-            },
-            {
-                name = 'Disable aiming indicator', command = 'PIdisableAiming', description = '', toggle = true,
-                displayText = function(pid)
-                    return PLAYER.IS_PLAYER_TARGETTING_ENTITY(pid, PLAYER.PLAYER_PED_ID()) and 'Player is aiming at you'
-                end
-            },
-            {
-                name = 'Disable reload indicator', command = 'PIdisableReload', description = '', toggle = true,
-                displayText = function(pid, ped)
-                    return PED.IS_PED_RELOADING(ped) and 'Player is reloading'
-                end
-            },
-        }
-        generateToggles(playerInfoTogglesOptions, pi_display_options_root, true)
+                },
+                {
+                    name = 'Disable ammo info', command = 'PIdisableAmmo', description = '', toggle = true,
+                    displayText = function(pid, ped, weaponHash)
+                        local damageType = WEAPON.GET_WEAPON_DAMAGE_TYPE(weaponHash)
+                        if not (damageType == 12 or damageType == 1 or damageType == 3 or damageType == 5 or damageType == 13) or util.joaat('weapon_raypistol') == weaponHash then return end
+                        local ammoCount
+                        local ammo_ptr = memory.alloc_int()
+                        if WEAPON.GET_AMMO_IN_CLIP(ped, weaponHash, ammo_ptr) and WEAPON.GET_WEAPONTYPE_GROUP(weaponHash) ~= util.joaat('GROUP_THROWN') then
+                            ammoCount = memory.read_int(ammo_ptr)
+                            memory.free(ammo_ptr)
+                            local clipSize = WEAPON.GET_MAX_AMMO_IN_CLIP(ped, weaponHash, 1)
+                            return ammoCount and 'Clip: ' .. ammoCount .. ' / ' .. clipSize
+                        end
+                    end
+                },
+                {   name = 'Disable damage type', command = 'PIdisableDamage', description = 'Displays the type of damage the players weapon does, like melee / fire / bullets / mk2 ammo.', toggle = true,
+                    displayText = function(pid, ped, weaponHash)
+                        local damageType = getDamageType(ped, weaponHash)
+                        return damageType and 'Damage type: ' .. damageType
+                    end
+                },
+                {
+                    name = 'Disable vehicle', command = 'PIdisableVehicle', description = '', toggle = true,
+                    displayText = function(pid, ped)
+                        local vehicleName = getPlayerVehicleName(ped)
+                        return vehicleName and 'Vehicle: ' .. vehicleName
+                    end
+                },
+                {
+                    name = 'Disable score', command = 'PIdisableScore', description = 'Only shows when you or they have kills.', toggle = true,
+                    displayText = function(pid)
+                        local myScore = GET_INT_GLOBAL(2863967 + 386 + 1 + pid)
+                        local theirScore = GET_INT_GLOBAL(2863967 + 353 + 1 + pid)
+                        return (myScore > 0 or theirScore > 0) and (myScore ..' Vs '.. theirScore) --only returns score if either part has kills
+                    end
+                },
+                {
+                    name = 'Disable moving indicator', command = 'PIdisableMovement', description = '', toggle = true,
+                    displayText = function(pid, ped)
+                        local movement = getMovementType(ped)
+                        return movement and 'Player is ' .. movement
+                    end
+                },
+                {
+                    name = 'Disable aiming indicator', command = 'PIdisableAiming', description = '', toggle = true,
+                    displayText = function(pid)
+                        return PLAYER.IS_PLAYER_TARGETTING_ENTITY(pid, PLAYER.PLAYER_PED_ID()) and 'Player is aiming at you'
+                    end
+                },
+                {
+                    name = 'Disable reload indicator', command = 'PIdisableReload', description = '', toggle = true,
+                    displayText = function(pid, ped)
+                        return PED.IS_PED_RELOADING(ped) and 'Player is reloading'
+                    end
+                },
+            }
+            generateToggles(playerInfoTogglesOptions, pi_display_options_root, true)
 
     -----------------------------------
     -- Safe monitor settings
@@ -892,12 +892,12 @@ local whitelistedName = false
         -----------------------------------
         -- Nitro
         -----------------------------------
-            local nitro_root = menu.list(boosts_root, 'Nitro', {}, '')
+            menu.divider(boosts_root, 'Nitro')
 
             local nitroSettings = {level = new.delay(500, 2, 0), power = 1, rechargeTime = new.delay(200, 1, 0)}
 
             local nitroBoostActive = false
-            menu.toggle(nitro_root, 'Enable nitro', {'JSnitro'}, 'Enable nitro boost on any vehicle, use it by pressing "X".', function(toggle)
+            menu.toggle(boosts_root, 'Enable nitro', {'JSnitro'}, 'Enable nitro boost on any vehicle, use it by pressing "X".', function(toggle)
                 nitroBoostActive = toggle
                 if not STREAMING.HAS_NAMED_PTFX_ASSET_LOADED('veh_xs_vehicle_mods') then
                     STREAMING.REQUEST_NAMED_PTFX_ASSET('veh_xs_vehicle_mods')
@@ -915,16 +915,16 @@ local whitelistedName = false
                 end
             end)
 
-            local nitro_duration_root = menu.list(nitro_root, 'Duration: '.. getDelayDisplayValue(nitroSettings.level), {'JSnitroDuration'}, 'Lets you set a customize how long the nitro lasts.')
+            local nitro_duration_root = menu.list(boosts_root, 'Duration: '.. getDelayDisplayValue(nitroSettings.level), {'JSnitroDuration'}, 'Lets you set a customize how long the nitro lasts.')
             generateDelaySettings(nitro_duration_root, 'Duration', nitroSettings.level)
 
-            local nitro_recharge_root = menu.list(nitro_root, 'Recharge time: '.. getDelayDisplayValue(nitroSettings.rechargeTime), {'JSnitroRecharge'}, 'Lets you set a custom delay of how long it takes for nitro to recharge.')
+            local nitro_recharge_root = menu.list(boosts_root, 'Recharge time: '.. getDelayDisplayValue(nitroSettings.rechargeTime), {'JSnitroRecharge'}, 'Lets you set a custom delay of how long it takes for nitro to recharge.')
             generateDelaySettings(nitro_recharge_root, 'Recharge time', nitroSettings.rechargeTime)
 
         -----------------------------------
         -- Shunt boost
         -----------------------------------
-            local shunt_root = menu.list(boosts_root, 'Shunt boost', {'JSshunt'}, '')
+            menu.divider(boosts_root, 'Shunt boost')
 
             local shuntSettings = {
                 maxForce = 30, force = 30, disableRecharge = false,
@@ -950,7 +950,7 @@ local whitelistedName = false
                 AUDIO.PLAY_SOUND_FROM_ENTITY(-1, 'Hydraulics_Down', PLAYER.PLAYER_PED_ID(), 'Lowrider_Super_Mod_Garage_Sounds', true, 20)
                 forceRecharge()
             end
-            menu.toggle_loop(shunt_root, 'Shunt boost', {'JSshuntBoost'}, 'Lets you shunt boost in any vehicle by double tapping "A" or "D".', function()
+            menu.toggle_loop(boosts_root, 'Shunt boost', {'JSshuntBoost'}, 'Lets you shunt boost in any vehicle by double tapping "A" or "D".', function()
                 util.create_thread(function()
                     if VEHICLE.GET_PED_IN_VEHICLE_SEAT(my_cur_car, -1, false) == PLAYER.PLAYER_PED_ID() and PED.IS_PED_IN_VEHICLE(PLAYER.PLAYER_PED_ID(), my_cur_car, true) then
                         if PAD.IS_CONTROL_JUST_PRESSED(2, 35) then --D
@@ -970,10 +970,10 @@ local whitelistedName = false
                 end)
             end)
 
-            menu.toggle(shunt_root, 'Disable recharge', {'JSnoShutRecharge'}, 'Removes the force build-up of the shunt boost.', function(toggle)
+            menu.toggle(boosts_root, 'Disable recharge', {'JSnoShutRecharge'}, 'Removes the force build-up of the shunt boost.', function(toggle)
                 shuntSettings.disableRecharge = toggle
             end)
-            menu.slider(shunt_root, 'Force', {'JSshuntForce'}, 'How much force is applied to your car.', 0, 1000, 30, 1, function(value)
+            menu.slider(boosts_root, 'Force', {'JSshuntForce'}, 'How much force is applied to your car.', 0, 1000, 30, 1, function(value)
                 shuntSettings.maxForce = value
             end)
 
@@ -1365,63 +1365,6 @@ local whitelistedName = false
             whitelistListTable[pid] = nil --removes the player from the whitelist
         end)
 
-        menu.toggle_loop(players_root, 'No fly zone', {'JSnoFly'}, 'Forces all players in air born vehicles into the ground.', function()
-            local playerList = getNonWhitelistedPlayers(whitelistListTable, whitelistGroups, whitelistedName)
-            for i = 1, #playerList do
-                local playerPed = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(playerList[i])
-                local playerVehicle = PED.GET_VEHICLE_PED_IS_IN(playerPed, false)
-                if ENTITY.IS_ENTITY_IN_AIR(playerVehicle) then
-                    NETWORK.NETWORK_REQUEST_CONTROL_OF_ENTITY(playerVehicle)
-                    ENTITY.APPLY_FORCE_TO_ENTITY(playerVehicle, 1, 0, 0, -0.8, 0, 0, 0.5, 0, false, false, true)
-                    if notifications then
-                        util.toast('Applied force')
-                    end
-                end
-            end
-        end)
-
-        local markedPlayers = {}
-        local function unMarkPlayers()
-            local playerList = players.list(false, true, true)
-            for i, pid in pairs(playerList) do
-                if markedPlayers[pid] then
-                    HUD.SET_BLIP_ALPHA(markedPlayers[pid], 0)
-                end
-            end
-        end
-        local otrBlipColor = 58
-        menu.toggle_loop(players_root, 'Colored otr reveal', {'JScoloredOtrReveal'}, 'Marks otr players with colored blips.', function()
-            local playerList = players.list(false, true, true)
-            for i, pid in pairs(playerList) do
-                if players.is_otr(pid) and not markedPlayers[pid] then
-                    local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
-                    markedPlayers[pid] = HUD.ADD_BLIP_FOR_ENTITY(ped)
-                    HUD.SET_BLIP_COLOUR(markedPlayers[pid], otrBlipColor)
-                    HUD.SHOW_HEADING_INDICATOR_ON_BLIP(markedPlayers[pid], true)
-                elseif players.is_otr(pid) then
-                    HUD.SET_BLIP_COLOUR(markedPlayers[pid], otrBlipColor)
-                    HUD.SET_BLIP_ALPHA(markedPlayers[pid], 9999999999)
-                elseif not players.is_otr(pid) and markedPlayers[pid] then
-                    HUD.SET_BLIP_ALPHA(markedPlayers[pid], 0)
-                end
-            end
-        end, function()
-            unMarkPlayers()
-        end)
-
-        local otr_color_slider = menu.slider(players_root, 'otr reveal color', {'JSortRevealColor'}, '',1, 81, otrBlipColor, 1, function(value)
-            otrBlipColor = value + (value > 71 and 1 or 0) + (value > 77 and 2 or 0)
-        end)
-
-        menu.toggle_loop(players_root, 'Otr rgb reveal', {'JSortRgbReveal'}, '', function()
-            menu.trigger_command(otr_color_slider, (otrBlipColor == 84 and 1 or otrBlipColor + 1))
-            util.yield(250)
-        end)
-
-        util.on_stop(function()
-            unMarkPlayers()
-        end)
-
     -----------------------------------
     -- Explosions
     -----------------------------------
@@ -1440,6 +1383,53 @@ local whitelistedName = false
                 explodePlayer(playerPed, true, expSettings)
             end
             util.yield(getTotalDelay(expLoopDelay))
+        end)
+
+    -----------------------------------
+    -- Colored otr reveal
+    -----------------------------------
+        local colored_otr_root = menu.list(players_root, 'Colored otr reveal', {}, '')
+
+        local markedPlayers = {}
+        local function unMarkPlayers()
+            local playerList = players.list(false, true, true)
+            for i, pid in pairs(playerList) do
+                if markedPlayers[pid] then
+                    HUD.SET_BLIP_ALPHA(markedPlayers[pid], 0)
+                end
+            end
+        end
+        local otrBlipColor = 58
+        menu.toggle_loop(colored_otr_root, 'Colored otr reveal', {'JScoloredOtrReveal'}, 'Marks otr players with colored blips.', function()
+            local playerList = players.list(false, true, true)
+            for i, pid in pairs(playerList) do
+                if players.is_otr(pid) and not markedPlayers[pid] then
+                    local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
+                    markedPlayers[pid] = HUD.ADD_BLIP_FOR_ENTITY(ped)
+                    HUD.SET_BLIP_COLOUR(markedPlayers[pid], otrBlipColor)
+                    HUD.SHOW_HEADING_INDICATOR_ON_BLIP(markedPlayers[pid], true)
+                elseif players.is_otr(pid) then
+                    HUD.SET_BLIP_COLOUR(markedPlayers[pid], otrBlipColor)
+                    HUD.SET_BLIP_ALPHA(markedPlayers[pid], 9999999999)
+                elseif not players.is_otr(pid) and markedPlayers[pid] then
+                    HUD.SET_BLIP_ALPHA(markedPlayers[pid], 0)
+                end
+            end
+        end, function()
+            unMarkPlayers()
+        end)
+
+        local otr_color_slider = menu.slider(colored_otr_root, 'otr reveal color', {'JSortRevealColor'}, '',1, 81, otrBlipColor, 1, function(value)
+            otrBlipColor = value + (value > 71 and 1 or 0) + (value > 77 and 2 or 0)
+        end)
+
+        menu.toggle_loop(colored_otr_root, 'Otr rgb reveal', {'JSortRgbReveal'}, '', function()
+            menu.trigger_command(otr_color_slider, (otrBlipColor == 84 and 1 or otrBlipColor + 1))
+            util.yield(250)
+        end)
+
+        util.on_stop(function()
+            unMarkPlayers()
         end)
 
     -----------------------------------
@@ -1475,19 +1465,35 @@ local whitelistedName = false
                 return (all_torque ~= 1000)
             end)
         end)
+    -----------------------------------
 
-        menu.toggle(players_root, 'Force surface all subs', {'JSforceSurfaceAll'}, 'Forces all Kosatkas to the surface.\nNot compatible with the whitelist.', function(toggle)
-            local vehHandles = entities.get_all_vehicles_as_handles()
-            local surfaced = 0
-            for i = 1, #vehHandles do
-                if ENTITY.GET_ENTITY_MODEL(vehHandles[i]) == 1336872304 then -- if Kosatka
-                    VEHICLE.FORCE_SUBMARINE_SURFACE_MODE(vehHandles[i], toggle)
-                    surfaced = surfaced + 1
+    menu.toggle(players_root, 'Force surface all subs', {'JSforceSurfaceAll'}, 'Forces all Kosatkas to the surface.\nNot compatible with the whitelist.', function(toggle)
+        local vehHandles = entities.get_all_vehicles_as_handles()
+        local surfaced = 0
+        for i = 1, #vehHandles do
+            if ENTITY.GET_ENTITY_MODEL(vehHandles[i]) == 1336872304 then -- if Kosatka
+                VEHICLE.FORCE_SUBMARINE_SURFACE_MODE(vehHandles[i], toggle)
+                surfaced = surfaced + 1
+            end
+        end
+        if toggle and notifications then util.toast('Surfaced '..surfaced..' subs') end
+    end)
+
+
+    menu.toggle_loop(players_root, 'No fly zone', {'JSnoFly'}, 'Forces all players in air born vehicles into the ground.', function()
+        local playerList = getNonWhitelistedPlayers(whitelistListTable, whitelistGroups, whitelistedName)
+        for i = 1, #playerList do
+            local playerPed = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(playerList[i])
+            local playerVehicle = PED.GET_VEHICLE_PED_IS_IN(playerPed, false)
+            if ENTITY.IS_ENTITY_IN_AIR(playerVehicle) then
+                NETWORK.NETWORK_REQUEST_CONTROL_OF_ENTITY(playerVehicle)
+                ENTITY.APPLY_FORCE_TO_ENTITY(playerVehicle, 1, 0, 0, -0.8, 0, 0, 0.5, 0, false, false, true)
+                if notifications then
+                    util.toast('Applied force')
                 end
             end
-            if toggle and notifications then util.toast('Surfaced '..surfaced..' subs') end
-        end)
-    -----------------------------------
+        end
+    end)
 
     menu.toggle_loop(players_root, 'Shoot gods', {'JSshootGods'}, 'Disables godmode for other players when aiming at them. Mostly works on trash menus.', function()
         local playerList = getNonWhitelistedPlayers(whitelistListTable, whitelistGroups, whitelistedName)
