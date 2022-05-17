@@ -1564,6 +1564,10 @@ local whitelistedName = false
         end
     end)
 
+    menu.toggle(world_root, 'Enable footsteps', {'JSfootSteps'}, 'Enables foot prints on all surfaces.', function(toggle)
+        GRAPHICS._SET_FORCE_PED_FOOTSTEPS_TRACKS(toggle)
+    end)
+
     menu.toggle_loop(world_root, 'Disable all map notifications', {'JSnoMapNotifications'}, 'Removes that constant spam.', function()
         HUD.THEFEED_HIDE_THIS_FRAME()
     end)
