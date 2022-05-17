@@ -1427,19 +1427,18 @@ local whitelistedName = false
         end, function()
             unMarkPlayers()
         end)
-
-        local otr_color_slider = menu.slider(players_root, 'Otr reveal color', {}, '',1, 84, otrBlipColor, 1, function(value)
-            otrBlipColor = value
+        local otr_color_slider = menu.slider(players_root, 'otr reveal color', {}, '',1, 81, otrBlipColor, 1, function(value)
+            otrBlipColor = value + (value > 71 and 1 or 0) + (value > 77 and 2 or 0)
         end)
-
         menu.toggle_loop(players_root, 'Otr rgb reveal', {}, '', function()
             menu.trigger_command(otr_color_slider, (otrBlipColor == 84 and 1 or otrBlipColor + 1))
-            util.yield(100)
+            util.yield(250)
         end)
 
         util.on_stop(function()
             unMarkPlayers()
         end)
+
     -----------------------------------
     -- Explosions
     -----------------------------------
