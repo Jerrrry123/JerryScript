@@ -600,7 +600,8 @@ local whitelistedName = false
     end
 
     --credit to lance for the entity gun, but i edited it a bit
-    local nuke_gun_toggle = menu.toggle(weapons_root, 'Nuke gun', {'JSnukeGun'}, 'Makes the rpg fire nukes', function(toggle)
+    local nuke_gun_root = menu.list(weapons_root, 'Nuke options', {}, '')
+    local nuke_gun_toggle = menu.toggle(nuke_gun_root, 'Nuke gun', {'JSnukeGun'}, 'Makes the rpg fire nukes', function(toggle)
         nuke_running = toggle
         if nuke_running then
             if animals_running then menu.trigger_command(exp_animal_toggle, 'off') end
@@ -647,7 +648,7 @@ local whitelistedName = false
         end
     end
 
-    menu.action(weapons_root, 'Nuke waypoint', {'JSnukeWP'}, 'Drops a nuke on your selected Waypoint.', function ()
+    menu.action(nuke_gun_root, 'Nuke waypoint', {'JSnukeWP'}, 'Drops a nuke on your selected Waypoint.', function ()
         local waypointPos = get_waypoint_pos2()
         if waypointPos then
             local hash = util.joaat('w_arena_airmissile_01a')
@@ -663,13 +664,14 @@ local whitelistedName = false
             executeNuke(waypointPos)
         end
     end)
-    menu.slider(weapons_root, 'Nuke height', {'JSnukeHeight'}, 'Drops a nuke on your selected Waypoint.', 10, 100, nuke_height, 10, function(value)
+    menu.slider(nuke_gun_root, 'Nuke height', {'JSnukeHeight'}, 'Drops a nuke on your selected Waypoint.', 10, 100, nuke_height, 10, function(value)
         nuke_height = value
     end)
 
     --this is heavily skidded from wiriScript so credit to wiri
     local launcherThrowable = {util.joaat('weapon_grenade')}
-    local grenade_gun_toggle = menu.toggle(weapons_root, 'Throwables launcher', {'JSgrenade'}, 'Makes the grenade launcher able to shoot throwables, gives you the throwable if you don\'t have it so you can shoot it..', function(toggle)
+    local throwables_launcher_root = menu.list(weapons_root, 'Throwables launcher', {}, '')
+    local grenade_gun_toggle = menu.toggle(throwables_launcher_root, 'Throwables launcher', {'JSgrenade'}, 'Makes the grenade launcher able to shoot throwables, gives you the throwable if you don\'t have it so you can shoot it..', function(toggle)
         grenade_running = toggle
         if grenade_running then
             if animals_running then menu.trigger_command(exp_animal_toggle, "off") end
@@ -713,7 +715,7 @@ local whitelistedName = false
         Ball = util.joaat('weapon_ball'),
         Pipe_Bomb = util.joaat('weapon_pipebomb'),
     }
-    local throwable_list = menu.list(weapons_root, 'Current throwable: Grenade', {}, 'Choose what animal the explosive animal gun has.', function()
+    local throwable_list = menu.list(throwables_launcher_root, 'Current throwable: Grenade', {}, 'Choose what animal the explosive animal gun has.', function()
         if launcherThrowable[2] then menu.focus(launcherThrowable[2]) end
     end)
     generateTableList(throwable_list, throwablesTable, launcherThrowable, 'Current throwable: ', unFocusLists)
@@ -726,8 +728,9 @@ local whitelistedName = false
         end)
     end
 
+    local exp_animal_gun_root = menu.list(weapons_root, 'Explosive animal gun', {}, '')
     local exp_animal = {'a_c_killerwhale'}
-    exp_animal_toggle = menu.toggle(weapons_root, 'Explosive animal gun', {'JSexpAnimalGun'}, 'Inspired by impulses explosive whale gun, but can fire other animals too.', function(toggle)
+    exp_animal_toggle = menu.toggle(exp_animal_gun_root, 'Explosive animal gun', {'JSexpAnimalGun'}, 'Inspired by impulses explosive whale gun, but can fire other animals too.', function(toggle)
         animals_running = toggle
         if animals_running then
             if nuke_running then menu.trigger_command(nuke_gun_toggle, 'off') end
@@ -777,18 +780,32 @@ local whitelistedName = false
         Retriever = 'a_c_retriever',
         Rottweiler = 'a_c_rottweiler',
     }
-    local exp_type_list = menu.list(weapons_root,'Current animal: Killerwhale', {}, 'Choose wat animal the explosive animal gun has.', function()
+    local exp_type_list = menu.list(exp_animal_gun_root,'Current animal: Killerwhale', {}, 'Choose wat animal the explosive animal gun has.', function()
         if exp_animal[2] then menu.focus(exp_animal[2]) end
     end)
     generateTableList(exp_type_list, animalsTable, exp_animal, 'Current animal: ', unFocusLists)
 
     local impactCords = v3.new()
-    menu.toggle_loop(weapons_root, 'Minecraft gun', {'JSminecraftGun'}, 'Spawns blocks where you shoot.', function()
+    local blocks = {}
+    local minecraft_gun_root = menu.list(weapons_root, 'Minecraft gun', {}, '')
+    menu.toggle_loop(minecraft_gun_root, 'Minecraft gun', {'JSminecraftGun'}, 'Spawns blocks where you shoot.', function()
         if WEAPON.GET_PED_LAST_WEAPON_IMPACT_COORD(PLAYER.PLAYER_PED_ID(), impactCords) then
             local hash = util.joaat('prop_mb_sandblock_01')
             STREAMING.REQUEST_MODEL(hash)
             yieldModelLoad(hash)
-            entities.create_object(hash, impactCords)
+            blocks[#blocks + 1] = entities.create_object(hash, impactCords)
+        end
+    end)
+    menu.action(minecraft_gun_root, 'Delete last block', {'JSdeleteLastBlock'}, '', function()
+        if blocks[#blocks] ~= nil then
+            entities.delete_by_handle(blocks[#blocks])
+            blocks[#blocks] = nil
+        end
+    end)
+    menu.action(minecraft_gun_root, 'Delete blocks', {'JSdeleteBlocks'}, '', function()
+        for i = 1, #blocks do
+            entities.delete_by_handle(blocks[i])
+            blocks[i] = nil
         end
     end)
 
@@ -1395,6 +1412,34 @@ local whitelistedName = false
             end
             util.yield(getTotalDelay(expLoopDelay))
         end)
+    -----------------------------------
+
+    local function roundDecimals(float, decimals)
+        return math.floor(float * 10 ^ decimals) / 10 ^ decimals
+    end
+    --clockwise (like the clock is laying on the floor with face upwards) from the left when entering the room
+    local orbitalTableCords = {
+        [1] = { x = 330.48312, y = 4827.281, z = -59.368515 },
+        [2] = { x = 327.5724,  y = 4826.48,  z = -59.368515 },
+        [3] = { x = 325.95273, y = 4828.985, z = -59.368515 },
+        [4] = { x = 327.79208, y = 4831.288, z = -59.368515 },
+        [5] = { x = 330.61765, y = 4830.225, z = -59.368515 },
+    }
+    menu.toggle_loop(players_root, 'Orbital cannon detection', {'JSorbDetection'}, 'Tells you when anyone starts using the orbital cannon', function()
+        local playerList = players.list(false, true, true)
+        for i = 1, #playerList do
+            local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(playerList[i])
+            if TASK.GET_IS_TASK_ACTIVE(ped, 135) and ENTITY.GET_ENTITY_SPEED(ped) == 0 then
+                util.toast(players.get_name(playerList[i]) ..' using the right tasks')
+                local pos = NETWORK._NETWORK_GET_PLAYER_COORDS(playerList[i])
+                for j = 1, #orbitalTableCords do
+                    if roundDecimals(pos.x, 3) == roundDecimals(orbitalTableCords[j].x, 3) and roundDecimals(pos.y, 3) == roundDecimals(orbitalTableCords[j].y, 3) and roundDecimals(pos.z, 3) == roundDecimals(orbitalTableCords[j].z, 3) then
+                        util.show_corner_help(players.get_name(playerList[i]) ..' is using the orbital cannon')
+                    end
+                end
+            end
+        end
+    end)
 
     -----------------------------------
     -- Colored otr reveal
