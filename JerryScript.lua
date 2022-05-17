@@ -1416,6 +1416,7 @@ local whitelistedName = false
                     local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
                     markedPlayers[pid] = HUD.ADD_BLIP_FOR_ENTITY(ped)
                     HUD.SET_BLIP_COLOUR(markedPlayers[pid], otrBlipColor)
+                    HUD.SHOW_HEADING_INDICATOR_ON_BLIP(markedPlayers[pid], true)
                 elseif players.is_otr(pid) then
                     HUD.SET_BLIP_COLOUR(markedPlayers[pid], otrBlipColor)
                     HUD.SET_BLIP_ALPHA(markedPlayers[pid], 9999999999)
@@ -1426,13 +1427,19 @@ local whitelistedName = false
         end, function()
             unMarkPlayers()
         end)
-        menu.slider(players_root, 'Otr reveal color', {}, '',1, 84, otrBlipColor, 1, function(value)
+
+        local otr_color_slider = menu.slider(players_root, 'Otr reveal color', {}, '',1, 84, otrBlipColor, 1, function(value)
             otrBlipColor = value
         end)
+
+        menu.toggle_loop(players_root, 'Otr rgb reveal', {}, '', function()
+            menu.trigger_command(otr_color_slider, (otrBlipColor == 84 and 1 or otrBlipColor + 1))
+            util.yield(100)
+        end)
+
         util.on_stop(function()
             unMarkPlayers()
         end)
-
     -----------------------------------
     -- Explosions
     -----------------------------------
