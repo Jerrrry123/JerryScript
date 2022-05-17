@@ -1427,14 +1427,13 @@ local whitelistedName = false
     }
     menu.toggle_loop(players_root, 'Orbital cannon detection', {'JSorbDetection'}, 'Tells you when anyone starts using the orbital cannon', function()
         local playerList = players.list(false, true, true)
-        for _, pid in pairs(playerList) do
-            local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
+        for i = 1, #playerList do
+            local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(playerList[i])
             if TASK.GET_IS_TASK_ACTIVE(ped, 135) and ENTITY.GET_ENTITY_SPEED(ped) == 0 then
-                util.toast(players.get_name(pid) ..' using the right tasks')
-                local pos = NETWORK._NETWORK_GET_PLAYER_COORDS(pid)
+                local pos = NETWORK._NETWORK_GET_PLAYER_COORDS(playerList[i])
                 for j = 1, #orbitalTableCords do
-                    if roundDecimals(pos.x, 3) == roundDecimals(orbitalTableCords[j].x, 3) and roundDecimals(pos.y, 3) == roundDecimals(orbitalTableCords[j].y, 3) and roundDecimals(pos.z, 3) == roundDecimals(orbitalTableCords[j].z, 3) then
-                        util.show_corner_help(players.get_name(pid) ..' is using the orbital cannon')
+                    if roundDecimals(pos.x, 1) == roundDecimals(orbitalTableCords[j].x, 1) and roundDecimals(pos.y, 1) == roundDecimals(orbitalTableCords[j].y, 1) and roundDecimals(pos.z, 1) == roundDecimals(orbitalTableCords[j].z, 1) then
+                        util.toast(players.get_name(playerList[i]) ..' is using the orbital cannon')
                     end
                 end
             end
