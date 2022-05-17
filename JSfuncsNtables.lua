@@ -394,29 +394,20 @@ end
         while not NETWORK.NETWORK_HAS_CONTROL_OF_ENTITY(entity) do
             NETWORK.NETWORK_REQUEST_CONTROL_OF_ENTITY(entity)
         end
-        util.yield(10)
         NETWORK.NETWORK_REQUEST_CONTROL_OF_NETWORK_ID(netID)
-        util.yield(10)
         NETWORK.SET_NETWORK_ID_EXISTS_ON_ALL_MACHINES(netID)
-        util.yield(10)
         NETWORK.SET_NETWORK_ID_CAN_MIGRATE(netID, false)
-        util.yield(10)
         local playerList = players.list(true, true, true)
         for i = 1, #playerList do
             if NETWORK.NETWORK_IS_PLAYER_CONNECTED(i) then
-                util.toast(playerList[i])
                 NETWORK.SET_NETWORK_ID_ALWAYS_EXISTS_FOR_PLAYER(netID, playerList[i], true)
-                util.yield(10)
             end
         end
         ENTITY.SET_ENTITY_AS_MISSION_ENTITY(entity, true, false)
-        util.yield(10)
         ENTITY._SET_ENTITY_CLEANUP_BY_ENGINE(entity, false)
-        util.yield(10)
         if ENTITY.IS_ENTITY_AN_OBJECT(entity) then
             NETWORK.OBJ_TO_NET(entity)
         end
-        util.yield(10)
         ENTITY.SET_ENTITY_VISIBLE(entity, false, 0)
     end
 
