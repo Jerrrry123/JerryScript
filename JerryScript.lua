@@ -417,14 +417,14 @@ local whitelistedName = false
             [2]  = { name = 'Eyebrows',           min = -1, max = 33 },
             [3]  = { name = 'Ageing',             min = -1, max = 14 },
             [4]  = { name = 'Makeup',             min = -1, max = 74 },
-            [5]  = { name = 'Blush',              min = -1, max = 6  },
+            [5]  = { name = 'Blush',              min = -1, max =  6 },
             [6]  = { name = 'Complexion',         min = -1, max = 11 },
             [7]  = { name = 'Sun Damage',         min = -1, max = 10 },
-            [8]  = { name = 'Lipstick',           min = -1, max = 9  },
+            [8]  = { name = 'Lipstick',           min = -1, max =  9 },
             [9]  = { name = 'Moles/Freckles',     min = -1, max = 17 },
             [10] = { name = 'Chest Hair',         min = -1, max = 16 },
             [11] = { name = 'Body Blemishes',     min = -1, max = 11 },
-            [12] = { name = 'Add Body Blemishes', min = -1, max = 1  },
+            [12] = { name = 'Add Body Blemishes', min = -1, max =  1 },
         }
         local face_overlay_list = menu.list(self_root,'Customize face overlays', {}, 'Customizations reset after restarting the game.', function()end)
 
@@ -617,7 +617,7 @@ local whitelistedName = false
                             yieldModelLoad(hash)
                             local cam_rot = CAM.GET_FINAL_RENDERED_CAM_ROT(2)
                             local dir, pos = direction()
-                            local bomb = OBJECT.CREATE_OBJECT_NO_OFFSET(hash, pos.x, pos.y, pos.z, true, true, false)
+                            local bomb = entities.create_object(hash, pos)
                             ENTITY.APPLY_FORCE_TO_ENTITY(bomb, 0, dir.x, dir.y, dir.z, 0.0, 0.0, 0.0, 0, true, false, true, false, true)
                             ENTITY.SET_ENTITY_ROTATION(bomb, cam_rot.x, cam_rot.y, cam_rot.z, 1, true)
                             while not ENTITY.HAS_ENTITY_COLLIDED_WITH_ANYTHING(bomb) do util.yield() end
@@ -653,7 +653,8 @@ local whitelistedName = false
             local hash = util.joaat('w_arena_airmissile_01a')
             STREAMING.REQUEST_MODEL(hash)
             yieldModelLoad(hash)
-            local bomb = OBJECT.CREATE_OBJECT_NO_OFFSET(hash, waypointPos.x, waypointPos.y, waypointPos.z + 30, true, true, false)
+            waypointPos.z = waypointPos.z + 30
+            entities.create_object(hash, waypointPos)
             ENTITY.SET_ENTITY_ROTATION(bomb, -90, 0, 0,  2, true)
             ENTITY.APPLY_FORCE_TO_ENTITY(bomb, 0, 0, 0, 0, 0.0, 0.0, 0.0, 0, true, false, true, false, true)
             STREAMING.SET_MODEL_AS_NO_LONGER_NEEDED(hash)
@@ -780,6 +781,16 @@ local whitelistedName = false
         if exp_animal[2] then menu.focus(exp_animal[2]) end
     end)
     generateTableList(exp_type_list, animalsTable, exp_animal, 'Current animal: ', unFocusLists)
+
+    local impactCords = v3.new()
+    menu.toggle_loop(weapons_root, 'Minecraft gun', {'JSminecraftGun'}, 'Spawns blocks where you shoot.', function()
+        if WEAPON.GET_PED_LAST_WEAPON_IMPACT_COORD(PLAYER.PLAYER_PED_ID(), impactCords) then
+            local hash = util.joaat('prop_mb_sandblock_01')
+            STREAMING.REQUEST_MODEL(hash)
+            yieldModelLoad(hash)
+            entities.create_object(hash, impactCords)
+        end
+    end)
 
 -----------------------------------
 -- Vehicle
