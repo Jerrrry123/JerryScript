@@ -1354,25 +1354,25 @@ local whitelistedName = false
     -----------------------------------
     -- Whitelist
     -----------------------------------
-        local Whitelist_settings_root = menu.list(players_root, 'Whitelist', {'JSwhitelist'}, 'Applies to all options in this section.')
+        local whitelist_settings_root = menu.list(players_root, 'Whitelist', {'JSwhitelist'}, 'Applies to all options in this section.')
 
-        menu.toggle(Whitelist_settings_root, 'Exclude self', {'JSWhitelistSelf'}, 'Will make you not explode yourself. Pretty cool option if you ask me ;P', function(toggle)
+        menu.toggle(whitelist_settings_root, 'Exclude self', {'JSWhitelistSelf'}, 'Will make you not explode yourself. Pretty cool option if you ask me ;P', function(toggle)
             whitelistGroups.user = not toggle
         end)
 
-        menu.toggle(Whitelist_settings_root, 'Exclude friends', {'JSWhitelistFriends'}, 'Will make you not explode your friends... if you have any. (;-;)', function(toggle)
+        menu.toggle(whitelist_settings_root, 'Exclude friends', {'JSWhitelistFriends'}, 'Will make you not explode your friends... if you have any. (;-;)', function(toggle)
             whitelistGroups.friends = not toggle
         end)
 
-        menu.toggle(Whitelist_settings_root, 'Exclude strangers', {'JSWhitelistStrangers'}, 'If you only want to explode your friends ig.', function(toggle)
+        menu.toggle(whitelist_settings_root, 'Exclude strangers', {'JSWhitelistStrangers'}, 'If you only want to explode your friends ig.', function(toggle)
             whitelistGroups.strangers = not toggle
         end)
 
-        menu.text_input(Whitelist_settings_root, 'Whitelist player', {'JSWhitelistPlayer'}, 'Lets you whitelist a single player by name.', function(input)
+        menu.text_input(whitelist_settings_root, 'Whitelist player', {'JSWhitelistPlayer'}, 'Lets you whitelist a single player by name.', function(input)
             whitelistedName = input
         end, '')
 
-        local whitelist_list_root = menu.list(Whitelist_settings_root, 'Whitelist player list', {'JSwhitelistList'}, 'Custom player list for selecting  players you wanna whitelist.')
+        local whitelist_list_root = menu.list(whitelist_settings_root, 'Whitelist player list', {'JSwhitelistList'}, 'Custom player list for selecting  players you wanna whitelist.')
 
         local whitelistTogglesTable = {}
         players.on_join(function(pid)
