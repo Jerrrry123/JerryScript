@@ -1394,6 +1394,54 @@ local whitelistedName = false
         end)
 
     -----------------------------------
+    -- Anti chat spam
+    -----------------------------------
+        local anti_spam_root = menu.list(players_root, 'Anti chat spam', {}, '')
+
+        local chatSpamSettings = {
+            enabled = false,
+            ignoreTeam = true,
+            identicalMessages = 5,
+        }
+        local messageTable = {}
+        chat.on_message(function(pid, message_sender, text, team_chat)
+            if pid == players.user() then return end
+            if not chatSpamSettings.enabled then return end
+            if team_chat and chatSpamSettings.ignoreTeam then return end
+
+            if messageTable[pid] == nil then
+                messageTable[pid] = {}
+            end
+
+            local messageCount = (#messageTable[pid] ~= nil and #messageTable[pid] or 0)
+            messageTable[pid][messageCount + 1] = text
+
+            if #messageTable[pid] < chatSpamSettings.identicalMessages then return end
+            for i = 1, #messageTable[pid] - 1 do
+                if messageTable[pid][#messageTable[pid]] ~= messageTable[pid][#messageTable[pid] - i] then
+                    messageTable[pid] = {}
+                    return
+                end
+                if i == #messageTable[pid] - 1 then
+                    menu.trigger_commands('kick' .. players.get_name(pid))
+                    util.toast('Kicked '.. players.get_name(pid).. ' for chat spam.')
+                end
+            end
+        end)
+
+        menu.toggle(anti_spam_root, 'Anti chat spam', {'JSantiChatSpam'}, 'Kicks people if they spam chat.', function(toggle)
+            chatSpamSettings.enabled = toggle
+        end)
+
+        menu.toggle(anti_spam_root, 'Ignore team chat', {'JSignoreTeamSpam'}, '', function(toggle)
+            chatSpamSettings.enabled = toggle
+        end, chatSpamSettings.ignoreTeam)
+
+        menu.slider(anti_spam_root, 'Identical messages', {'JSidenticalChatMessages'}, 'How many identical chat messages a player can send before getting kicked.', 2, 9999, chatSpamSettings.identicalMessages, 1, function(value)
+            chatSpamSettings.identicalMessages = value
+        end)
+
+    -----------------------------------
     -- Explosions
     -----------------------------------
         menu.action(players_root, 'Explode all', {'JSexplodeAll'}, 'Makes everyone explode.', function()
