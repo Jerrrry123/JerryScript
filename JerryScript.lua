@@ -1081,6 +1081,10 @@ local whitelistedName = false
         carSettings.disableExhaustPops.setOption(toggle)
     end)
 
+    menu.toggle(my_vehicle_root, 'Stance', {'JSstance'}, 'Activates stance on vehicles that support it.', function(toggle)
+        VEHICLE._SET_REDUCE_DRIFT_VEHICLE_SUSPENSION(my_cur_car, toggle)
+    end)
+
     menu.toggle(my_vehicle_root, 'Npc horn', {'JSnpcHorn'}, 'Makes you horn like a npc. Also makes your car doors silent.', function(toggle)
         carSettings.npcHorn.on = toggle
         VEHICLE._SET_VEHICLE_SILENT(my_cur_car, toggle)
