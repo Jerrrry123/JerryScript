@@ -534,8 +534,8 @@ local whitelistedName = false
                 end
                 local address = address_from_pointer_chain(entities.handle_to_pointer(PLAYER.PLAYER_PED_ID()), {0x10D8, pointer, 0x2F4})
                 if address == 0 then util.toast('Failed to find memory address.') return end
-                local originalRecoil = memory.read_float(address)
                 if modifiedRecoil[address] then return end
+                local originalRecoil = memory.read_float(address)
                 modifiedRecoil[address] = originalRecoil
                 memory.write_float(address, 0)
                 deRecoiledWeapon = weaponHash
@@ -579,8 +579,8 @@ local whitelistedName = false
             end
             local address = address_from_pointer_chain(entities.handle_to_pointer(PLAYER.PLAYER_PED_ID()), {0x10D8, pointer, 0xE0})
             if address == 0 then util.toast('Failed to find memory address.') return end
-            local originalForce = memory.read_float(address)
             if modifiedForce[address] then return end
+            local originalForce = memory.read_float(address)
             modifiedForce[address] = originalForce
             memory.write_float(address, originalForce * value / 100)
             deRecoiledWeapon = weaponHash
