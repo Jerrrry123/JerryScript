@@ -549,6 +549,49 @@ local whitelistedName = false
             recoilOnActivation = true
         end)
 
+        local modifiedFalloff = {}
+        local recoilOnActivation = true
+        local deFalloffedWeapon
+        menu.toggle_loop(weapon_settings_root, 'No damage falloff', {'JSnoFAlloff'}, '', function()
+            local userPed = PLAYER.PLAYER_PED_ID()
+            local weaponHash =  WEAPON.GET_SELECTED_PED_WEAPON(userPed)
+            if recoilOnActivation or weaponHash ~= deFalloffedWeapon then
+                local pointer = 0x20
+                local wpn_ptr = memory.alloc_int()
+                --for vehicle weapons
+                if WEAPON.GET_CURRENT_PED_VEHICLE_WEAPON(userPed, wpn_ptr) then -- only returns true if the weapon is a vehicle weapon
+                    weaponHash = memory.read_int(wpn_ptr)
+                    pointer = 0x70
+                    memory.free(wpn_ptr)
+                end
+                if modifiedFalloff[weaponHash] then return end
+                modifiedFalloff[weaponHash] = {}
+                modifiedFalloff[weaponHash].minAddress   = address_from_pointer_chain(entities.handle_to_pointer(PLAYER.PLAYER_PED_ID()), {0x10D8, pointer, 0x298})
+                modifiedFalloff[weaponHash].maxAddress   = address_from_pointer_chain(entities.handle_to_pointer(PLAYER.PLAYER_PED_ID()), {0x10D8, pointer, 0x29C})
+                modifiedFalloff[weaponHash].rangeAddress = address_from_pointer_chain(entities.handle_to_pointer(PLAYER.PLAYER_PED_ID()), {0x10D8, pointer, 0x28C})
+
+                if modifiedFalloff[weaponHash].minAddress == 0 or modifiedFalloff[weaponHash].maxAddress == 0 or modifiedFalloff[weaponHash].rangeAddress == 0 then util.toast('Failed to find memory address.') return end
+
+                modifiedFalloff[weaponHash].originalMin   = memory.read_float(modifiedFalloff[weaponHash].minAddress)
+                modifiedFalloff[weaponHash].originalMax   = memory.read_float(modifiedFalloff[weaponHash].maxAddress)
+                modifiedFalloff[weaponHash].originalRange = memory.read_float(modifiedFalloff[weaponHash].rangeAddress)
+
+                memory.write_float(modifiedFalloff[weaponHash].minAddress,   150000)  --because the map is about 15km tall
+                memory.write_float(modifiedFalloff[weaponHash].maxAddress,   150000)
+                memory.write_float(modifiedFalloff[weaponHash].rangeAddress, 150000)
+                deFalloffedWeapon = weaponHash
+                recoilOnActivation = false
+            end
+        end, function()
+            for hash, _ in pairs(modifiedFalloff) do
+                memory.write_float(modifiedFalloff[hash].minAddress, modifiedFalloff[hash].originalMin)
+                memory.write_float(modifiedFalloff[hash].maxAddress, modifiedFalloff[hash].originalMax)
+                memory.write_float(modifiedFalloff[hash].rangeAddress, modifiedFalloff[hash].originalRange)
+                modifiedFalloff[hash] = nil
+            end
+            recoilOnActivation = true
+        end)
+
         local toggleingRemoveMinigun = false
         local remove_minigun_toggle remove_minigun_toggle = menu.toggle(weapon_settings_root, 'Remove minigun spin-up time', {'JSnoSpinUp'}, 'Requires you to hold a your minigun.', function(toggle)
             if toggleingRemoveMinigun then return end
@@ -664,7 +707,7 @@ local whitelistedName = false
             changeZoomOnActivation = true
         end)
 
-        menu.slider(weapon_settings_root, 'Zoom aim fov', {'JSzoomAimFov'}, '',1000, 10000, 1000, 1, function(value)
+        menu.slider(weapon_settings_root, 'Zoom aim fov', {'JSzoomAimFov'}, '',1000, 9999999999, 1000, 1, function(value)
             extraZoom = (value - 1000) / 1000
             modifiedZoomWeapon = nil
         end)
