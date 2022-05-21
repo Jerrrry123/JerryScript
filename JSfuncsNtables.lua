@@ -33,6 +33,19 @@ new = {
     end,
 }
 
+--function skidded from murtens utils
+function address_from_pointer_chain(address, offsets)
+    local addr = address
+    for k = 1, (#offsets - 1) do
+        addr = memory.read_long(addr + offsets[k])
+        if addr == 0 then
+            return 0
+        end
+    end
+    addr = addr + offsets[#offsets]
+    return addr
+end
+
 --memory stuff skidded from heist control
 local Int_PTR = memory.alloc_int()
 

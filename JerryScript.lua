@@ -512,6 +512,163 @@ local whitelistedName = false
         end
     end)
 
+    ----------------------------------
+    -- Weapon settings
+    ----------------------------------
+        local weapon_settings_root = menu.list(weapons_root, 'Weapon settings', {}, '')
+
+        local modifiedRecoil = {}
+        local recoilOnActivation = true
+        local deRecoiledWeapon
+        menu.toggle_loop(weapon_settings_root, 'No recoil', {'JSnoRecoil'}, 'Disables the camera shake when shooting guns.', function()
+            local userPed = PLAYER.PLAYER_PED_ID()
+            local weaponHash =  WEAPON.GET_SELECTED_PED_WEAPON(userPed)
+            if recoilOnActivation or weaponHash ~= deRecoiledWeapon then
+                local pointer = 0x20
+                local wpn_ptr = memory.alloc_int()
+                --for vehicle weapons
+                if WEAPON.GET_CURRENT_PED_VEHICLE_WEAPON(userPed, wpn_ptr) then -- only returns true if the weapon is a vehicle weapon
+                    weaponHash = memory.read_int(wpn_ptr)
+                    pointer = 0x70
+                    memory.free(wpn_ptr)
+                end
+                local address = address_from_pointer_chain(entities.handle_to_pointer(PLAYER.PLAYER_PED_ID()), {0x10D8, pointer, 0x2F4})
+                if address == 0 then util.toast('Failed to find memory address.') return end
+                local originalRecoil = memory.read_float(address)
+                if modifiedRecoil[address] then return end
+                modifiedRecoil[address] = originalRecoil
+                memory.write_float(address, 0)
+                deRecoiledWeapon = weaponHash
+                recoilOnActivation = false
+            end
+        end, function()
+            for address, recoil in pairs(modifiedRecoil) do
+                memory.write_float(address, recoil)
+                modifiedRecoil[address] = nil
+            end
+            recoilOnActivation = true
+        end)
+
+        local toggleingRemoveMinigun = false
+        local remove_minigun_toggle remove_minigun_toggle = menu.toggle(weapon_settings_root, 'Remove minigun spin-up time', {'JSnoSpinUp'}, 'Requires you to hold a your minigun.', function(toggle)
+            if toggleingRemoveMinigun then return end
+            if WEAPON.GET_SELECTED_PED_WEAPON(PLAYER.PLAYER_PED_ID()) ~= util.joaat('weapon_minigun') then
+                util.toast('You aren\'t holding your minigun.')
+                toggleingRemoveMinigun = true
+                menu.trigger_command(remove_minigun_toggle, (menu.get_value(remove_minigun_toggle) == 1 and 'off' or 'on'))
+                util.yield()
+                toggleingRemoveMinigun = false
+                return
+            end
+            local address = address_from_pointer_chain(entities.handle_to_pointer(PLAYER.PLAYER_PED_ID()), {0x10D8, 0x20, 0x144})
+            if address == 0 then util.toast('Failed to find memory address.') return end
+            memory.write_float(address, (toggle and 0 or 0.5))
+        end)
+
+        local modifiedForce = {}
+        menu.slider(weapon_settings_root, 'Shot force multiplier', {'JSshotForceMultiplier'}, 'Dosn\'t work on all vehicles.\nDisplayed value is in percent.', 1, 9999999999, 100, 1, function(value)
+            local userPed = PLAYER.PLAYER_PED_ID()
+            local weaponHash =  WEAPON.GET_SELECTED_PED_WEAPON(userPed)
+            local pointer = 0x20
+            local wpn_ptr = memory.alloc_int()
+            --for vehicle weapons
+            if WEAPON.GET_CURRENT_PED_VEHICLE_WEAPON(userPed, wpn_ptr) then -- only returns true if the weapon is a vehicle weapon
+                weaponHash = memory.read_int(wpn_ptr)
+                pointer = 0x70
+                memory.free(wpn_ptr)
+            end
+            local address = address_from_pointer_chain(entities.handle_to_pointer(PLAYER.PLAYER_PED_ID()), {0x10D8, pointer, 0xE0})
+            if address == 0 then util.toast('Failed to find memory address.') return end
+            local originalForce = memory.read_float(address)
+            if modifiedForce[address] then return end
+            modifiedForce[address] = originalForce
+            memory.write_float(address, originalForce * value / 100)
+            deRecoiledWeapon = weaponHash
+        end, function()
+            for address, force in pairs(modifiedForce) do
+                memory.write_float(address, force)
+                modifiedForce[address] = nil
+            end
+        end)
+
+        menu.divider(weapon_settings_root, 'Aim fov')
+
+        local extraZoom2 = 0
+        local modifiedZoom2 = {}
+        local modifiedZoomWeapon2
+        menu.toggle_loop(weapon_settings_root, 'Enable aim fov', {'JSenableAimFov'}, 'Lets you modify the fov you have while you\'re aiming.', function()
+            local userPed = PLAYER.PLAYER_PED_ID()
+            local weaponHash =  WEAPON.GET_SELECTED_PED_WEAPON(userPed)
+            if changeZoomOnActivation or weaponHash ~= modifiedZoomWeapon2 then
+                local pointer = 0x20
+                local wpn_ptr = memory.alloc_int()
+                --for vehicle weapons
+                if WEAPON.GET_CURRENT_PED_VEHICLE_WEAPON(userPed, wpn_ptr) then -- only returns true if the weapon is a vehicle weapon
+                    weaponHash = memory.read_int(wpn_ptr)
+                    pointer = 0x70
+                    memory.free(wpn_ptr)
+                end
+                local address = address_from_pointer_chain(entities.handle_to_pointer(PLAYER.PLAYER_PED_ID()), {0x10D8, pointer, 0x2FC})
+                if address == 0 then util.toast('Failed to find memory address.') return end
+                local originalZoom = memory.read_float(address)
+                if not modifiedZoom2[address] then
+                    modifiedZoom2[address] = originalZoom
+                end
+                memory.write_float(address, (modifiedZoom2[address] and (modifiedZoom2[address] + extraZoom2) or (originalZoom + extraZoom2)))
+                modifiedZoomWeapon2 = weaponHash
+            end
+        end, function()
+            for address, zoom in pairs(modifiedZoom2) do
+                memory.write_float(address, zoom)
+                modifiedZoom2[address] = nil
+            end
+            changeZoomOnActivation = true
+        end)
+
+        menu.slider(weapon_settings_root, 'Aim fov', {'JSaimFov'}, '',-40, 100, 0, 1, function(value)
+            extraZoom2 = value
+            modifiedZoomWeapon2 = nil
+        end)
+
+        menu.divider(weapon_settings_root, 'Zoom aim fov')
+
+        local extraZoom = 0
+        local modifiedZoom = {}
+        local modifiedZoomWeapon
+        menu.toggle_loop(weapon_settings_root, 'Enable zoom aim fov', {'JSenableZoomAimFov'}, 'Lets you modify the fov you have while you\'re aiming and has zoomed in.', function()
+            local userPed = PLAYER.PLAYER_PED_ID()
+            local weaponHash =  WEAPON.GET_SELECTED_PED_WEAPON(userPed)
+            if changeZoomOnActivation or weaponHash ~= modifiedZoomWeapon then
+                local pointer = 0x20
+                local wpn_ptr = memory.alloc_int()
+                --for vehicle weapons
+                if WEAPON.GET_CURRENT_PED_VEHICLE_WEAPON(userPed, wpn_ptr) then -- only returns true if the weapon is a vehicle weapon
+                    weaponHash = memory.read_int(wpn_ptr)
+                    pointer = 0x70
+                    memory.free(wpn_ptr)
+                end
+                local address = address_from_pointer_chain(entities.handle_to_pointer(PLAYER.PLAYER_PED_ID()), {0x10D8, pointer, 0x410})
+                if address == 0 then util.toast('Failed to find memory address.') return end
+                local originalZoom = memory.read_float(address)
+                if not modifiedZoom[address] then
+                    modifiedZoom[address] = originalZoom
+                end
+                memory.write_float(address, (modifiedZoom[address] and (modifiedZoom[address] + extraZoom) or (originalZoom + extraZoom)))
+                modifiedZoomWeapon = weaponHash
+            end
+        end, function()
+            for address, zoom in pairs(modifiedZoom) do
+                memory.write_float(address, zoom)
+                modifiedZoom[address] = nil
+            end
+            changeZoomOnActivation = true
+        end)
+
+        menu.slider(weapon_settings_root, 'Zoom aim fov', {'JSzoomAimFov'}, '',1000, 10000, 1000, 1, function(value)
+            extraZoom = (value - 1000) / 1000
+            modifiedZoomWeapon = nil
+        end)
+
     -----------------------------------
     -- Proxy stickys
     -----------------------------------
