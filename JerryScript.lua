@@ -1996,6 +1996,12 @@ local runningTogglingOff = false
                             local entityHandle = entities.pointer_to_handle(entityPointer)
                             --check the entity is a ped in a car
                             if (ENTITY.IS_ENTITY_A_PED(entityHandle) and (not PED.IS_PED_IN_ANY_VEHICLE(entityHandle, true) and (not PED.IS_PED_A_PLAYER(entityHandle)))) or (not ENTITY.IS_ENTITY_A_PED(entityHandle))--[[for the vehicles]] then
+                                if not ENTITY.IS_ENTITY_A_PED(entityHandle) then
+                                    for _, pid in pairs(playerList) do
+                                        local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
+                                        if PED.GET_VEHICLE_PED_IS_IN(ped, false) == entityHandle then goto continue end
+                                    end
+                                end
                                 NETWORK.NETWORK_REQUEST_CONTROL_OF_ENTITY(entityHandle)
                                 local targetV3 = v3.new(targetPos)
                                 local buf = v3.new(ENTITY.GET_ENTITY_COORDS(entityHandle))
@@ -2003,6 +2009,7 @@ local runningTogglingOff = false
                                 ENTITY.APPLY_FORCE_TO_ENTITY_CENTER_OF_MASS(entityHandle, 1, v3.getX(targetV3) * yeetMultiplier, v3.getY(targetV3) * yeetMultiplier, v3.getZ(targetV3) * yeetMultiplier, true, false, true, true)
                                 v3.free(targetV3)
                                 v3.free(buf)
+                                ::continue::
                             end
                         end
                     end
