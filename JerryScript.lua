@@ -1498,14 +1498,6 @@ local whitelistedName = false
         local colored_otr_root = menu.list(players_root, 'Colored otr reveal', {}, '')
 
         local markedPlayers = {}
-        local function unMarkPlayers()
-            local playerList = players.list(false, true, true)
-            for i, pid in pairs(playerList) do
-                if markedPlayers[pid] then
-                    HUD.SET_BLIP_ALPHA(markedPlayers[pid], 0)
-                end
-            end
-        end
         local otrBlipColor = 58
         menu.toggle_loop(colored_otr_root, 'Colored otr reveal', {'JScoloredOtrReveal'}, 'Marks otr players with colored blips.', function()
             local playerList = players.list(false, true, true)
@@ -1517,13 +1509,19 @@ local whitelistedName = false
                     HUD.SHOW_HEADING_INDICATOR_ON_BLIP(markedPlayers[pid], true)
                 elseif players.is_otr(pid) then
                     HUD.SET_BLIP_COLOUR(markedPlayers[pid], otrBlipColor)
-                    HUD.SET_BLIP_ALPHA(markedPlayers[pid], 9999999999)
                 elseif not players.is_otr(pid) and markedPlayers[pid] then
-                    HUD.SET_BLIP_ALPHA(markedPlayers[pid], 0)
+                    util.remove_blip(markedPlayers[pid])
+                    markedPlayers[pid] = nil
                 end
             end
         end, function()
-            unMarkPlayers()
+            local playerList = players.list(false, true, true)
+            for i, pid in pairs(playerList) do
+                if markedPlayers[pid] then
+                    util.remove_blip(markedPlayers[pid])
+                    markedPlayers[pid] = nil
+                end
+            end
         end)
 
         local otr_color_slider = menu.slider(colored_otr_root, 'otr reveal color', {'JSortRevealColor'}, '',1, 81, otrBlipColor, 1, function(value)
@@ -1533,10 +1531,6 @@ local whitelistedName = false
         menu.toggle_loop(colored_otr_root, 'Otr rgb reveal', {'JSortRgbReveal'}, '', function()
             menu.trigger_command(otr_color_slider, (otrBlipColor == 84 and 1 or otrBlipColor + 1))
             util.yield(250)
-        end)
-
-        util.on_stop(function()
-            unMarkPlayers()
         end)
 
     -----------------------------------
