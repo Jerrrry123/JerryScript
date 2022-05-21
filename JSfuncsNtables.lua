@@ -35,11 +35,9 @@ new = {
 
 --memory stuff skidded from heist control
 local Int_PTR = memory.alloc_int()
-local mpChar = util.joaat('mpply_last_mp_char')
 
 function getMPX()
-    STATS.STAT_GET_INT(mpChar, Int_PTR, -1)
-    return memory.read_int(Int_PTR) == 0 and 'MP0_' or 'MP1_'
+    return 'MP'.. util.get_char_slot() ..'_'
 end
 
 function STAT_SET_INT(Stat, Value)
