@@ -655,7 +655,8 @@ local whitelistedName = false
             STREAMING.REQUEST_MODEL(hash)
             yieldModelLoad(hash)
             waypointPos.z = waypointPos.z + 30
-            entities.create_object(hash, waypointPos)
+            local bomb = entities.create_object(hash, waypointPos)
+            waypointPos.z = waypointPos.z - 30
             ENTITY.SET_ENTITY_ROTATION(bomb, -90, 0, 0,  2, true)
             ENTITY.APPLY_FORCE_TO_ENTITY(bomb, 0, 0, 0, 0, 0.0, 0.0, 0.0, 0, true, false, true, false, true)
             STREAMING.SET_MODEL_AS_NO_LONGER_NEEDED(hash)
