@@ -607,7 +607,7 @@ local whitelistedName = false
 
         local modifiedCarForce = {}
         local modifiedHeliForce = {}
-        local modifiedpedForce = {}
+        local modifiedPedForce = {}
         menu.slider(weapon_settings_root, 'Bullet force multiplier', {'JSbulletForceMultiplier'}, 'Works best when shooting vehicles from the front.\nDisplayed value is in percent.', 1, 9999999999, 100, 1, function(value)
             local weaponHash = readWeaponAddress(modifiedCarForce, 0x0E0, false)
             if weaponHash == 0 then return end
@@ -617,13 +617,13 @@ local whitelistedName = false
             if weaponHash == 0 then return end
             memory.write_float(modifiedHeliForce[weaponHash].address, modifiedHeliForce[weaponHash].original * value / 100)
 
-            weaponHash = readWeaponAddress(modifiedpedForce, 0x0DC, false)
+            weaponHash = readWeaponAddress(modifiedPedForce, 0x0DC, false)
             if weaponHash == 0 then return end
-            memory.write_float(modifiedpedForce[weaponHash].address, modifiedpedForce[weaponHash].original * value / 100)
+            memory.write_float(modifiedPedForce[weaponHash].address, modifiedPedForce[weaponHash].original * value / 100)
         end, function()
             resetWeapons(modifiedCarForce)
             resetWeapons(modifiedHeliForce)
-            resetWeapons(modifiedpedForce)
+            resetWeapons(modifiedPedForce)
         end)
 
         menu.divider(weapon_settings_root, 'Aim fov')
