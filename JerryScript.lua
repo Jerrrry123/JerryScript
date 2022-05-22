@@ -2116,6 +2116,7 @@ local runningTogglingOff = false
                             local entityHandle = entities.pointer_to_handle(entityPointer)
                             --check the entity is a ped in a car
                             if (ENTITY.IS_ENTITY_A_PED(entityHandle) and (not PED.IS_PED_IN_ANY_VEHICLE(entityHandle, true) and (not PED.IS_PED_A_PLAYER(entityHandle)))) or (not ENTITY.IS_ENTITY_A_PED(entityHandle))--[[for the vehicles]] then
+                                local playerList = players.list(true, true, true)
                                 if not ENTITY.IS_ENTITY_A_PED(entityHandle) then
                                     for _, pid in pairs(playerList) do
                                         local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
