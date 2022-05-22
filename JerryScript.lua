@@ -1968,20 +1968,28 @@ local JS_logo = directx.create_texture(filesystem.resources_dir() .. "JS.png")
 local black = new.color(0, 0, 1 / 255, 1)
 local white = new.color(1, 1, 1, 1)
 local creditText = {
-    [1] = {line = 'Coded by Jerry123#4508 & scriptcat#6566', bold = true, wait = 120},
-    [2] = {line = 'Skids from:', bold = true, wait = 35},
-    [3] = {line = 'LanceScript by lance#8213', bold = false, wait = 25},
-    [4] = {line = 'WiriScript by Nowiry#2663', bold = false, wait = 25},
-    [5] = {line = 'KeramisScript by scriptCat#6566', bold = false, wait = 25},
-    [6] = {line = 'Heist control by IceDoomfist#0001', bold = false, wait = 100},
-    [7] = {line = 'Thanks to', bold = false, wait = 25},
-    [8] = {line = 'Ren#5219 and JayMontana36#9565', bold = true, wait = 30},
-    [9] = {line = 'for reviewing my code', bold = false, wait = 100},
-    [10] = {line = 'Big thanks to all the cool people who helped me in #programming in the stand discord', bold = false, wait = 25},
-    [11] = {line = 'Sapphire#1053', bold = false, wait = 25},
-    [12] = {line = 'aaronlink127#0127', bold = false, wait = 100},
-    [13] = {line = 'Goddess Sainan#0001', bold = true, wait = 25},
-    [14] = {line = 'For making stand and providing such a great api and documentation', bold = false, wait = 25},
+    [1]  = {line = 'Coded by Jerry123#4508', bold = true, wait = 85},
+    [2]  = {line = 'Some contributions made by', bold = false, wait = 25},
+    [3]  = {line = 'scriptcat#6566', bold = true, wait = 120},
+
+    [4]  = {line = 'Skids from:', bold = true, wait = 35},
+    [5]  = {line = 'LanceScript by lance#8213', bold = false, wait = 25},
+    [6]  = {line = 'WiriScript by Nowiry#2663', bold = false, wait = 25},
+    [7]  = {line = 'KeramisScript by scriptCat#6566', bold = false, wait = 25},
+    [8]  = {line = 'Heist control by IceDoomfist#0001', bold = false, wait = 25},
+    [9]  = {line = 'Meteor by RulyPancake the 4th#1157', bold = false, wait = 100},
+
+    [10] = {line = 'Thanks to', bold = false, wait = 25},
+    [11] = {line = 'Ren#5219 and JayMontana36#9565', bold = true, wait = 35},
+    [12] = {line = 'for reviewing my code', bold = false, wait = 100},
+
+    [13] = {line = 'Big thanks to all the cool people who helped me in #programming in the stand discord', bold = false, wait = 25},
+    [14] = {line = 'Sapphire#1053', bold = false, wait = 25},
+    [15] = {line = 'aaronlink127#0127', bold = false, wait = 25},
+    [16] = {line = 'Fwishky#4980', bold = false, wait = 100},
+
+    [17] = {line = 'Goddess Sainan#0001', bold = true, wait = 25},
+    [18] = {line = 'For making stand and providing such a great api and documentation', bold = false, wait = 25},
 }
 local playingCredits = false
 local creditsSpeed = 1
