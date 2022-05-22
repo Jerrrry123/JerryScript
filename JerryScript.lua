@@ -605,13 +605,25 @@ local whitelistedName = false
             memory.write_float(address, (toggle and 0 or 0.5))
         end)
 
-        local modifiedForce = {}
-        menu.slider(weapon_settings_root, 'Shot force multiplier', {'JSshotForceMultiplier'}, 'Dosn\'t work on all vehicles.\nDisplayed value is in percent.', 1, 9999999999, 100, 1, function(value)
-            local weaponHash = readWeaponAddress(modifiedForce, 0xE0, false)
+        local modifiedCarForce = {}
+        local modifiedHeliForce = {}
+        local modifiedpedForce = {}
+        menu.slider(weapon_settings_root, 'Bullet force multiplier', {'JSbulletForceMultiplier'}, 'Works best when shooting vehicles from the front.\nDisplayed value is in percent.', 1, 9999999999, 100, 1, function(value)
+            local weaponHash = readWeaponAddress(modifiedCarForce, 0x0E0, false)
             if weaponHash == 0 then return end
-            memory.write_float(modifiedForce[weaponHash].address, modifiedForce[weaponHash].original * value / 100)
+            memory.write_float(modifiedCarForce[weaponHash].address, modifiedCarForce[weaponHash].original * value / 100)
+
+            weaponHash = readWeaponAddress(modifiedHeliForce, 0x0E4, false)
+            if weaponHash == 0 then return end
+            memory.write_float(modifiedHeliForce[weaponHash].address, modifiedHeliForce[weaponHash].original * value / 100)
+
+            weaponHash = readWeaponAddress(modifiedpedForce, 0x0DC, false)
+            if weaponHash == 0 then return end
+            memory.write_float(modifiedpedForce[weaponHash].address, modifiedpedForce[weaponHash].original * value / 100)
         end, function()
-            resetWeapons(modifiedForce)
+            resetWeapons(modifiedCarForce)
+            resetWeapons(modifiedHeliForce)
+            resetWeapons(modifiedpedForce)
         end)
 
         menu.divider(weapon_settings_root, 'Aim fov')
