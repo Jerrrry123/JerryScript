@@ -377,9 +377,9 @@ local whitelistedName = false
             fireWingsSettings.scale = value / 10
         end)
 
-        menu.colour(fire_wings_list, 'Fire wings colour', {'JSfireWingsColour'}, '', fireWingsSettings.fireColor, false, function(colour)
+        menu.rainbow(menu.colour(fire_wings_list, 'Fire wings colour', {'JSfireWingsColour'}, '', fireWingsSettings.fireColor, false, function(colour)
             fireWingsSettings.fireColor = colour
-        end)
+        end))
 
     -----------------------------------
     -- Ped customization
