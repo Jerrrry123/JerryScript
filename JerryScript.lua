@@ -1413,21 +1413,6 @@ local whitelistedName = false
             listWarning(cooldown_root, first_open_cooldowns)
         end)
 
-        menu.toggle_loop(cooldown_root, 'Cayo cutter progress', {'JScayoCutter'}, 'This will reduce the time of the plasma cutter when collecting the primary target.', function()
-            local pos = ENTITY.GET_ENTITY_COORDS(PLAYER.PLAYER_PED_ID(), true)
-            local interior = INTERIOR.GET_INTERIOR_AT_COORDS(pos.x, pos.y, pos.z)
-            if interior == 281601 then --the room behind the bars where the primary target is
-                local cutterProgress = memory.script_local('fm_mission_controller_2020', 28269 + 3)
-                local cutterProgress = memory.read_float(cutterProgress)
-                if cutterProgress then
-                    if cutterProgress > 0 and cutterProgress < 99.999 then
-                        memory.write_float(cutterProgress, 99.999)
-                        if notifications then util.toast('Skipped cutting') end
-                    end
-                end
-            end
-        end)
-
         local fixer_CD_root = menu.list(cooldown_root, 'Agency', {'JSagencyCooldowns'}, '')
         local terbyte_CD_root = menu.list(cooldown_root, 'Terrorbyte', {'JSterbyteCooldowns'}, '')
         local casino_CD_root = menu.list(cooldown_root, 'Casino', {'JScasinoCooldowns'}, '')
