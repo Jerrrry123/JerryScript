@@ -114,17 +114,12 @@ end
 ----------------------------------
 -- Generating menu options
 ----------------------------------
-    function generateTableList(list, table, value, label, unfocus)
-        for k, v in pairsByKeys(table) do
-            local option option = menu.action(list, string.space(k), {}, '', function()
-                value[1] = v
-                value[2] = option
-                menu.set_menu_name(list, label .. string.space(k))
-                if unfocus[1] then
-                    menu.focus(list)
-                end
-            end)
+    function  getLabelTableFromKeys(keyTable)
+        local labelTable = {}
+        for k, v in pairsByKeys(keyTable) do
+            table.insert(labelTable, {k})
         end
+        return labelTable
     end
 
     function generateHudSettings(root, prefix, settingsTable)
@@ -466,14 +461,16 @@ end
     end
 
     function getWeaponName(weaponHash)
-        if weaponHashToLabel[weaponHash] then
-            return HUD._GET_LABEL_TEXT(weaponHashToLabel[weaponHash])
-        elseif weaponHashToString[weaponHash] then
-            return weaponHashToString[weaponHash]
-        elseif vehicleWeaponHashToLabel[weaponHash] then
+        if vehicleWeaponHashToLabel[weaponHash] then
             return HUD._GET_LABEL_TEXT(vehicleWeaponHashToLabel[weaponHash])
         elseif vehicleWeaponHashToString[weaponHash] then
             return vehicleWeaponHashToString[weaponHash]
+        else
+            for k, v in pairs(util.get_weapons()) do
+                if v.hash == weaponHash then
+                    return HUD._GET_LABEL_TEXT(v.label_key)
+                end
+            end
         end
     end
 
@@ -569,93 +566,6 @@ end
 -- Tables
 ----------------------------------
     local joaat = util.joaat
-    expTypeTable = {
-        [-1] = 'DONTCARE',
-        [0]  = 'GRENADE',
-        [1]  = 'GRENADELAUNCHER',
-        [2]  = 'STICKYBOMB',
-        [3]  = 'MOLOTOV',
-        [4]  = 'ROCKET',
-        [5]  = 'TANKSHELL',
-        [6]  = 'HI OCTANE',
-        [7]  = 'CAR',
-        [8]  = 'PLAN',
-        [9]  = 'PETROL PUMP',
-        [10] = 'BIKE',
-        [11] = 'DIR STEAM',
-        [12] = 'DIR FLAME',
-        [13] = 'WATER HYDRAN',
-        [14] = 'DIR GAS CANISTER',
-        [15] = 'BOAT',
-        [16] = 'SHIP DESTROY',
-        [17] = 'TRUCK',
-        [18] = 'BULLET',
-        [19] = 'SMOKEGRENADELAUNCHER',
-        [20] = 'SMOKEGRENADE',
-        [21] = 'BZGAS',
-        [22] = 'FLARE',
-        [23] = 'GAS CANISTER',
-        [24] = 'EXTINGUISHER',
-        [25] = 'PROGRAMMABLEAR',
-        [26] = 'TRAIN',
-        [27] = 'BARREL',
-        [28] = 'PROPANE',
-        [29] = 'BLIMP',
-        [30] = 'DIR FLAME EXPLODE',
-        [31] = 'TANKER',
-        [32] = 'PLANE ROCKET',
-        [33] = 'VEHICLE BULLET',
-        [34] = 'GAS TANK',
-        [35] = 'BIRD CRAP',
-        [36] = 'RAILGUN',
-        [37] = 'BLIMP2',
-        [38] = 'FIREWORK',
-        [39] = 'SNOWBALL',
-        [40] = 'PROXMINE',
-        [41] = 'VALKYRIE CANNON',
-        [42] = 'AIR DEFENCE',
-        [43] = 'PIPEBOMB',
-        [44] = 'VEHICLEMINE',
-        [45] = 'EXPLOSIVEAMMO',
-        [46] = 'APCSHELL',
-        [47] = 'BOMB CLUSTER',
-        [48] = 'BOMB GAS',
-        [49] = 'BOMB INCENDIARY',
-        [50] = 'BOMB STANDARD',
-        [51] = 'TORPEDO',
-        [52] = 'TORPEDO UNDERWATER',
-        [53] = 'BOMBUSHKA CANNON',
-        [54] = 'BOMB CLUSTER SECONDARY',
-        [55] = 'HUNTER BARRAGE',
-        [56] = 'HUNTER CANNON',
-        [57] = 'ROGUE CANNON',
-        [58] = 'MINE UNDERWATER',
-        [59] = 'ORBITAL CANNON',
-        [60] = 'BOMB STANDARD WIDE',
-        [61] = 'EXPLOSIVEAMMO SHOTGUN',
-        [62] = 'OPPRESSOR2 CANNON',
-        [63] = 'MORTAR KINETIC',
-        [64] = 'VEHICLEMINE KINETIC',
-        [65] = 'VEHICLEMINE EMP',
-        [66] = 'VEHICLEMINE SPIKE',
-        [67] = 'VEHICLEMINE SLICK',
-        [68] = 'VEHICLEMINE TAR',
-        [69] = 'SCRIPT DRONE',
-        [70] = 'UP-N-ATOMIZER',
-        [71] = 'BURIEDMINE',
-        [72] = 'SCRIPT MISSILE',
-        [73] = 'RCTANK ROCKET',
-        [74] = 'BOMB WATER',
-        [75] = 'BOMB WATER SECONDARY',
-        [76] = 'Unknown1',
-        [77] = 'Unknown2',
-        [78] = 'FLASHGRENADE',
-        [79] = 'STUNGRENADE',
-        [80] = 'Unknown3',
-        [81] = 'SCRIPT MISSILE LARGE',
-        [82] = 'SUBMARINE BIG',
-        [83] = 'EMPLAUNCHER EMP',
-    }
     effects = {
         ['Clown Explosion'] = {
             asset  	= 'scr_rcbarry2',
@@ -703,125 +613,6 @@ end
             colour 	= false,
             exp     = 25,
         }
-    }
-    --credit to aaron for this pog table
-    weaponHashToLabel = {
-        [joaat('weapon_unarmed')] = 'WT_UNARMED',
-        [joaat('weapon_pistol')] = 'WT_PIST',
-        [joaat('weapon_combatpistol')] = 'WT_PIST_CBT',
-        [joaat('weapon_appistol')] = 'WT_PIST_AP',
-        [joaat('weapon_smg')] = 'WT_SMG',
-        [joaat('weapon_microsmg')] = 'WT_SMG_MCR',
-        [joaat('weapon_assaultrifle')] = 'WT_RIFLE_ASL',
-        [joaat('weapon_carbinerifle')] = 'WT_RIFLE_CBN',
-        [joaat('weapon_advancedrifle')] = 'WT_RIFLE_ADV',
-        [joaat('weapon_mg')] = 'WT_MG',
-        [joaat('weapon_combatmg')] = 'WT_MG_CBT',
-        [joaat('weapon_pumpshotgun')] = 'WT_SG_PMP',
-        [joaat('weapon_sawnoffshotgun')] = 'WT_SG_SOF',
-        [joaat('weapon_assaultshotgun')] = 'WT_SG_ASL',
-        [joaat('weapon_heavysniper')] = 'WT_SNIP_HVY',
-        [joaat('weapon_remotesniper')] = 'WT_SNIP_RMT',
-        [joaat('weapon_sniperrifle')] = 'WT_SNIP_RIF',
-        [joaat('weapon_grenadelauncher')] = 'WT_GL',
-        [joaat('weapon_rpg')] = 'WT_RPG',
-        [joaat('weapon_minigun')] = 'WT_MINIGUN',
-        [joaat('weapon_grenade')] = 'WT_GNADE',
-        [joaat('weapon_smokegrenade')] = 'WT_GNADE_SMK',
-        [joaat('weapon_stickybomb')] = 'WT_GNADE_STK',
-        [joaat('weapon_molotov')] = 'WT_MOLOTOV',
-        [joaat('weapon_stungun')] = 'WT_STUN',
-        [joaat('weapon_petrolcan')] = 'WT_PETROL',
-        [joaat('weapon_electric_fence')] = 'WT_ELCFEN',
-        [joaat('object')] = 'WT_OBJECT',
-        [joaat('gadget_parachute')] = 'WT_PARA',
-        [joaat('AMMO_RPG')] = 'WT_A_RPG',
-        [joaat('AMMO_TANK')] = 'WT_A_TANK',
-        [joaat('AMMO_SPACE_ROCKET')] = 'WT_A_SPACERKT',
-        [joaat('AMMO_PLAYER_LASER')] = 'WT_A_PLRLSR',
-        [joaat('AMMO_ENEMY_LASER')] = 'WT_A_ENMYLSR',
-        [joaat('weapon_knife')] = 'WT_KNIFE',
-        [joaat('weapon_nightstick')] = 'WT_NGTSTK',
-        [joaat('weapon_hammer')] = 'WT_HAMMER',
-        [joaat('weapon_bat')] = 'WT_BAT',
-        [joaat('weapon_crowbar')] = 'WT_CROWBAR',
-        [joaat('weapon_golfclub')] = 'WT_GOLFCLUB',
-        [joaat('weapon_rammed_by_car')] = 'WT_PIST',
-        [joaat('weapon_run_over_by_car')] = 'WT_PIST',
-        [joaat('weapon_assaultsmg')] = 'WT_SMG_ASL',
-        [joaat('weapon_bullpupshotgun')] = 'WT_SG_BLP',
-        [joaat('weapon_pistol50')] = 'WT_PIST_50',
-        [joaat('weapon_bottle')] = 'WT_BOTTLE',
-        [joaat('weapon_gusenberg')] = 'WT_GUSENBERG',
-        [joaat('weapon_snspistol')] = 'WT_SNSPISTOL',
-        [joaat('weapon_vintagepistol')] = 'WT_VPISTOL',
-        [joaat('weapon_dagger')] = 'WT_DAGGER',
-        [joaat('weapon_flaregun')] = 'WT_FLAREGUN',
-        [joaat('weapon_heavypistol')] = 'WT_HEAVYPSTL',
-        [joaat('weapon_specialcarbine')] = 'WT_RIFLE_SCBN',
-        [joaat('weapon_musket')] = 'WT_MUSKET',
-        [joaat('weapon_firework')] = 'WT_FWRKLNCHR',
-        [joaat('weapon_marksmanrifle')] = 'WT_MKRIFLE',
-        [joaat('weapon_heavyshotgun')] = 'WT_HVYSHOT',
-        [joaat('weapon_proxmine')] = 'WT_PRXMINE',
-        [joaat('weapon_hominglauncher')] = 'WT_HOMLNCH',
-        [joaat('weapon_hatchet')] = 'WT_HATCHET',
-        [joaat('weapon_railgun')] = 'WT_RAILGUN',
-        [joaat('weapon_combatpdw')] = 'WT_COMBATPDW',
-        [joaat('weapon_knuckle')] = 'WT_KNUCKLE',
-        [joaat('weapon_marksmanpistol')] = 'WT_MKPISTOL',
-        [joaat('weapon_bullpuprifle')] = 'WT_BULLRIFLE',
-        [joaat('weapon_machete')] = 'WT_MACHETE',
-        [joaat('weapon_machinepistol')] = 'WT_MCHPIST',
-        [joaat('weapon_flashlight')] = 'WT_FLASHLIGHT',
-        [joaat('weapon_dbshotgun')] = 'WT_DBSHGN',
-        [joaat('weapon_compactrifle')] = 'WT_CMPRIFLE',
-        [joaat('weapon_switchblade')] = 'WT_SWBLADE',
-        [joaat('weapon_revolver')] = 'WT_REVOLVER',
-        [joaat('weapon_autoshotgun')] = 'WT_AUTOSHGN',
-        [joaat('weapon_battleaxe')] = 'WT_BATTLEAXE',
-        [joaat('weapon_compactlauncher')] = 'WT_CMPGL',
-        [joaat('weapon_minismg')] = 'WT_MINISMG',
-        [joaat('weapon_pipebomb')] = 'WT_PIPEBOMB',
-        [joaat('weapon_poolcue')] = 'WT_POOLCUE',
-        [joaat('weapon_wrench')] = 'WT_WRENCH',
-        [joaat('weapon_cougar')] = 'WT_RAGE',
-        [-159960575] = 'WT_VEH_WEP',
-        [joaat('weapon_pistol_mk2')] = 'WT_PIST2',
-        [joaat('weapon_smg_mk2')] = 'WT_SMG2',
-        [joaat('weapon_heavysniper_mk2')] = 'WT_SNIP_HVY2',
-        [joaat('weapon_combatmg_mk2')] = 'WT_MG_CBT2',
-        [joaat('weapon_assaultrifle_mk2')] = 'WT_RIFLE_ASL2',
-        [joaat('weapon_carbinerifle_mk2')] = 'WT_RIFLE_CBN2',
-        [joaat('weapon_pumpshotgun_mk2')] = 'WT_SG_PMP2',
-        [joaat('weapon_specialcarbine_mk2')] = 'WT_SPCARBINE2',
-        [joaat('weapon_snspistol_mk2')] = 'WT_SNSPISTOL2',
-        [joaat('weapon_marksmanrifle_mk2')] = 'WT_MKRIFLE2',
-        [joaat('weapon_revolver_mk2')] = 'WT_REVOLVER2',
-        [joaat('weapon_bullpuprifle_mk2')] = 'WT_BULLRIFLE2',
-        [joaat('weapon_doubleaction')] = 'WT_REV_DA',
-        [joaat('weapon_stone_hatchet')] = 'WT_SHATCHET',
-        [joaat('weapon_raypistol')] = 'WT_RAYPISTOL',
-        [joaat('weapon_raycarbine')] = 'WT_RAYCARBINE',
-        [joaat('weapon_rayminigun')] = 'WT_RAYMINIGUN',
-        [joaat('weapon_navyrevolver')] = 'WT_REV_NV',
-        [joaat('weapon_ceramicpistol')] = 'WT_CERPST',
-        [joaat('weapon_gadgetpistol')] = 'WT_GDGTPST',
-        [joaat('weapon_militaryrifle')] = 'WT_MLTRYRFL',
-        [joaat('weapon_combatshotgun')] = 'WT_CMBSHGN',
-        [joaat('weapon_fertilizercan')] = 'WT_FERTCAN',
-        [joaat('weapon_heavyrifle')] = 'WT_HEAVYRIFLE',
-        [joaat('weapon_emplauncher')] = 'WT_EMPL',
-        [joaat('weapon_stungun_mp')] = 'WT_STNGUNMP',
-        --added by me
-        [joaat('weapon_fireextinguisher')] = 'WT_FIRE',
-        [joaat('weapon_ball')] = 'WT_BALL',
-        [joaat('weapon_bzgas')] = 'WT_BZGAS',
-        [joaat('weapon_flare')] = 'WT_FLARE',
-        [joaat('weapon_snowball')] = 'WT_SNWBALL',
-    }
-    weaponHashToString = {
-        [joaat('weapon_hazardcan')] = 'Hazardous Jerry Can', --label was null in data dumps, wut?
     }
     local pistolMk2Ammo = {
         [joaat('AMMO_PISTOL_TRACER')]      = 'WCT_CLIP_TR',

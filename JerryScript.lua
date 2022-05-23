@@ -39,11 +39,6 @@ local whitelistedName = false
             maxTimeBetweenPress = value
         end)
 
-        local unFocusLists = {true}
-        menu.toggle(script_settings_root, 'Stay in choosable lists', {'JSstayInLists'}, 'Makes you stay in lists after you\ve chosen an option.', function(toggle)
-            unFocusLists[1] = not toggle
-        end)
-
     ----------------------------------
     -- Player info settings
     ----------------------------------
@@ -60,7 +55,7 @@ local whitelistedName = false
             local playerInfoTogglesOptions = {
                 {
                     name = 'Disable name', command = 'PIdisableName', description = '', toggle = true,
-                    displayText = function(pid) return 'Player: ' .. players.get_name(pid) end
+                    displayText = function(pid) return 'Player: '.. players.get_name(pid) end
                 },
                 {
                     name = 'Disable weapon', command = 'PIdisableWeapon', description = '', toggle = true,
@@ -80,21 +75,21 @@ local whitelistedName = false
                             ammoCount = memory.read_int(ammo_ptr)
                             memory.free(ammo_ptr)
                             local clipSize = WEAPON.GET_MAX_AMMO_IN_CLIP(ped, weaponHash, 1)
-                            return ammoCount and 'Clip: ' .. ammoCount .. ' / ' .. clipSize
+                            return ammoCount and 'Clip: '.. ammoCount ..' / '.. clipSize
                         end
                     end
                 },
                 {   name = 'Disable damage type', command = 'PIdisableDamage', description = 'Displays the type of damage the players weapon does, like melee / fire / bullets / mk2 ammo.', toggle = true,
                     displayText = function(pid, ped, weaponHash)
                         local damageType = getDamageType(ped, weaponHash)
-                        return damageType and 'Damage type: ' .. damageType
+                        return damageType and 'Damage type: '.. damageType
                     end
                 },
                 {
                     name = 'Disable vehicle', command = 'PIdisableVehicle', description = '', toggle = true,
                     displayText = function(pid, ped)
                         local vehicleName = getPlayerVehicleName(ped)
-                        return vehicleName and 'Vehicle: ' .. vehicleName
+                        return vehicleName and 'Vehicle: '.. vehicleName
                     end
                 },
                 {
@@ -109,13 +104,13 @@ local whitelistedName = false
                     name = 'Disable moving indicator', command = 'PIdisableMovement', description = '', toggle = true,
                     displayText = function(pid, ped)
                         local movement = getMovementType(ped)
-                        return movement and 'Player is ' .. movement
+                        return movement and 'Player is '.. movement
                     end
                 },
                 {
                     name = 'Disable aiming indicator', command = 'PIdisableAiming', description = '', toggle = true,
                     displayText = function(pid)
-                        return PLAYER.IS_PLAYER_TARGETTING_ENTITY(pid, PLAYER.PLAYER_PED_ID()) and 'Player is aiming at you'
+                        return PLAYER.IS_PLAYER_TARGETTING_ENTITY(pid, players.user_ped()) and 'Player is aiming at you'
                     end
                 },
                 {
@@ -155,39 +150,122 @@ local whitelistedName = false
                 colour = new.color(1, 0, 1)
             }
 
-            local exp_type_root = menu.list(epx_settings_root,'Explosion type: Grenade', {'JSexpType'}, 'Choose between 85 different (but not very different) explosions.')
             local exp_fx_root = menu.list(epx_settings_root,'FX explosions', {'JSfxExp'}, 'Lets you choose effects instead of explosion type.')
-            local exp_fx_type_root = menu.list(exp_fx_root, 'FX type: none', {'JSfxExpType'}, 'Choose a fx explosion type.')
-            for i = -1, #expTypeTable do
-                menu.action(exp_type_root, string.capitalize(expTypeTable[i]), {}, '', function()
-                    if expSettings.currentFx then expSettings.currentFx = nil end
-                    expSettings.expType = i
-                    menu.set_menu_name(exp_type_root, 'Explosion type: ' .. string.capitalize(expTypeTable[i]))
-                    menu.set_menu_name(exp_fx_type_root, 'FX type: none')
-                    if unFocusLists[1] then
-                        menu.focus(exp_type_root)
-                    end
-                end)
-            end
+            local exp_fx_type_root
 
-            for k, table in pairsByKeys(effects) do
-                local helpText = ''
-                if effects[k].colour and not effects[k].exp then
-                    helpText = helpText .. 'Colour can be changed.\nCan\'t be silenced.'
-                elseif effects[k].colour then
-                    helpText = helpText .. 'Colour can be changed.'
-                elseif not effects[k].exp then
-                    helpText = helpText .. 'Can\'t be silenced.'
-                end
-                menu.action(exp_fx_type_root, k, {}, helpText, function()
-                    expSettings.currentFx = effects[k]
-                    menu.set_menu_name(exp_type_root, 'Explosion type: Fx active')
-                    menu.set_menu_name(exp_fx_type_root, 'FX type: ' .. k)
-                    if unFocusLists[1] then
-                        menu.focus(exp_fx_type_root)
+            local exp_type_root exp_type_root = menu.list_action(epx_settings_root, 'Explosion type: Grenade', {}, 'Choose what animal the explosive animal gun has.', {
+                {'Grenade'},
+                {'Grenadelauncher'},
+                {'Stickybomb'},
+                {'Molotov'},
+                {'Rocket'},
+                {'Tankshell'},
+                {'Hi octane'},
+                {'Car'},
+                {'Plan'},
+                {'Petrol pump'},
+                {'Bike'},
+                {'Dir steam'},
+                {'Dir flame'},
+                {'Water hydran'},
+                {'Dir gas canister'},
+                {'Boat'},
+                {'Ship destroy'},
+                {'Truck'},
+                {'Bullet'},
+                {'Smokegrenadelauncher'},
+                {'Smokegrenade'},
+                {'Bzgas'},
+                {'Flare'},
+                {'Gas canister'},
+                {'Extinguisher'},
+                {'Programmablear'},
+                {'Train'},
+                {'Barrel'},
+                {'Propane'},
+                {'Blimp'},
+                {'Dir flame explode'},
+                {'Tanker'},
+                {'Plane rocket'},
+                {'Vehicle bullet'},
+                {'Gas tank'},
+                {'Bird crap'},
+                {'Railgun'},
+                {'Blimp2'},
+                {'Firework'},
+                {'Snowball'},
+                {'Proxmine'},
+                {'Valkyrie cannon'},
+                {'Air defence'},
+                {'Pipebomb'},
+                {'Vehiclemine'},
+                {'Explosiveammo'},
+                {'Apcshell'},
+                {'Bomb cluster'},
+                {'Bomb gas'},
+                {'Bomb incendiary'},
+                {'Bomb standard'},
+                {'Torpedo'},
+                {'Torpedo underwater'},
+                {'Bombushka cannon'},
+                {'Bomb cluster secondary'},
+                {'Hunter barrage'},
+                {'Hunter cannon'},
+                {'Rogue cannon'},
+                {'Mine underwater'},
+                {'Orbital cannon'},
+                {'Bomb standard wide'},
+                {'Explosiveammo shotgun'},
+                {'Oppressor2 cannon'},
+                {'Mortar kinetic'},
+                {'Vehiclemine kinetic'},
+                {'Vehiclemine emp'},
+                {'Vehiclemine spike'},
+                {'Vehiclemine slick'},
+                {'Vehiclemine tar'},
+                {'Script drone'},
+                {'Up-n-atomizer'},
+                {'Buriedmine'},
+                {'Script missile'},
+                {'Rctank rocket'},
+                {'Bomb water'},
+                {'Bomb water secondary'},
+                {'Unknown1'},
+                {'Unknown2'},
+                {'Flashgrenade'},
+                {'Stungrenade'},
+                {'Unknown3'},
+                {'Script missile large'},
+                {'Submarine big'},
+                {'Emplauncher emp'},
+            }, function(index, text)
+                if expSettings.currentFx then expSettings.currentFx = nil end
+                menu.set_menu_name(exp_type_root, 'Explosion type: '.. text)
+                menu.set_menu_name(exp_fx_type_root, 'FX type: none')
+                expSettings.expType = index - 1
+            end)
+
+            local function getEffectLabelTableFromKeys(keyTable)
+                local labelTable = {}
+                for k, v in pairsByKeys(keyTable) do
+                    local helpText = ''
+                    if keyTable[k].colour and not effects[k].exp then
+                        helpText = helpText ..'Colour can be changed.\nCan\'t be silenced.'
+                    elseif keyTable[k].colour then
+                        helpText = helpText ..'Colour can be changed.'
+                    elseif not keyTable[k].exp then
+                        helpText = helpText ..'Can\'t be silenced.'
                     end
-                end)
+                    table.insert(labelTable, {k, {}, helpText})
+                end
+                return labelTable
             end
+            exp_fx_type_root = menu.list_action(exp_fx_root, 'FX type: none', {'JSfxExpType'}, 'Choose a fx explosion type.', getEffectLabelTableFromKeys(effects), function(index, name)
+                expSettings.currentFx = effects[name]
+                menu.set_menu_name(exp_type_root, 'Explosion type: Fx active')
+                menu.set_menu_name(exp_fx_type_root, 'FX type: '.. name)
+            end)
+
 
             menu.rainbow(menu.colour(exp_fx_root, 'FX color', {'JSPfxColor'}, 'Only works on some pfx\'s.',  new.color(1, 0, 1, 1), false, function(colour)
                 expSettings.colour = colour
@@ -242,15 +320,13 @@ local whitelistedName = false
         local blamesTogglesTable = {}
         players.on_join(function(pid)
             local playerName = players.get_name(pid)
-            blamesTogglesTable[pid] = menu.action(blame_list_root, playerName, {'JSblame' .. playerName}, 'Blame ' .. playerName .. ' for your explosions.', function()
+            blamesTogglesTable[pid] = menu.action(blame_list_root, playerName, {'JSblame'.. playerName}, 'Blame '.. playerName ..' for your explosions.', function()
                 expSettings.blamedPlayer = pid
                 if menu.get_value(exp_blame_toggle) == 0 then
                     menu.trigger_command(exp_blame_toggle)
                 end
-                menu.set_menu_name(exp_blame_toggle, 'Blame: ' .. playerName)
-                if unFocusLists[1] then
-                    menu.focus(blame_list_root)
-                end
+                menu.set_menu_name(exp_blame_toggle, 'Blame: '.. playerName)
+                menu.focus(blame_list_root)
             end)
         end)
         players.on_leave(function(pid)
@@ -258,7 +334,7 @@ local whitelistedName = false
             if expSettings.blamedPlayer == pid then
                 local playerList = players.list(true, true, true)
                 for _, pid in pairs(playerList) do
-                    menu.trigger_commands('JSexplodeLoop' .. players.get_name(pid) .. ' off')
+                    menu.trigger_commands('JSexplodeLoop'.. players.get_name(pid) ..' off')
                 end
                 menu.trigger_command(explodeLoopAll, 'off')
                 expSettings.blamedPlayer = false
@@ -294,7 +370,7 @@ local whitelistedName = false
     -- 207 -> 208
     local alphaPoints = {0, 87, 159, 207, 255}
     menu.slider(self_root, 'Ghost', {'JSghost'}, 'Makes your player different levels off see through.',0,4, 4, 1, function(value)
-        ENTITY.SET_ENTITY_ALPHA(PLAYER.PLAYER_PED_ID(),alphaPoints[value + 1], false)
+        ENTITY.SET_ENTITY_ALPHA(players.user_ped(),alphaPoints[value + 1], false)
     end)
 
     -----------------------------------
@@ -330,12 +406,12 @@ local whitelistedName = false
         menu.toggle(fire_wings_list, 'Fire Wings', {'JSfireWings'}, 'Puts flames made of fire on your back.', function (toggle)
             fireWingsSettings.on = toggle
             if fireWingsSettings.on then
-                ENTITY.SET_ENTITY_PROOFS(PLAYER.PLAYER_PED_ID(), false, true, false, false, false, false, 1, false)
+                ENTITY.SET_ENTITY_PROOFS(players.user_ped(), false, true, false, false, false, false, 1, false)
                 if ptfxEgg == nil then
                     local eggHash = 1803116220
                     STREAMING.REQUEST_MODEL(eggHash)
                     yieldModelLoad(eggHash)
-                    ptfxEgg = entities.create_object(eggHash, ENTITY.GET_ENTITY_COORDS(PLAYER.PLAYER_PED_ID(), true))
+                    ptfxEgg = entities.create_object(eggHash, NETWORK._NETWORK_GET_PLAYER_COORDS(players.user_ped()))
                     ENTITY.SET_ENTITY_COLLISION(ptfxEgg, false, false)
                     ENTITY.SET_ENTITY_VISIBLE(ptfxEgg, false)
                     STREAMING.SET_MODEL_AS_NO_LONGER_NEEDED(eggHash)
@@ -349,8 +425,8 @@ local whitelistedName = false
                     fireWings[i].ptfx = GRAPHICS.START_NETWORKED_PARTICLE_FX_LOOPED_ON_ENTITY(firewingPtfx, ptfxEgg, 0, 0, 0.1, fireWings[i].pos[1], 0, fireWings[i].pos[2], fireWingsSettings.scale, false, false, false)
                     util.create_tick_handler(function()
                         for i = 1, #fireWings do
-                            set_entity_coords(ptfxEgg, ENTITY.GET_ENTITY_COORDS(PLAYER.PLAYER_PED_ID(), true))
-                            local rot = ENTITY.GET_ENTITY_ROTATION(PLAYER.PLAYER_PED_ID(), 2)
+                            set_entity_coords(ptfxEgg, NETWORK._NETWORK_GET_PLAYER_COORDS(players.user_ped()))
+                            local rot = ENTITY.GET_ENTITY_ROTATION(players.user_ped(), 2)
                             ENTITY.SET_ENTITY_ROTATION(ptfxEgg, rot.x, rot.y, rot.z, 2, true)
                             GRAPHICS.SET_PARTICLE_FX_LOOPED_SCALE(fireWings[i].ptfx, fireWingsSettings.scale)
                             GRAPHICS.SET_PARTICLE_FX_LOOPED_COLOUR(fireWings[i].ptfx, fireWingsSettings.fireColor.r, fireWingsSettings.fireColor.g, fireWingsSettings.fireColor.b)
@@ -373,7 +449,7 @@ local whitelistedName = false
             end
         end)
 
-        menu.slider(fire_wings_list, 'Fire wings scale', {'JSfireWingsScale'}, '', 1, 10, 3, 1, function(value)
+        menu.slider(fire_wings_list, 'Fire wings scale', {'JSfireWingsScale'}, '', 1, 100, 3, 1, function(value)
             fireWingsSettings.scale = value / 10
         end)
 
@@ -407,7 +483,7 @@ local whitelistedName = false
 
         for i = 0, #faceFeatures do
             menu.slider(face_feature_list, faceFeatures[i], {}, '',0, 10, 1, 1, function(value)
-                PED._SET_PED_MICRO_MORPH_VALUE(PLAYER.PLAYER_PED_ID(), i, value / 10)
+                PED._SET_PED_MICRO_MORPH_VALUE(players.user_ped(), i, value / 10)
             end)
         end
 
@@ -429,9 +505,9 @@ local whitelistedName = false
         local face_overlay_list = menu.list(self_root,'Customize face overlays', {}, 'Customizations reset after restarting the game.', function()end)
 
         for i = 0, #faceOverlays do
-            local overlayValue = PED._GET_PED_HEAD_OVERLAY_VALUE(PLAYER.PLAYER_PED_ID(), i)
+            local overlayValue = PED._GET_PED_HEAD_OVERLAY_VALUE(players.user_ped(), i)
             menu.slider(face_overlay_list, faceOverlays[i].name, {}, '', faceOverlays[i].min, faceOverlays[i].max, (overlayValue == 255 and -1 or overlayValue), 1, function(value)
-                PED.SET_PED_HEAD_OVERLAY(PLAYER.PLAYER_PED_ID(), i, (value == 255 and -1 or value), 1)
+                PED.SET_PED_HEAD_OVERLAY(players.user_ped(), i, (value == 255 and -1 or value), 1)
             end)
         end
 
@@ -441,51 +517,51 @@ local whitelistedName = false
         local ragdoll_types = menu.list(self_root, 'Ragdoll types', {'JSragdollTypes'}, 'Different options for making yourself ragdoll.')
 
         menu.toggle_loop(ragdoll_types, 'Better clumsiness', {'JSclumsy'}, 'Like stands clumsiness, but you can get up after you fall.', function()
-            if PED.IS_PED_RAGDOLL(PLAYER.PLAYER_PED_ID()) then util.yield(3000) return end
-            PED.SET_PED_RAGDOLL_ON_COLLISION(PLAYER.PLAYER_PED_ID(), true)
+            if PED.IS_PED_RAGDOLL(players.user_ped()) then util.yield(3000) return end
+            PED.SET_PED_RAGDOLL_ON_COLLISION(players.user_ped(), true)
         end)
 
         menu.action(ragdoll_types, 'Trip', {'JStrip'}, 'Makes you fall over, works best when running.', function()
-            local vector = ENTITY.GET_ENTITY_FORWARD_VECTOR(PLAYER.PLAYER_PED_ID())
-            PED.SET_PED_TO_RAGDOLL_WITH_FALL(PLAYER.PLAYER_PED_ID(), 1500, 2000, 2, vector.x, -vector.y, vector.z, 1, 0, 0, 0, 0, 0, 0)
+            local vector = ENTITY.GET_ENTITY_FORWARD_VECTOR(players.user_ped())
+            PED.SET_PED_TO_RAGDOLL_WITH_FALL(players.user_ped(), 1500, 2000, 2, vector.x, -vector.y, vector.z, 1, 0, 0, 0, 0, 0, 0)
         end)
 
         -- credit to LAZScript for inspiring this
         local fallTimeout = false
         menu.toggle(ragdoll_types, 'Don\'t get back up', {'JSfallen'}, 'Makes you fall over and prevents you from getting back up.', function(toggle)
             if toggle then
-                local vector = ENTITY.GET_ENTITY_FORWARD_VECTOR(PLAYER.PLAYER_PED_ID())
-                PED.SET_PED_TO_RAGDOLL_WITH_FALL(PLAYER.PLAYER_PED_ID(), 1500, 2000, 2, vector.x, -vector.y, vector.z, 1, 0, 0, 0, 0, 0, 0)
+                local vector = ENTITY.GET_ENTITY_FORWARD_VECTOR(players.user_ped())
+                PED.SET_PED_TO_RAGDOLL_WITH_FALL(players.user_ped(), 1500, 2000, 2, vector.x, -vector.y, vector.z, 1, 0, 0, 0, 0, 0, 0)
             end
             fallTimeout = toggle
             while fallTimeout do
-                PED.RESET_PED_RAGDOLL_TIMER(PLAYER.PLAYER_PED_ID())
+                PED.RESET_PED_RAGDOLL_TIMER(players.user_ped())
                 util.yield()
             end
         end)
 
         -- credit to aaron for telling me this :p
         menu.toggle_loop(ragdoll_types, 'Ragdoll', {'JSragdoll'}, 'Just makes you ragdoll.', function()
-            PED.SET_PED_TO_RAGDOLL( PLAYER.PLAYER_PED_ID(), 2000, 2000, 0, true, true, true)
+            PED.SET_PED_TO_RAGDOLL(players.user_ped(), 2000, 2000, 0, true, true, true)
         end)
     -----------------------------------
     menu.toggle_loop(self_root, 'Full regen', {'JSfullRegen'}, 'Makes your hp regenerate until you\'re at full health.', function()
-        local health = ENTITY.GET_ENTITY_HEALTH(PLAYER.PLAYER_PED_ID())
-        if ENTITY.GET_ENTITY_MAX_HEALTH(PLAYER.PLAYER_PED_ID()) == health then return end
-        ENTITY.SET_ENTITY_HEALTH(PLAYER.PLAYER_PED_ID(), health + 5, 0)
+        local health = ENTITY.GET_ENTITY_HEALTH(players.user_ped())
+        if ENTITY.GET_ENTITY_MAX_HEALTH(players.user_ped()) == health then return end
+        ENTITY.SET_ENTITY_HEALTH(players.user_ped(), health + 5, 0)
         util.yield(255)
     end)
 
     menu.toggle(self_root, 'Cold blooded', {'JScoldBlooded'}, 'Removes your thermal signature.\nOther players still see it tho.', function(toggle)
         if toggle then
-            PED.SET_PED_HEATSCALE_OVERRIDE(PLAYER.PLAYER_PED_ID(), 0)
+            PED.SET_PED_HEATSCALE_OVERRIDE(players.user_ped(), 0)
         else
-            PED.SET_PED_HEATSCALE_OVERRIDE(PLAYER.PLAYER_PED_ID(), 1)
+            PED.SET_PED_HEATSCALE_OVERRIDE(players.user_ped(), 1)
         end
     end)
 
     menu.toggle(self_root, 'Quiet footsteps', {'JSquietSteps'}, 'Disables the sound of your footsteps.', function(toggle)
-        AUDIO._SET_PED_AUDIO_FOOTSTEP_LOUD(PLAYER.PLAYER_PED_ID(), not toggle)
+        AUDIO._SET_PED_AUDIO_FOOTSTEP_LOUD(players.user_ped(), not toggle)
      end)
 
 -----------------------------------
@@ -495,7 +571,7 @@ local whitelistedName = false
 
     local thermal_command = menu.ref_by_path('Game>Rendering>Thermal Vision', 34)
     menu.toggle_loop(weapons_root, 'Thermal guns', {'JSthermalGuns'}, 'Makes it so when you aim any gun you can toggle thermal vision on "E".', function()
-        if PLAYER.IS_PLAYER_FREE_AIMING(PLAYER.PLAYER_PED_ID()) then
+        if PLAYER.IS_PLAYER_FREE_AIMING(players.user_ped()) then
             if PAD.IS_CONTROL_JUST_PRESSED(2, 38) then
                 if not GRAPHICS.GET_USINGSEETHROUGH() then
                     menu.trigger_command(thermal_command, 'on')
@@ -518,11 +594,11 @@ local whitelistedName = false
         local weapon_settings_root = menu.list(weapons_root, 'Weapon settings', {}, '')
 
         local function readWeaponAddress(storeTable, offset, stopIfModified)
-            local userPed = PLAYER.PLAYER_PED_ID()
+            local userPed = players.user_ped()
             local weaponHash = getWeaponHash(userPed)
             if stopIfModified and storeTable[weaponHash] then return 0 end
             local pointer = (WEAPON.GET_CURRENT_PED_VEHICLE_WEAPON(userPed, 69) and 0x70 or 0x20)
-            local address = address_from_pointer_chain(entities.handle_to_pointer(PLAYER.PLAYER_PED_ID()), {0x10D8, pointer, offset})
+            local address = address_from_pointer_chain(entities.handle_to_pointer(userPed), {0x10D8, pointer, offset})
             if address == 0 then util.toast('Failed to find memory address.') return 0 end
             if not storeTable[weaponHash] then
                 storeTable[weaponHash] = {
@@ -542,7 +618,7 @@ local whitelistedName = false
 
         local modifiedFalloff = {}
         menu.toggle_loop(weapon_settings_root, 'No damage falloff', {'JSnoFAlloff'}, '', function()
-            local userPed = PLAYER.PLAYER_PED_ID()
+            local userPed = players.user_ped()
             local weaponHash = getWeaponHash(userPed)
             if modifiedFalloff[weaponHash] then return end
             local pointer = (WEAPON.GET_CURRENT_PED_VEHICLE_WEAPON(userPed, 69) and 0x70 or 0x20)
@@ -592,7 +668,7 @@ local whitelistedName = false
         local togglingRemoveMinigun = false
         local remove_minigun_toggle remove_minigun_toggle = menu.toggle(weapon_settings_root, 'Remove minigun spin-up time', {'JSnoSpinUp'}, 'Requires you to hold a your minigun.', function(toggle)
             if togglingRemoveMinigun then return end
-            if WEAPON.GET_SELECTED_PED_WEAPON(PLAYER.PLAYER_PED_ID()) ~= util.joaat('weapon_minigun') then
+            if WEAPON.GET_SELECTED_PED_WEAPON(players.user_ped()) ~= util.joaat('weapon_minigun') then
                 util.toast('You aren\'t holding your minigun.')
                 togglingRemoveMinigun = true
                 menu.trigger_command(remove_minigun_toggle, (menu.get_value(remove_minigun_toggle) == 1 and 'off' or 'on'))
@@ -600,7 +676,7 @@ local whitelistedName = false
                 togglingRemoveMinigun = false
                 return
             end
-            local address = address_from_pointer_chain(entities.handle_to_pointer(PLAYER.PLAYER_PED_ID()), {0x10D8, 0x20, 0x144})
+            local address = address_from_pointer_chain(entities.handle_to_pointer(players.user_ped()), {0x10D8, 0x20, 0x144})
             if address == 0 then util.toast('Failed to find memory address.') return end
             memory.write_float(address, (toggle and 0 or 0.5))
         end)
@@ -608,7 +684,7 @@ local whitelistedName = false
         local modifiedCarForce = {}
         local modifiedHeliForce = {}
         local modifiedPedForce = {}
-        menu.slider(weapon_settings_root, 'Bullet force multiplier', {'JSbulletForceMultiplier'}, 'Works best when shooting vehicles from the front.\nDisplayed value is in percent.', 1, 9999999999, 100, 1, function(value)
+        menu.slider_float(weapon_settings_root, 'Bullet force multiplier', {'JSbulletForceMultiplier'}, 'Works best when shooting vehicles from the front.\nDisplayed value is in percent.', 1, 9999999999, 100, 1, function(value)
             local weaponHash = readWeaponAddress(modifiedCarForce, 0x0E0, false)
             if weaponHash == 0 then return end
             memory.write_float(modifiedCarForce[weaponHash].address, modifiedCarForce[weaponHash].original * value / 100)
@@ -654,8 +730,8 @@ local whitelistedName = false
             resetWeapons(modifiedZoomFov)
         end)
 
-        menu.slider(weapon_settings_root, 'Zoom aim fov', {'JSzoomAimFov'}, '',1000, 9999999999, 1000, 1, function(value)
-            extraZoom = (value - 1000) / 1000
+        menu.slider_float(weapon_settings_root, 'Zoom aim fov', {'JSzoomAimFov'}, '',100, 9999999999, 100, 1, function(value)
+            extraZoom = (value - 100) / 100
             modifiedZoomWeapon = nil
         end)
 
@@ -668,7 +744,7 @@ local whitelistedName = false
         local function autoExplodeStickys(ped)
             local pos = ENTITY.GET_ENTITY_COORDS(ped, true)
             if not MISC.IS_PROJECTILE_TYPE_WITHIN_DISTANCE(pos.x, pos.y, pos.z, util.joaat('weapon_stickybomb'), proxyStickySettings.radius, true) then return end
-            WEAPON.EXPLODE_PROJECTILES(PLAYER.PLAYER_PED_ID(), util.joaat('weapon_stickybomb'))
+            WEAPON.EXPLODE_PROJECTILES(players.user_ped(), util.joaat('weapon_stickybomb'))
         end
 
         menu.toggle_loop(proxy_sticky_root, 'Proxy stickys', {'JSproxyStickys'}, 'Makes your sticky bombs automatically detonate around players or npcs, works with the player whitelist.', function()
@@ -708,13 +784,13 @@ local whitelistedName = false
     -----------------------------------
 
     menu.toggle(weapons_root, 'Friendly fire', {'JSfriendlyFire'}, 'Makes you able to shoot peds the game count as your friends.', function(toggle)
-        PED.SET_CAN_ATTACK_FRIENDLY(PLAYER.PLAYER_PED_ID(), toggle, false)
+        PED.SET_CAN_ATTACK_FRIENDLY(players.user_ped(), toggle, false)
     end)
 
     menu.toggle_loop(weapons_root, 'Reload when rolling', {'JSrollReload'}, 'Reloads your weapon when doing a roll.', function()
-        if TASK.GET_IS_TASK_ACTIVE(PLAYER.PLAYER_PED_ID(), 4) and PAD.IS_CONTROL_PRESSED(2, 22) and not PED.IS_PED_SHOOTING(PLAYER.PLAYER_PED_ID())  then --checking if player is rolling
+        if TASK.GET_IS_TASK_ACTIVE(players.user_ped(), 4) and PAD.IS_CONTROL_PRESSED(2, 22) and not PED.IS_PED_SHOOTING(players.user_ped())  then --checking if player is rolling
             util.yield(900)
-            WEAPON.REFILL_AMMO_INSTANTLY(PLAYER.PLAYER_PED_ID())
+            WEAPON.REFILL_AMMO_INSTANTLY(players.user_ped())
         end
     end)
 
@@ -753,8 +829,8 @@ local whitelistedName = false
         if nuke_running then
             if animals_running then menu.trigger_command(exp_animal_toggle, 'off') end
             util.create_tick_handler(function()
-                if WEAPON.GET_SELECTED_PED_WEAPON(PLAYER.PLAYER_PED_ID()) == -1312131151 then --if holding homing launcher
-                    if PED.IS_PED_SHOOTING(PLAYER.PLAYER_PED_ID()) then
+                if WEAPON.GET_SELECTED_PED_WEAPON(players.user_ped()) == -1312131151 then --if holding homing launcher
+                    if PED.IS_PED_SHOOTING(players.user_ped()) then
                         if not remove_projectiles then
                             remove_projectiles = true
                             disableProjectileLoop(-1312131151)
@@ -817,28 +893,28 @@ local whitelistedName = false
     end)
 
     --this is heavily skidded from wiriScript so credit to wiri
-    local launcherThrowable = {util.joaat('weapon_grenade')}
+    local launcherThrowable = util.joaat('weapon_grenade')
     local throwables_launcher_root = menu.list(weapons_root, 'Throwables launcher', {}, '')
-    local grenade_gun_toggle = menu.toggle(throwables_launcher_root, 'Throwables launcher', {'JSgrenade'}, 'Makes the grenade launcher able to shoot throwables, gives you the throwable if you don\'t have it so you can shoot it..', function(toggle)
+    local grenade_gun_toggle = menu.toggle(throwables_launcher_root, 'Throwables launcher', {'JSgrenade'}, 'Makes the grenade launcher able to shoot throwables, gives you the throwable if you don\'t have it so you can shoot it.', function(toggle)
         grenade_running = toggle
         if grenade_running then
             if animals_running then menu.trigger_command(exp_animal_toggle, "off") end
             util.create_tick_handler(function()
-                if WEAPON.GET_SELECTED_PED_WEAPON(PLAYER.PLAYER_PED_ID()) == -1568386805 then --if holding grenade launcher
-                    if PED.IS_PED_SHOOTING(PLAYER.PLAYER_PED_ID()) then
+                if WEAPON.GET_SELECTED_PED_WEAPON(players.user_ped()) == -1568386805 then --if holding grenade launcher
+                    if PED.IS_PED_SHOOTING(players.user_ped()) then
                         if not remove_projectiles then
                             remove_projectiles = true
                             disableProjectileLoop(-1568386805)
                         end
                         util.create_thread(function()
-                            local currentWeapon = WEAPON.GET_CURRENT_PED_WEAPON_ENTITY_INDEX(PLAYER.PLAYER_PED_ID(), false)
+                            local currentWeapon = WEAPON.GET_CURRENT_PED_WEAPON_ENTITY_INDEX(players.user_ped(), false)
                             local pos1 = ENTITY._GET_ENTITY_BONE_POSITION_2(currentWeapon, ENTITY.GET_ENTITY_BONE_INDEX_BY_NAME(currentWeapon, 'gun_muzzle'))
                             local pos2 = get_offset_from_gameplay_camera(30)
-                            if not WEAPON.HAS_PED_GOT_WEAPON(PLAYER.PLAYER_PED_ID(), launcherThrowable[1], false) then
-                                WEAPON.GIVE_WEAPON_TO_PED(PLAYER.PLAYER_PED_ID(), launcherThrowable[1], 9999, false, false)
+                            if not WEAPON.HAS_PED_GOT_WEAPON(players.user_ped(), launcherThrowable, false) then
+                                WEAPON.GIVE_WEAPON_TO_PED(players.user_ped(), launcherThrowable, 9999, false, false)
                             end
                             util.yield()
-                            MISC.SHOOT_SINGLE_BULLET_BETWEEN_COORDS(pos1.x, pos1.y, pos1.z, pos2.x, pos2.y, pos2.z, 200, true, launcherThrowable[1], PLAYER.PLAYER_PED_ID(), true, false, 2000.0)
+                            MISC.SHOOT_SINGLE_BULLET_BETWEEN_COORDS(pos1.x, pos1.y, pos1.z, pos2.x, pos2.y, pos2.z, 200, true, launcherThrowable, players.user_ped(), true, false, 2000.0)
                         end)
                     else
                         remove_projectiles = false
@@ -852,46 +928,46 @@ local whitelistedName = false
     end)
 
     local throwablesTable = {
-        Grenade = util.joaat('weapon_grenade'),
-        Sticky_Bomb = util.joaat('weapon_stickybomb'),
-        Proximity_Mine = util.joaat('weapon_proxmine'),
-        BZ_Gas = util.joaat('weapon_bzgas'),
-        Tear_Gas =  util.joaat('weapon_smokegrenade'),
-        Molotov = util.joaat('weapon_molotov'),
-        Flare = util.joaat('weapon_flare'),
-        Snowball = util.joaat('weapon_snowball'),
-        Ball = util.joaat('weapon_ball'),
-        Pipe_Bomb = util.joaat('weapon_pipebomb'),
+        ['Grenade']  = util.joaat('weapon_grenade'),
+        ['Sticky Bomb']  = util.joaat('weapon_stickybomb'),
+        ['Proximity Mine']  = util.joaat('weapon_proxmine'),
+        ['BZ Gas']  = util.joaat('weapon_bzgas'),
+        ['Tear Gas']  = util.joaat('weapon_smokegrenade'),
+        ['Molotov']  = util.joaat('weapon_molotov'),
+        ['Flare']  = util.joaat('weapon_flare'),
+        ['Snowball']  = util.joaat('weapon_snowball'),
+        ['Ball']  = util.joaat('weapon_ball'),
+        ['Pipe Bomb'] = util.joaat('weapon_pipebomb'),
     }
-    local throwable_list = menu.list(throwables_launcher_root, 'Current throwable: Grenade', {}, 'Choose what animal the explosive animal gun has.', function()
-        if launcherThrowable[2] then menu.focus(launcherThrowable[2]) end
+    local throwables_launcher_list throwables_launcher_list = menu.list_action(throwables_launcher_root, 'Current throwable: Grenade', {}, 'Choose what animal the explosive animal gun has.', getLabelTableFromKeys(throwablesTable), function(index, text)
+        menu.set_menu_name(throwables_launcher_list, 'Current throwable: '.. text)
+        launcherThrowable = throwablesTable[text]
     end)
-    generateTableList(throwable_list, throwablesTable, launcherThrowable, 'Current throwable: ', unFocusLists)
 
     local disable_firing = false
     local function disableFiringLoop()
         util.create_tick_handler(function()
-            PLAYER.DISABLE_PLAYER_FIRING(PLAYER.PLAYER_PED_ID(), true)
+            PLAYER.DISABLE_PLAYER_FIRING(players.user_ped(), true)
             return disable_firing
         end)
     end
 
     local exp_animal_gun_root = menu.list(weapons_root, 'Explosive animal gun', {}, '')
-    local exp_animal = {'a_c_killerwhale'}
+    local exp_animal = 'a_c_killerwhale'
     exp_animal_toggle = menu.toggle(exp_animal_gun_root, 'Explosive animal gun', {'JSexpAnimalGun'}, 'Inspired by impulses explosive whale gun, but can fire other animals too.', function(toggle)
         animals_running = toggle
         if animals_running then
             if nuke_running then menu.trigger_command(nuke_gun_toggle, 'off') end
             if grenade_running then menu.trigger_command(grenade_gun_toggle, 'off') end
             while animals_running do
-                local weaponHash = WEAPON.GET_SELECTED_PED_WEAPON(PLAYER.PLAYER_PED_ID())
+                local weaponHash = WEAPON.GET_SELECTED_PED_WEAPON(players.user_ped())
                 local weaponType = WEAPON.GET_WEAPON_DAMAGE_TYPE(weaponHash)
                 if weaponType == 3 or (weaponType == 5 and WEAPON.GET_WEAPONTYPE_GROUP(weaponHash) ~= 1548507267) then --weapons that shoot bullets or explosions and isn't in the throwables category (grenades, proximity mines etc...)
                     disable_firing = true
                     disableFiringLoop()
-                    if PAD.IS_DISABLED_CONTROL_PRESSED(2,24) and PLAYER.IS_PLAYER_FREE_AIMING(PLAYER.PLAYER_PED_ID()) then
+                    if PAD.IS_DISABLED_CONTROL_PRESSED(2, 24) and PLAYER.IS_PLAYER_FREE_AIMING(players.user_ped()) then
                         util.create_thread(function()
-                            local hash = util.joaat(exp_animal[1])
+                            local hash = util.joaat(exp_animal)
                             STREAMING.REQUEST_MODEL(hash)
                             yieldModelLoad(hash)
                             local dir, c1 = direction()
@@ -916,28 +992,28 @@ local whitelistedName = false
     end)
 
     local animalsTable = {
-        Cat = 'a_c_cat_01',
-        Pug = 'a_c_pug',
-        Killerwhale = 'a_c_killerwhale',
-        Dolphin = 'a_c_dolphin',
-        Hen = 'a_c_hen',
-        Pig = 'a_c_pig',
-        Chimp = 'a_c_chimp',
-        Rat = 'a_c_rat',
-        Fish = 'a_c_fish',
-        Retriever = 'a_c_retriever',
-        Rottweiler = 'a_c_rottweiler',
+        ['Cat'] = 'a_c_cat_01',
+        ['Pug'] = 'a_c_pug',
+        ['Killerwhale'] = 'a_c_killerwhale',
+        ['Dolphin'] = 'a_c_dolphin',
+        ['Hen'] = 'a_c_hen',
+        ['Pig'] = 'a_c_pig',
+        ['Chimp'] = 'a_c_chimp',
+        ['Rat'] = 'a_c_rat',
+        ['Fish'] = 'a_c_fish',
+        ['Retriever'] = 'a_c_retriever',
+        ['Rottweiler'] = 'a_c_rottweiler',
     }
-    local exp_type_list = menu.list(exp_animal_gun_root,'Current animal: Killerwhale', {}, 'Choose wat animal the explosive animal gun has.', function()
-        if exp_animal[2] then menu.focus(exp_animal[2]) end
+    local throwables_launcher_list throwables_launcher_list = menu.list_action(exp_animal_gun_root, 'Current animal: Killerwhale', {}, 'Choose wat animal the explosive animal gun has.', getLabelTableFromKeys(animalsTable), function(index, text)
+        menu.set_menu_name(throwables_launcher_list, 'Current animal: '.. text)
+        exp_animal = animalsTable[text]
     end)
-    generateTableList(exp_type_list, animalsTable, exp_animal, 'Current animal: ', unFocusLists)
 
     local impactCords = v3.new()
     local blocks = {}
     local minecraft_gun_root = menu.list(weapons_root, 'Minecraft gun', {}, '')
     menu.toggle_loop(minecraft_gun_root, 'Minecraft gun', {'JSminecraftGun'}, 'Spawns blocks where you shoot.', function()
-        if WEAPON.GET_PED_LAST_WEAPON_IMPACT_COORD(PLAYER.PLAYER_PED_ID(), impactCords) then
+        if WEAPON.GET_PED_LAST_WEAPON_IMPACT_COORD(players.user_ped(), impactCords) then
             local hash = util.joaat('prop_mb_sandblock_01')
             STREAMING.REQUEST_MODEL(hash)
             yieldModelLoad(hash)
@@ -1019,24 +1095,24 @@ local whitelistedName = false
             carSettings.launchControl.setOption(toggle)
         end)
 
-        local my_torque = 1000
-        menu.slider(speedHandling_root, 'Set torque', {'JSsetSelfTorque'}, 'Modifies the speed of your vehicle.', -1000000, 1000000, my_torque, 1, function(value)
+        local my_torque = 100
+        menu.slider_float(speedHandling_root, 'Set torque', {'JSsetSelfTorque'}, 'Modifies the speed of your vehicle.', -1000000, 1000000, my_torque, 1, function(value)
             my_torque = value
             util.create_tick_handler(function()
-                VEHICLE.SET_VEHICLE_CHEAT_POWER_INCREASE(my_cur_car, my_torque/1000)
-                return (my_torque ~= 1000)
+                VEHICLE.SET_VEHICLE_CHEAT_POWER_INCREASE(my_cur_car, my_torque/100)
+                return (my_torque ~= 100)
             end)
         end)
 
         local quickBrakeLvL = 1.5
         menu.toggle_loop(speedHandling_root, 'Quick brake', {'JSquickBrake'}, 'Slows down your speed more when pressing "S".', function(toggle)
-            if PAD.IS_CONTROL_JUST_PRESSED(2, 72) and ENTITY.GET_ENTITY_SPEED(my_cur_car) >= 0 and not ENTITY.IS_ENTITY_IN_AIR(my_cur_car) and VEHICLE.GET_PED_IN_VEHICLE_SEAT(my_cur_car, -1, false) == PLAYER.PLAYER_PED_ID() then
+            if PAD.IS_CONTROL_JUST_PRESSED(2, 72) and ENTITY.GET_ENTITY_SPEED(my_cur_car) >= 0 and not ENTITY.IS_ENTITY_IN_AIR(my_cur_car) and VEHICLE.GET_PED_IN_VEHICLE_SEAT(my_cur_car, -1, false) == players.user_ped() then
                 VEHICLE.SET_VEHICLE_FORWARD_SPEED(my_cur_car, ENTITY.GET_ENTITY_SPEED(my_cur_car) / quickBrakeLvL)
                 util.yield(250)
             end
         end)
 
-        menu.slider(speedHandling_root, 'Quick brake force', {'JSquickBrakeForce'}, '100 is ordinary brakes.', 100, 999, 150, 1,  function(value)
+        menu.slider_float(speedHandling_root, 'Quick brake force', {'JSquickBrakeForce'}, '1.00 is ordinary brakes.', 100, 999, 150, 1,  function(value)
             quickBrakeLvL = value / 100
         end)
 
@@ -1052,7 +1128,7 @@ local whitelistedName = false
 
         local pressedW = util.current_time_millis()
         menu.toggle_loop(boosts_root, 'Vehicle jump', {'JSVehJump'}, 'Lets you jump with your car if you double tap "W".', function()
-            if VEHICLE.GET_PED_IN_VEHICLE_SEAT(my_cur_car, -1, false) == PLAYER.PLAYER_PED_ID() and PED.IS_PED_IN_VEHICLE(PLAYER.PLAYER_PED_ID(), my_cur_car, true) then
+            if VEHICLE.GET_PED_IN_VEHICLE_SEAT(my_cur_car, -1, false) == players.user_ped() and PED.IS_PED_IN_VEHICLE(players.user_ped(), my_cur_car, true) then
                 if PAD.IS_CONTROL_JUST_PRESSED(2, 32) then
                     if not (util.current_time_millis() - pressedW <= maxTimeBetweenPress) then
                         pressedW = util.current_time_millis()
@@ -1060,7 +1136,7 @@ local whitelistedName = false
                     end
                     local mySpeed = ENTITY.GET_ENTITY_SPEED(my_cur_car)
                     ENTITY.APPLY_FORCE_TO_ENTITY_CENTER_OF_MASS(my_cur_car, 1, 0, 2, (mySpeed / 10) + 14, 0, true, true, true)
-                    AUDIO.PLAY_SOUND_FROM_ENTITY(-1, 'Hydraulics_Down', PLAYER.PLAYER_PED_ID(), 'Lowrider_Super_Mod_Garage_Sounds', true, 20)
+                    AUDIO.PLAY_SOUND_FROM_ENTITY(-1, 'Hydraulics_Down', players.user_ped(), 'Lowrider_Super_Mod_Garage_Sounds', true, 20)
                 end
             end
         end)
@@ -1080,7 +1156,7 @@ local whitelistedName = false
                     while not STREAMING.HAS_NAMED_PTFX_ASSET_LOADED('veh_xs_vehicle_mods') do util.yield() end
                 end
                 while nitroBoostActive do
-                    if PAD.IS_CONTROL_JUST_PRESSED(2, 357) and PED.IS_PED_IN_ANY_VEHICLE(PLAYER.PLAYER_PED_ID(), true) then --control is x
+                    if PAD.IS_CONTROL_JUST_PRESSED(2, 357) and PED.IS_PED_IN_ANY_VEHICLE(players.user_ped(), true) then --control is x
                         VEHICLE._SET_VEHICLE_NITRO_ENABLED(my_cur_car, true, getTotalDelay(nitroSettings.level) / 10, nitroSettings.power, 999999999999999999, false)
                         util.yield(getTotalDelay(nitroSettings.level))
                         VEHICLE._SET_VEHICLE_NITRO_ENABLED(my_cur_car, false, getTotalDelay(nitroSettings.level) / 10, nitroSettings.power, 999999999999999999, false)
@@ -1123,12 +1199,12 @@ local whitelistedName = false
             end
             local function shunt(dir)
                 ENTITY.APPLY_FORCE_TO_ENTITY_CENTER_OF_MASS(my_cur_car, 1, shuntSettings.force * dir, 0, 0, 0, true, true, true)
-                AUDIO.PLAY_SOUND_FROM_ENTITY(-1, 'Hydraulics_Down', PLAYER.PLAYER_PED_ID(), 'Lowrider_Super_Mod_Garage_Sounds', true, 20)
+                AUDIO.PLAY_SOUND_FROM_ENTITY(-1, 'Hydraulics_Down', players.user_ped(), 'Lowrider_Super_Mod_Garage_Sounds', true, 20)
                 forceRecharge()
             end
             menu.toggle_loop(boosts_root, 'Shunt boost', {'JSshuntBoost'}, 'Lets you shunt boost in any vehicle by double tapping "A" or "D".', function()
                 util.create_thread(function()
-                    if VEHICLE.GET_PED_IN_VEHICLE_SEAT(my_cur_car, -1, false) == PLAYER.PLAYER_PED_ID() and PED.IS_PED_IN_VEHICLE(PLAYER.PLAYER_PED_ID(), my_cur_car, true) then
+                    if VEHICLE.GET_PED_IN_VEHICLE_SEAT(my_cur_car, -1, false) == players.user_ped() and PED.IS_PED_IN_VEHICLE(players.user_ped(), my_cur_car, true) then
                         if PAD.IS_CONTROL_JUST_PRESSED(2, 35) then --D
                             if not (util.current_time_millis() - shuntSettings.lastPress.D <= maxTimeBetweenPress) then
                                 shuntSettings.lastPress.D = util.current_time_millis()
@@ -1167,7 +1243,7 @@ local whitelistedName = false
         end)
 
         menu.toggle_loop(veh_door_root, 'Shut doors when driving', {'JSautoClose'}, 'Closes all the vehicle doors when you start driving.', function()
-            if VEHICLE.GET_PED_IN_VEHICLE_SEAT(my_cur_car, -1, false) == PLAYER.PLAYER_PED_ID() and ENTITY.GET_ENTITY_SPEED(my_cur_car) > 1 then --over a speed of 1 because car registers as moving then doors move
+            if VEHICLE.GET_PED_IN_VEHICLE_SEAT(my_cur_car, -1, false) == players.user_ped() and ENTITY.GET_ENTITY_SPEED(my_cur_car) > 1 then --over a speed of 1 because car registers as moving then doors move
                 if ENTITY.GET_ENTITY_SPEED(my_cur_car) < 10 then util.yield(800) else util.yield(600) end
                 local closed = false
                 for i, door in ipairs(carDoors) do
@@ -1219,7 +1295,7 @@ local whitelistedName = false
 
     menu.slider(my_vehicle_root, 'Ghost vehicle', {'JSghostVeh'}, 'Makes your vehicle different levels off see through.',0 , 4, 4, 1, function(value)
         carSettings.ghostCar.value = value
-        if PED.IS_PED_IN_ANY_VEHICLE(PLAYER.PLAYER_PED_ID(), true) then
+        if PED.IS_PED_IN_ANY_VEHICLE(players.user_ped(), true) then
             ENTITY.SET_ENTITY_ALPHA(my_cur_car,alphaPoints[value + 1], true)
         end
     end)
@@ -1267,30 +1343,30 @@ local whitelistedName = false
         local safeManagerToggles = {
             {
                 name = 'Nightclub Safe', command = 'SMclub', description = 'Monitors nightclub safe cash, this does NOT affect income.', toggle = true,
-                displayText = function() return 'Nightclub Cash: ' .. STAT_GET_INT('CLUB_SAFE_CASH_VALUE')  / 1000  .. 'k / 210k' end
+                displayText = function() return 'Nightclub Cash: '.. STAT_GET_INT('CLUB_SAFE_CASH_VALUE')  / 1000  ..'k / 210k' end
             },
             {
                 name = 'Nightclub Popularity', command = 'SMclubPopularity', description = '', toggle = false,
-                displayText = function() return 'Nightclub Popularity: ' .. math.floor(STAT_GET_INT('CLUB_POPULARITY') / 10)  .. '%' end
+                displayText = function() return 'Nightclub Popularity: '.. math.floor(STAT_GET_INT('CLUB_POPULARITY') / 10)  ..'%' end
             },
             {   name = 'Nightclub Daily Earnings', command = 'SMnightclubEarnings', description = 'Nightclub daily earnings.\nMaximum daily earnings is 10k.', toggle = false,
-                displayText = function() return 'Nightclub Daily Earnings: ' .. getNightclubDailyEarnings() / 1000  .. 'k / day' end
+                displayText = function() return 'Nightclub Daily Earnings: '.. getNightclubDailyEarnings() / 1000  ..'k / day' end
             },
             {
                 name = 'Arcade safe', command = 'SMarcade', description = 'Monitors arcade safe cash, this does NOT affect income.\nMaximum daily earnings is 5k if you have all the arcade games.', toggle = true,
-                displayText = function() return 'Arcade Cash: ' .. STAT_GET_INT('ARCADE_SAFE_CASH_VALUE') / 1000  .. 'k / 100k' end
+                displayText = function() return 'Arcade Cash: '.. STAT_GET_INT('ARCADE_SAFE_CASH_VALUE') / 1000  ..'k / 100k' end
             },
             {
                 name = 'Agency safe', command = 'SMagency', description = 'Monitors agency safe cash, this does NOT affect income.\nMaximum daily earnings is 20k.', toggle = true,
-                displayText = function() return 'Agency Cash: ' .. STAT_GET_INT("FIXER_SAFE_CASH_VALUE") / 1000  .. 'k / 250k' end
+                displayText = function() return 'Agency Cash: '.. STAT_GET_INT("FIXER_SAFE_CASH_VALUE") / 1000  ..'k / 250k' end
             },
             {
                 name = 'Security contracts', command = 'SMsecurity', description = 'Displays the number of agency security missions you have completed.', toggle = false,
-                displayText = function() return 'Security contracts: ' .. STAT_GET_INT('FIXER_COUNT') end
+                displayText = function() return 'Security contracts: '.. STAT_GET_INT('FIXER_COUNT') end
             },
             {
                 name = 'Agency daily Earnings', command = 'SMagencyEarnings', description = 'Agency daily earnings.\nMaximum daily earnings is 20k if you have completed 200 contracts.', toggle = false,
-                displayText = function() return 'Agency Daily Earnings: ' .. getAgencyDailyEarnings(STAT_GET_INT('FIXER_COUNT')) / 1000 .. 'k / day' end
+                displayText = function() return 'Agency Daily Earnings: '.. getAgencyDailyEarnings(STAT_GET_INT('FIXER_COUNT')) / 1000 ..'k / day' end
             },
         }
         generateToggles(safeManagerToggles, SM_root, false)
@@ -1372,7 +1448,7 @@ local whitelistedName = false
             local minutes = math.floor((secondsLeft / 60) % 60)
             local seconds = secondsLeft % 60
             if last_LW_seconds ~= seconds then
-                util.toast((hours < 10 and ('0' .. hours) or hours) .. ':' .. (minutes < 10 and ('0' .. minutes) or minutes) .. ':' .. (seconds < 10 and ('0' .. seconds) or seconds))
+                util.toast((hours < 10 and ('0'.. hours) or hours) ..':'.. (minutes < 10 and ('0'.. minutes) or minutes) ..':'.. (seconds < 10 and ('0'.. seconds) or seconds))
                 last_LW_seconds = seconds
             end
         end)
@@ -1380,9 +1456,9 @@ local whitelistedName = false
         menu.action(casino_root, 'Casino loss/profit', {'JScasinoLP'}, 'Tells you how much you made or lost in the casino.', function()
             local chips = STAT_GET_INT_MPPLY('mpply_casino_chips_won_gd')
             if chips > 0 then
-                util.toast('You\'ve made ' .. chips .. ' chips.')
+                util.toast('You\'ve made '.. chips ..' chips.')
             elseif chips < 0 then
-                util.toast('You\'ve lost ' .. chips * -1 .. ' chips.')
+                util.toast('You\'ve lost '.. chips * -1 ..' chips.')
             else
                 util.toast('You haven\'t made or lost any chips.')
             end
@@ -1394,18 +1470,18 @@ local whitelistedName = false
         local tt_root = menu.list(online_root, 'Time trials', {'JStt'}, '')
 
         menu.toggle_loop(tt_root, 'Best rc time trial time', {'JSbestRcTT'}, '', function()
-            util.toast('Best Time: ' .. ttTimeToString(STAT_GET_INT_MPPLY('mpply_rcttbesttime')))
+            util.toast('Best Time: '.. ttTimeToString(STAT_GET_INT_MPPLY('mpply_rcttbesttime')))
             util.yield(100)
         end)
 
         function ttTimeToString(time)
             local min = math.floor(time / 60000)
             local sec = (time % 60000) / 1000
-            return (min == 0 and '' or min .. 'min ') .. sec .. 's'
+            return (min == 0 and '' or min ..'min ') .. sec ..'s'
         end
 
         menu.toggle_loop(tt_root, 'Best time trial time', {'JSbestTT'}, '', function()
-            util.toast('Best Time: ' .. ttTimeToString((STAT_GET_INT_MPPLY('mpply_timetrialbesttime'))))
+            util.toast('Best Time: '.. ttTimeToString((STAT_GET_INT_MPPLY('mpply_timetrialbesttime'))))
             util.yield(100)
         end)
 
@@ -1417,7 +1493,7 @@ local whitelistedName = false
         local blockInProgress = false
         function blockAvailable(areaBlocked, areaName)
             if blockInProgress then util.toast('A block is already being run.') return false end
-            if areaBlocked then util.toast(areaName..' already blocked.') return false end
+            if areaBlocked then util.toast(areaName ..' already blocked.') return false end
             return true
         end
 
@@ -1472,7 +1548,7 @@ local whitelistedName = false
 
         for i = 1, #blockAreasActions do
             local areaName = blockAreasActions[i].name
-            menu.action(blockAreasActions[i].root, 'Block '..areaName, {}, '', function ()
+            menu.action(blockAreasActions[i].root, 'Block '.. areaName, {}, '', function ()
                 if not blockAvailable(blockAreasActions[i].blocked, (areaName == 'LSIA' and areaName or string.capitalize(areaName))) then return end
                 setBlockStatus(true)
                 blockAreasActions[i].blocked = true
@@ -1514,11 +1590,11 @@ local whitelistedName = false
         local whitelistTogglesTable = {}
         players.on_join(function(pid)
             local playerName = players.get_name(pid)
-            whitelistTogglesTable[pid] = menu.toggle(whitelist_list_root, playerName, {'JSwhitelist' .. playerName}, 'Whitelist ' .. playerName .. ' from options that affect all players.', function(toggle)
+            whitelistTogglesTable[pid] = menu.toggle(whitelist_list_root, playerName, {'JSwhitelist'.. playerName}, 'Whitelist '.. playerName ..' from options that affect all players.', function(toggle)
                 if toggle then
                     whitelistListTable[pid] = pid
                     if notifications then
-                        util.toast('Whitelisted ' .. playerName)
+                        util.toast('Whitelisted '.. playerName)
                     end
                 else
                     whitelistListTable[pid] = nil --removes the player from the whitelist
@@ -1560,8 +1636,8 @@ local whitelistedName = false
                     return
                 end
                 if i == #messageTable[pid] - 1 then
-                    menu.trigger_commands('kick' .. players.get_name(pid))
-                    util.toast('Kicked '.. players.get_name(pid).. ' for chat spam.')
+                    menu.trigger_commands('kick'.. players.get_name(pid))
+                    util.toast('Kicked '.. players.get_name(pid) ..' for chat spam.')
                 end
             end
         end)
@@ -1710,7 +1786,7 @@ local whitelistedName = false
                 surfaced = surfaced + 1
             end
         end
-        if toggle and notifications then util.toast('Surfaced '..surfaced..' subs') end
+        if toggle and notifications then util.toast('Surfaced '.. surfaced ..' subs') end
     end)
 
 
@@ -1748,7 +1824,7 @@ local whitelistedName = false
         function playerIsTargetingEntity(playerPed)
             local playerList = getNonWhitelistedPlayers(whitelistListTable, whitelistGroups, whitelistedName)
             for k, playerPid in pairs(playerList) do
-                if PLAYER.IS_PLAYER_TARGETTING_ENTITY(playerPid, playerPed) or PLAYER.IS_PLAYER_FREE_AIMING_AT_ENTITY  (playerPid, playerPed) then
+                if PLAYER.IS_PLAYER_TARGETTING_ENTITY(playerPid, playerPed) or PLAYER.IS_PLAYER_FREE_AIMING_AT_ENTITY(playerPid, playerPed) then
                     karma[playerPed] = {
                         pid = playerPid,
                         ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(playerPid)
@@ -1761,22 +1837,25 @@ local whitelistedName = false
         end
 
         menu.toggle_loop(aim_karma_root, 'Shoot', {'JSbulletAimKarma'}, 'Shoots players that aim at you.', function()
-            if playerIsTargetingEntity(PLAYER.PLAYER_PED_ID()) and karma[PLAYER.PLAYER_PED_ID()] then
-                local pos = ENTITY.GET_ENTITY_COORDS(karma[PLAYER.PLAYER_PED_ID()].ped)
-                MISC.SHOOT_SINGLE_BULLET_BETWEEN_COORDS(pos.x, pos.y, pos.z, pos.x, pos.y, pos.z +0.1, 100, true, 100416529, PLAYER.PLAYER_PED_ID(), true, false, 100.0)
+            local userPed = players.user_ped()
+            if playerIsTargetingEntity(userPed) and karma[userPed] then
+                local pos = ENTITY.GET_ENTITY_COORDS(karma[userPed].ped)
+                MISC.SHOOT_SINGLE_BULLET_BETWEEN_COORDS(pos.x, pos.y, pos.z, pos.x, pos.y, pos.z +0.1, 100, true, 100416529, userPed, true, false, 100.0)
                 util.yield(getTotalDelay(expLoopDelay))
             end
         end)
 
         menu.toggle_loop(aim_karma_root, 'Explode', {'JSexpAimKarma'}, 'Explodes the player with your custom explosion settings.', function()
-            if playerIsTargetingEntity(PLAYER.PLAYER_PED_ID()) and karma[PLAYER.PLAYER_PED_ID()] then
-                explodePlayer(karma[PLAYER.PLAYER_PED_ID()].ped, true, expSettings)
+            local userPed = players.user_ped()
+            if playerIsTargetingEntity(userPed) and karma[userPed] then
+                explodePlayer(karma[userPed].ped, true, expSettings)
             end
         end)
 
         menu.toggle_loop(aim_karma_root, 'Disable godmode', {'JSgodAimKarma'}, 'If a god mode player aims at you this disables their god mode by pushing their camera forwards.', function()
-            if playerIsTargetingEntity(PLAYER.PLAYER_PED_ID()) and karma[PLAYER.PLAYER_PED_ID()] and players.is_godmode(karma[PLAYER.PLAYER_PED_ID()].pid) then
-                local karmaPid = karma[PLAYER.PLAYER_PED_ID()].pid
+            local userPed = players.user_ped()
+            if playerIsTargetingEntity(userPed) and karma[userPed] and players.is_godmode(karma[userPed].pid) then
+                local karmaPid = karma[userPed].pid
                 util.trigger_script_event(1 << karmaPid, {801199324, karmaPid, 869796886})
             end
         end)
@@ -1908,7 +1987,7 @@ local whitelistedName = false
                 -- PED.RESET_PED_RAGDOLL_TIMER(ped)
             end},
             {name = 'Death\'s touch', command = 'JSdeathTouch', description = 'Kills peds that touches you.', action = function(ped)
-                if PED.IS_PED_A_PLAYER(ped) or PED.IS_PED_IN_ANY_VEHICLE(ped, true) or not ENTITY.IS_ENTITY_TOUCHING_ENTITY(ped, PLAYER.PLAYER_PED_ID()) then return end
+                if PED.IS_PED_A_PLAYER(ped) or PED.IS_PED_IN_ANY_VEHICLE(ped, true) or not ENTITY.IS_ENTITY_TOUCHING_ENTITY(ped, players.user_ped()) then return end
                 ENTITY.SET_ENTITY_HEALTH(ped, 0, 0)
             end},
             {name = 'Cold peds', command = 'JScoldPeds', description = 'Removes the thermal signature from all peds.', action = function(ped)
@@ -1933,8 +2012,8 @@ local whitelistedName = false
                 VEHICLE.SET_VEHICLE_FORWARD_SPEED(vehicle, ENTITY.GET_ENTITY_SPEED(vehicle) + 1.2)
             end},
             {name = 'Auto kill enemies', command = 'JSautokill', description = 'Just instantly kills hostile peds.', action = function(ped) --basically copy pasted form wiri script
-                local rel = PED.GET_RELATIONSHIP_BETWEEN_PEDS(PLAYER.PLAYER_PED_ID(), ped)
-                if PED.IS_PED_A_PLAYER(ped) or ENTITY.IS_ENTITY_DEAD(ped) or not( (rel == 4 or rel == 5) or PED.IS_PED_IN_COMBAT(ped, PLAYER.PLAYER_PED_ID()) ) then return end
+                local rel = PED.GET_RELATIONSHIP_BETWEEN_PEDS(players.user_ped(), ped)
+                if PED.IS_PED_A_PLAYER(ped) or ENTITY.IS_ENTITY_DEAD(ped) or not( (rel == 4 or rel == 5) or PED.IS_PED_IN_COMBAT(ped, players.user_ped()) ) then return end
                 ENTITY.SET_ENTITY_HEALTH(ped, 0, 0)
             end},
         }
@@ -1951,8 +2030,8 @@ local whitelistedName = false
         end
 
         menu.toggle_loop(peds_root, 'Kill jacked peds', {'JSkillJackedPeds'}, 'Automatically kills peds when stealing their car.', function(toggle)
-            if not PED.IS_PED_JACKING(PLAYER.PLAYER_PED_ID()) then return end
-            local jackedPed = PED.GET_JACK_TARGET(PLAYER.PLAYER_PED_ID())
+            if not PED.IS_PED_JACKING(players.user_ped()) then return end
+            local jackedPed = PED.GET_JACK_TARGET(players.user_ped())
             ENTITY.SET_ENTITY_HEALTH(jackedPed, 0, 0)
         end)
 
@@ -1963,7 +2042,7 @@ local whitelistedName = false
 
 menu.hyperlink(menu_root, 'Join the discord server', 'https://discord.gg/QzqBdHQC9S', 'Join the JerryScript discord server to suggest features, report bugs and test upcoming features.')
 
-local JS_logo = directx.create_texture(filesystem.resources_dir() .. "JS.png")
+local JS_logo = directx.create_texture(filesystem.resources_dir() ..'JS.png')
 
 local black = new.color(0, 0, 1 / 255, 1)
 local white = new.color(1, 1, 1, 1)
@@ -2023,7 +2102,7 @@ local function scrollCreditsLine(textTable, index)
     end
     if index == #creditText then
         for i = 0, 500 do
-            directx.draw_text(0.5, 0.5, 'And thank you ' .. players.get_name(players.user()) .. ' for using JerryScript', 1, 0.7, white, false)
+            directx.draw_text(0.5, 0.5, 'And thank you '.. players.get_name(players.user()) ..' for using JerryScript', 1, 0.7, white, false)
             util.yield(10)
         end
         util.yield(750)
@@ -2061,7 +2140,7 @@ local runningTogglingOff = false
         ----------------------------------
         -- Player info toggle
         ----------------------------------
-            playerInfoTogglesTable[pid] = menu.toggle(player_root, 'Player info', {'JSplayerInfo'}, 'Display information about ' .. playerName .. '.', function(toggle)
+            playerInfoTogglesTable[pid] = menu.toggle(player_root, 'Player info', {'JSplayerInfo'}, 'Display information about '.. playerName ..'.', function(toggle)
                 if not runningTogglingOff then
                     if toggle then
                         runningTogglingOff = true
@@ -2089,7 +2168,7 @@ local runningTogglingOff = false
                 explodePlayer(playerPed, false, expSettings)
             end)
 
-            menu.toggle_loop(trolling_root, 'Explode player loop', {'JSexplodeLoop'}, 'Explode loops '.. playerName ..' with your selected options.', function()
+            menu.toggle_loop(trolling_root, 'Explode loop player', {'JSexplodeLoop'}, 'Loops explosions on '.. playerName ..' with your selected options.', function()
                 explodePlayer(playerPed, true, expSettings)
                 util.yield(getTotalDelay(expLoopDelay))
             end)
@@ -2099,21 +2178,21 @@ local runningTogglingOff = false
                 if menu.get_value(exp_blame_toggle) == 0 then
                     menu.trigger_command(exp_blame_toggle)
                 end
-                menu.set_menu_name(exp_blame_toggle, "Blame: " .. playerName)
+                menu.set_menu_name(exp_blame_toggle, 'Blame: ' .. playerName)
             end)
 
             menu.action(trolling_root, 'Primed grenade', {'JSprimedGrenade'}, 'Spawns a grenade on top of '.. playerName ..'.', function()
-                local pos = ENTITY.GET_ENTITY_COORDS(playerPed)
-                MISC.SHOOT_SINGLE_BULLET_BETWEEN_COORDS(pos.x, pos.y, pos.z + 1.4, pos.x, pos.y, pos.z + 1.3, 100, true, -1813897027, PLAYER.PLAYER_PED_ID(), true, false, 100.0)
+                local pos = NETWORK._NETWORK_GET_PLAYER_COORDS(pid)
+                MISC.SHOOT_SINGLE_BULLET_BETWEEN_COORDS(pos.x, pos.y, pos.z + 1.4, pos.x, pos.y, pos.z + 1.3, 100, true, -1813897027, players.user_ped(), true, false, 100.0)
             end)
 
             menu.action(trolling_root, 'Sticky', {'JSsticky'}, 'Spawns a sticky bomb on '.. playerName ..' that might stick to their vehicle and you can detonate by pressing "G".', function()
-                local pos = ENTITY.GET_ENTITY_COORDS(playerPed)
-                MISC.SHOOT_SINGLE_BULLET_BETWEEN_COORDS(pos.x, pos.y, pos.z + 1 , pos.x, pos.y, pos.z + 1.1, 10, true, 741814745, PLAYER.PLAYER_PED_ID(), true, false, 100.0)
+                local pos = NETWORK._NETWORK_GET_PLAYER_COORDS(pid)
+                MISC.SHOOT_SINGLE_BULLET_BETWEEN_COORDS(pos.x, pos.y, pos.z + 1 , pos.x, pos.y, pos.z + 1.1, 10, true, 741814745, players.user_ped(), true, false, 100.0)
             end)
 
             menu.toggle_loop(trolling_root, 'Shake camera', {'JScamShake'}, 'Shakes the camera of '.. playerName ..'.', function()
-                local pos = ENTITY.GET_ENTITY_COORDS(playerPed)
+                local pos = NETWORK._NETWORK_GET_PLAYER_COORDS(pid)
                 FIRE.ADD_EXPLOSION(pos.x, pos.y, pos.z, 1, 10, false, true, 1000, true)
             end)
 
@@ -2122,7 +2201,7 @@ local runningTogglingOff = false
             local yeetRange = 100
             local stormDelay = new.delay(250, 0, 0)
             local function yeetEntities()
-                local targetPos = ENTITY.GET_ENTITY_COORDS(playerPed)
+                local targetPos = NETWORK._NETWORK_GET_PLAYER_COORDS(pid)
                 local pointerTables = {
                     entities.get_all_peds_as_pointers(),
                     entities.get_all_vehicles_as_pointers()
@@ -2206,7 +2285,7 @@ local runningTogglingOff = false
             -- menu.toggle_loop(give_karma_root, 'Shoot', {'JSgiveBulletAimKarma'}, 'Shoots players that aim at '.. playerName ..'.', function()
             --     if playerIsTargetingEntity(playerPed) and karma[playerPed] then
             --         local pos = ENTITY.GET_ENTITY_COORDS(karma[playerPed].ped)
-            --         MISC.SHOOT_SINGLE_BULLET_BETWEEN_COORDS(pos.x, pos.y, pos.z, pos.x, pos.y, pos.z +0.1, 100, true, 100416529, PLAYER.PLAYER_PED_ID(), true, false, 100.0)
+            --         MISC.SHOOT_SINGLE_BULLET_BETWEEN_COORDS(pos.x, pos.y, pos.z, pos.x, pos.y, pos.z +0.1, 100, true, 100416529, players.user_ped(), true, false, 100.0)
             --         util.yield(getTotalDelay(expLoopDelay))
             --     end
             -- end)
@@ -2307,7 +2386,7 @@ local runningTogglingOff = false
                 { name = 'Rat',     description = 'Puts a Remote access trojan in your pc. (JK)', animals = {'a_c_rat'}                                    }
             }
             for i = 1, #rainOptions do
-                menu.toggle_loop(rain_root, rainOptions[i].name ..' rain', {'JS'..rainOptions[i].name}, rainOptions[i].description, function()
+                menu.toggle_loop(rain_root, rainOptions[i].name ..' rain', {'JS'.. rainOptions[i].name}, rainOptions[i].description, function()
                     for k, v in pairs(rainOptions[i].animals) do
                         rain(playerPed, v)
                         util.yield(500)
@@ -2338,7 +2417,7 @@ players.dispatch_on_join()
 -----------------------------------
 util.create_tick_handler(function()
     -- car stuff
-    if TASK.GET_IS_TASK_ACTIVE(PLAYER.PLAYER_PED_ID(), 2) then --when exiting a car
+    if TASK.GET_IS_TASK_ACTIVE(players.user_ped(), 2) then --when exiting a car
         setCarOptions(false)
     end
     local carCheck = entities.get_user_vehicle_as_handle()
