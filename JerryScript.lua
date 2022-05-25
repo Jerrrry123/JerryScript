@@ -2096,6 +2096,7 @@ local whitelistedName = false
         menu.toggle_loop(peds_root, 'Kill jacked peds', {'JSkillJackedPeds'}, 'Automatically kills peds when stealing their car.', function(toggle)
             if not PED.IS_PED_JACKING(players.user_ped()) then return end
             local jackedPed = PED.GET_JACK_TARGET(players.user_ped())
+            util.yield(100)
             ENTITY.SET_ENTITY_HEALTH(jackedPed, 0, 0)
         end)
 
