@@ -33,6 +33,9 @@ new = {
     end,
 }
 
+function roundDecimals(float, decimals)
+    return math.floor(float * 10 ^ decimals) / 10 ^ decimals
+end
 --function skidded from murtens utils
 function address_from_pointer_chain(address, offsets)
     local addr = address
@@ -48,6 +51,10 @@ end
 
 --memory stuff skidded from heist control
 local Int_PTR = memory.alloc_int()
+
+util.on_stop(function ()
+    memory.free(Int_PTR)
+end)
 
 function getMPX()
     return 'MP'.. util.get_char_slot() ..'_'
@@ -65,6 +72,18 @@ end
 function STAT_GET_INT_MPPLY(Stat)
     STATS.STAT_GET_INT(util.joaat(Stat), Int_PTR, -1)
     return memory.read_int(Int_PTR)
+end
+
+function STAT_GET_FLOAT(Stat)
+    STATS.STAT_GET_FLOAT(util.joaat(getMPX() .. Stat), Int_PTR, true)
+    return memory.read_float(Int_PTR)
+end
+
+function STAT_SET_FLOAT(Stat, value)
+    STATS.STAT_SET_FLOAT(util.joaat(getMPX() .. Stat), value, true)
+end
+function STAT_SET_FLOAT_MPPLY(Hash, Value)
+    STATS.STAT_SET_FLOAT(util.joaat(Hash), Value, true)
 end
 
 function STAT_SET_INT_MPPLY(Stat, Value)

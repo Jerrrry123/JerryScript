@@ -464,27 +464,90 @@ local whitelistedName = false
             [0]  = 'Nose Width',
             [1]  = 'Nose Peak Hight',
             [2]  = 'Nose Peak Length',
-            [3]  = 'Nose Bone High',
+            [3]  = 'Nose Bone Hight',
             [4]  = 'Nose Peak Lowering',
             [5]  = 'Nose Bone Twist',
-            [6]  = 'EyeBrown High',
-            [7]  = 'EyeBrown Forward',
-            [8]  = 'Cheeks Bone High',
+            [6]  = 'Eyebrow Hight',
+            [7]  = 'Eyebrow Forward',
+            [8]  = 'Cheeks Bone Hight',
             [9]  = 'Cheeks Bone Width',
             [10] = 'Cheeks Width',
             [11] = 'Eyes Opening',
             [12] = 'Lips Thickness',
             [13] = 'Jaw Bone Width',
             [14] = 'Jaw Bone Back Length',
-            [15] = 'Chimp Bone Lowering',
-            [16] = 'Chimp Bone Length',
+            [15] = 'Chin Bone Lowering',
+            [16] = 'Chin Bone Length',
+            [17] = 'Chin Bone Width',
+            [18] = 'Chin Hole',
+            [19] = 'Neck Width',
         }
-        local face_feature_list = menu.list(self_root,'Customize face features', {}, 'Customizations reset after restarting the game.')
+        local face_profiles_list = menu.list(self_root,'Face features', {}, '')
+        local face_feature_list = menu.list(face_profiles_list,'Customize face features', {}, 'Customizations reset after restarting the game.')
 
+        local face_sliders = {}
         for i = 0, #faceFeatures do
-            menu.slider(face_feature_list, faceFeatures[i], {}, '',0, 10, 1, 1, function(value)
-                PED._SET_PED_MICRO_MORPH_VALUE(players.user_ped(), i, value / 10)
+            face_sliders[faceFeatures[i]] = menu.slider(face_feature_list, faceFeatures[i], {'JSset'.. string.gsub(faceFeatures[i], ' ', '')}, '', -1000, 1000, roundDecimals(STAT_GET_FLOAT('FEATURE_'.. i), 2) * 100, 1, function(value)
+                PED._SET_PED_MICRO_MORPH_VALUE(players.user_ped(), i, value / 100)
             end)
+        end
+        menu.divider(face_profiles_list, '', {}, '')
+
+        script_store_dir = filesystem.store_dir() .. '/JerryScript/'
+        face_profiles_dir = script_store_dir .. '/Face Feature Profiles/'
+
+        local function getProfileName(fullPath, removePath)
+            local path = string.gsub(fullPath, removePath, '')
+            return string.gsub(path, '.txt', '')
+        end
+        local profileReferences = {}
+        local function loadProfiles(root)
+            local faceProfiles = filesystem.list_files(face_profiles_dir)
+            for _, profilePath in pairs(faceProfiles) do
+                local profileName = getProfileName(profilePath, face_profiles_dir)
+                profileReferences[#profileReferences + 1] = menu.action(root, profileName, {'loadface'.. profileName}, '', function()
+                    if not filesystem.exists(face_profiles_dir .. profileName ..'.txt') then util.toast('Profile not found.') end
+
+                    local settings = util.read_colons_and_tabs_file(face_profiles_dir .. profileName ..'.txt')
+                    for k, value in pairs(settings) do
+                        menu.set_value(face_sliders[k], value)
+                    end
+                end)
+            end
+        end
+        local function reloadProfiles(root)
+            for i = 1, #profileReferences do
+                menu.delete(profileReferences[i])
+                profileReferences[i] = nil
+            end
+            loadProfiles(root)
+        end
+        menu.action(face_profiles_list, 'Create face feature profile', {"JSsaveFaceFeatures"}, 'Saves your customized face in a file so you can load it.', function()
+            menu.show_command_box("JSsaveFaceFeatures ")
+        end, function(fileName)
+            if not filesystem.is_dir(script_store_dir) then
+                filesystem.mkdirs(script_store_dir)
+            end
+            if not filesystem.is_dir(face_profiles_dir) then
+                filesystem.mkdirs(face_profiles_dir)
+            end
+            local newfile = '/'.. fileName ..'.txt'
+            local file = io.open(face_profiles_dir .. newfile, 'w')
+            for i = 0, #faceFeatures do
+                file:write(faceFeatures[i] ..': '.. menu.get_value(face_sliders[faceFeatures[i]]) ..'\n')
+            end
+            file:close()
+            reloadProfiles(face_profiles_list)
+        end)
+
+        menu.action(face_profiles_list, 'Reload profiles', {"JSreLoadFaceFeatureProfiles"}, 'Refreshes your profiles without having to restart the script.', function()
+            reloadProfiles(face_profiles_list)
+        end)
+
+        menu.divider(face_profiles_list, 'Profiles', {}, '')
+
+        if filesystem.is_dir(face_profiles_dir) then
+            loadProfiles(face_profiles_list)
         end
 
         local faceOverlays = {
@@ -877,9 +940,9 @@ local whitelistedName = false
             local hash = util.joaat('w_arena_airmissile_01a')
             STREAMING.REQUEST_MODEL(hash)
             yieldModelLoad(hash)
-            waypointPos.z = waypointPos.z + 30
+            waypointPos.z += 30
             local bomb = entities.create_object(hash, waypointPos)
-            waypointPos.z = waypointPos.z - 30
+            waypointPos.z -= 30
             ENTITY.SET_ENTITY_ROTATION(bomb, -90, 0, 0,  2, true)
             ENTITY.APPLY_FORCE_TO_ENTITY(bomb, 0, 0, 0, 0, 0.0, 0.0, 0.0, 0, true, false, true, false, true)
             STREAMING.SET_MODEL_AS_NO_LONGER_NEEDED(hash)
@@ -1188,7 +1251,7 @@ local whitelistedName = false
                 util.create_thread(function()
                     shuntSettings.force = 0
                     while shuntSettings.force < shuntSettings.maxForce and not shuntSettings.disableRecharge do
-                        shuntSettings.force = shuntSettings.force + 1
+                        shuntSettings.force += 1
                         util.yield(100)
                     end
                     shuntSettings.force = shuntSettings.maxForce
@@ -1413,21 +1476,21 @@ local whitelistedName = false
 
         local cooldownActions = {
             --agency missions
-            { root = fixer_CD_root, name = 'Payphone hits',      command = 'JSpayphoneCooldown', description = 'Use this before picking up the payphone.', global = 262145+31407 },
-            { root = fixer_CD_root, name = 'Security contracts', command = 'JSsecurityCooldown', description = 'Use this after completing the job.',       global = 262145+31329 },
+            { root = fixer_CD_root, name = 'Payphone hits',      command = 'JSpayphoneCooldown', description = 'Use this before picking up the payphone.', global = 262145 + 31407 },
+            { root = fixer_CD_root, name = 'Security contracts', command = 'JSsecurityCooldown', description = 'Use this after completing the job.',       global = 262145 + 31329 },
             --terrorbyte jobs
-            { root = terbyte_CD_root, name = 'Between jobs',        command = 'JSterbyteBetweenCooldown', description = 'Use this after completing the job.', global = 262145+24390 },
-            { root = terbyte_CD_root, name = 'Robbery in progress', command = 'JSterbyteRIPCooldown',     description = 'Use this before starting the job.',  global = 262145+24391 },
-            { root = terbyte_CD_root, name = 'Data sweep',          command = 'JSterbyteDSCooldown',      description = 'Use this before starting the job.',  global = 262145+24392 },
-            { root = terbyte_CD_root, name = 'Targeted data',       command = 'JSterbyteTDCooldown',      description = 'Use this before starting the job.',  global = 262145+24393 },
-            { root = terbyte_CD_root, name = 'Diamond shopping',    command = 'JSterbyteDSCooldown',      description = 'Use this before starting the job.',  global = 262145+24394 },
+            { root = terbyte_CD_root, name = 'Between jobs',        command = 'JSterbyteBetweenCooldown', description = 'Use this after completing the job.', global = 262145 + 24390 },
+            { root = terbyte_CD_root, name = 'Robbery in progress', command = 'JSterbyteRIPCooldown',     description = 'Use this before starting the job.',  global = 262145 + 24391 },
+            { root = terbyte_CD_root, name = 'Data sweep',          command = 'JSterbyteDSCooldown',      description = 'Use this before starting the job.',  global = 262145 + 24392 },
+            { root = terbyte_CD_root, name = 'Targeted data',       command = 'JSterbyteTDCooldown',      description = 'Use this before starting the job.',  global = 262145 + 24393 },
+            { root = terbyte_CD_root, name = 'Diamond shopping',    command = 'JSterbyteDSCooldown',      description = 'Use this before starting the job.',  global = 262145 + 24394 },
             --casino work
-            { root = casino_CD_root, name = 'Casino work', command = 'JScasinoWorkCooldown', description = 'Use this after completing the job.', global = 62145+26902 },
+            { root = casino_CD_root, name = 'Casino work', command = 'JScasinoWorkCooldown', description = 'Use this after completing the job.', global = 62145 + 26902 },
             --ceo work
-            { root = ceo_CD_root, name = 'CEO/VIP work',   command = 'JSCeoVipWorkCooldown', description = 'Stand has this as a toggle, but that option doesn\'t work if you activate it when the cooldown has started, this does.', global = 262145+12870 },
-            { root = ceo_CD_root, name = 'Headhunter',     command = 'JSheadhunterCooldown', description = 'Use this before starting the mission.', global = 262145+15275 },
-            { root = ceo_CD_root, name = 'Sightseer',      command = 'JSsightseeCooldown',   description = 'Use this before starting the mission.', global = 262145+12767 },
-            { root = ceo_CD_root, name = 'Asset recovery', command = 'JSarCooldown',         description = 'Use this before starting the mission.', global = 262145+12727 },
+            { root = ceo_CD_root, name = 'CEO/VIP work',   command = 'JSCeoVipWorkCooldown', description = 'Stand has this as a toggle, but that option doesn\'t work if you activate it when the cooldown has started, this does.', global = 262145 + 12870 },
+            { root = ceo_CD_root, name = 'Headhunter',     command = 'JSheadhunterCooldown', description = 'Use this before starting the mission.', global = 262145 + 15275 },
+            { root = ceo_CD_root, name = 'Sightseer',      command = 'JSsightseeCooldown',   description = 'Use this before starting the mission.', global = 262145 + 12767 },
+            { root = ceo_CD_root, name = 'Asset recovery', command = 'JSarCooldown',         description = 'Use this before starting the mission.', global = 262145 + 12727 },
         }
         for i = 1, #cooldownActions do
             menu.action(cooldownActions[i].root, cooldownActions[i].name, {cooldownActions[i].command}, cooldownActions[i].description, function()
@@ -1675,9 +1738,6 @@ local whitelistedName = false
         end)
     -----------------------------------
 
-    local function roundDecimals(float, decimals)
-        return math.floor(float * 10 ^ decimals) / 10 ^ decimals
-    end
     --clockwise (like the clock is laying on the floor with face upwards) from the left when entering the room
     local orbitalTableCords = {
         [1] = { x = 330.48312, y = 4827.281, z = -59.368515 },
@@ -1775,19 +1835,19 @@ local whitelistedName = false
                 return (all_torque ~= 1000)
             end)
         end)
-    -----------------------------------
 
-    menu.toggle(players_root, 'Force surface all subs', {'JSforceSurfaceAll'}, 'Forces all Kosatkas to the surface.\nNot compatible with the whitelist.', function(toggle)
-        local vehHandles = entities.get_all_vehicles_as_handles()
-        local surfaced = 0
-        for i = 1, #vehHandles do
-            if ENTITY.GET_ENTITY_MODEL(vehHandles[i]) == 1336872304 then -- if Kosatka
-                VEHICLE.FORCE_SUBMARINE_SURFACE_MODE(vehHandles[i], toggle)
-                surfaced = surfaced + 1
+        menu.toggle(players_veh_root, 'Force surface all subs', {'JSforceSurfaceAll'}, 'Forces all Kosatkas to the surface.\nNot compatible with the whitelist.', function(toggle)
+            local vehHandles = entities.get_all_vehicles_as_handles()
+            local surfaced = 0
+            for i = 1, #vehHandles do
+                if ENTITY.GET_ENTITY_MODEL(vehHandles[i]) == 1336872304 then -- if Kosatka
+                    VEHICLE.FORCE_SUBMARINE_SURFACE_MODE(vehHandles[i], toggle)
+                    surfaced += 1
+                end
             end
-        end
-        if toggle and notifications then util.toast('Surfaced '.. surfaced ..' subs') end
-    end)
+            if toggle and notifications then util.toast('Surfaced '.. surfaced ..' subs') end
+        end)
+    -----------------------------------
 
 
     menu.toggle_loop(players_root, 'No fly zone', {'JSnoFly'}, 'Forces all players in air born vehicles into the ground.', function()
@@ -1840,7 +1900,7 @@ local whitelistedName = false
             local userPed = players.user_ped()
             if playerIsTargetingEntity(userPed) and karma[userPed] then
                 local pos = ENTITY.GET_ENTITY_COORDS(karma[userPed].ped)
-                MISC.SHOOT_SINGLE_BULLET_BETWEEN_COORDS(pos.x, pos.y, pos.z, pos.x, pos.y, pos.z +0.1, 100, true, 100416529, userPed, true, false, 100.0)
+                MISC.SHOOT_SINGLE_BULLET_BETWEEN_COORDS(pos.x, pos.y, pos.z, pos.x, pos.y, pos.z + 0.1, 100, true, 100416529, userPed, true, false, 100.0)
                 util.yield(getTotalDelay(expLoopDelay))
             end
         end)
@@ -2096,7 +2156,7 @@ local function scrollCreditsLine(textTable, index)
     local i = 0
     while i <= 1000 do
         if not playingCredits then return end
-        i = i + creditsSpeed
+        i += creditsSpeed
         directx.draw_text(0.5, 1  - i / 1000, textTable.line, 1, textTable.bold and  0.7 or 0.5, white, false)
         util.yield(10)
     end
@@ -2120,7 +2180,7 @@ play_credits_toggle = menu.toggle(menu_root, 'Play credits', {}, '', function(to
         local wait = 0
         while wait < creditText[i].wait / creditsSpeed do -- i determine the line spacing is by this wait so i have to constantly check if credits are speed up to not fuck it up
             util.yield(1)
-            wait = wait + 1
+            wait += 1
         end
     end
 end)
@@ -2366,9 +2426,9 @@ local runningTogglingOff = false
             local function rain(playerPed, entity)
                 local pos = ENTITY.GET_ENTITY_COORDS(playerPed)
                 local hash = util.joaat(entity)
-                pos.x = pos.x + math.random(-30,30)
-                pos.y = pos.y + math.random(-30,30)
-                pos.z = pos.z + 30
+                pos.x += math.random(-30,30)
+                pos.y += math.random(-30,30)
+                pos.z += 30
                 STREAMING.REQUEST_MODEL(hash)
                 yieldModelLoad(hash)
                 local animal = entities.create_ped(28, hash, pos, 0)
@@ -2435,7 +2495,7 @@ util.create_tick_handler(function()
         for i = 1, #playerInfoTogglesOptions do
             local text = playerInfoTogglesOptions[i].displayText(playerInfoPid, playerInfoPed, weaponHash) --not all the functions uses all params but i don't wanna check what params i need to pass
             if playerInfoTogglesOptions[i].toggle and text then
-                ct = ct + spacing
+                ct += spacing
                 directx.draw_text(1 + sliderToScreenPos(piSettings.xOffset), ct + sliderToScreenPos(piSettings.yOffset), text, piSettings.alignment, piSettings.scale, piSettings.textColor, false)
             end
         end
@@ -2447,7 +2507,7 @@ util.create_tick_handler(function()
         local spacing = 0.015 + smSettings.scale * smSettings.scale / 50
         for i = 1, #safeManagerToggles do
             if safeManagerToggles[i].toggle then
-                ct = ct + spacing
+                ct += spacing
                 directx.draw_text(1 + sliderToScreenPos(smSettings.xOffset), ct + sliderToScreenPos(smSettings.yOffset), safeManagerToggles[i].displayText(), smSettings.alignment, smSettings.scale, smSettings.textColor, false)
             end
         end
