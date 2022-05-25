@@ -71,7 +71,7 @@ local whitelistedName = false
                         if not (damageType == 12 or damageType == 1 or damageType == 3 or damageType == 5 or damageType == 13) or util.joaat('weapon_raypistol') == weaponHash then return end
                         local ammoCount
                         local ammo_ptr = memory.alloc_int()
-                        if WEAPON.GET_AMMO_IN_CLIP(ped, weaponHash, ammo_ptr) and WEAPON.GET_WEAPONTYPE_GROUP(weaponHash) ~= util.joaat('GROUP_THROWN') then
+                        if WEAPON.GET_AMMO_IN_CLIP(ped, weaponHash, ammo_ptr) and WEAPON.GET_WEAPONTYPE_GROUP(weaponHash) != util.joaat('GROUP_THROWN') then
                             ammoCount = memory.read_int(ammo_ptr)
                             memory.free(ammo_ptr)
                             local clipSize = WEAPON.GET_MAX_AMMO_IN_CLIP(ped, weaponHash, 1)
@@ -731,7 +731,7 @@ local whitelistedName = false
         local togglingRemoveMinigun = false
         local remove_minigun_toggle remove_minigun_toggle = menu.toggle(weapon_settings_root, 'Remove minigun spin-up time', {'JSnoSpinUp'}, 'Requires you to hold a your minigun.', function(toggle)
             if togglingRemoveMinigun then return end
-            if WEAPON.GET_SELECTED_PED_WEAPON(players.user_ped()) ~= util.joaat('weapon_minigun') then
+            if WEAPON.GET_SELECTED_PED_WEAPON(players.user_ped()) != util.joaat('weapon_minigun') then
                 util.toast('You aren\'t holding your minigun.')
                 togglingRemoveMinigun = true
                 menu.trigger_command(remove_minigun_toggle, (menu.get_value(remove_minigun_toggle) == 1 and 'off' or 'on'))
@@ -1025,7 +1025,7 @@ local whitelistedName = false
             while animals_running do
                 local weaponHash = WEAPON.GET_SELECTED_PED_WEAPON(players.user_ped())
                 local weaponType = WEAPON.GET_WEAPON_DAMAGE_TYPE(weaponHash)
-                if weaponType == 3 or (weaponType == 5 and WEAPON.GET_WEAPONTYPE_GROUP(weaponHash) ~= 1548507267) then --weapons that shoot bullets or explosions and isn't in the throwables category (grenades, proximity mines etc...)
+                if weaponType == 3 or (weaponType == 5 and WEAPON.GET_WEAPONTYPE_GROUP(weaponHash) != 1548507267) then --weapons that shoot bullets or explosions and isn't in the throwables category (grenades, proximity mines etc...)
                     disable_firing = true
                     disableFiringLoop()
                     if PAD.IS_DISABLED_CONTROL_PRESSED(2, 24) and PLAYER.IS_PLAYER_FREE_AIMING(players.user_ped()) then
@@ -1084,7 +1084,7 @@ local whitelistedName = false
         end
     end)
     menu.action(minecraft_gun_root, 'Delete last block', {'JSdeleteLastBlock'}, '', function()
-        if blocks[#blocks] ~= nil then
+        if blocks[#blocks] != nil then
             entities.delete_by_handle(blocks[#blocks])
             blocks[#blocks] = nil
         end
@@ -1118,7 +1118,7 @@ local whitelistedName = false
             PHYSICS._SET_LAUNCH_CONTROL_ENABLED(toggle)
         end},
         ghostCar = {on = true, value = 4, setOption = function(toggle)
-            if carSettings.ghostCar.value ~= 4 then
+            if carSettings.ghostCar.value != 4 then
                 local index = toggle and carSettings.ghostCar.value + 1 or 5
                 ENTITY.SET_ENTITY_ALPHA(my_cur_car, alphaPoints[index], true)
             end
@@ -1163,7 +1163,7 @@ local whitelistedName = false
             my_torque = value
             util.create_tick_handler(function()
                 VEHICLE.SET_VEHICLE_CHEAT_POWER_INCREASE(my_cur_car, my_torque/100)
-                return (my_torque ~= 100)
+                return (my_torque != 100)
             end)
         end)
 
@@ -1510,7 +1510,7 @@ local whitelistedName = false
             local hours = math.floor(secondsLeft / 3600)
             local minutes = math.floor((secondsLeft / 60) % 60)
             local seconds = secondsLeft % 60
-            if last_LW_seconds ~= seconds then
+            if last_LW_seconds != seconds then
                 util.toast((hours < 10 and ('0'.. hours) or hours) ..':'.. (minutes < 10 and ('0'.. minutes) or minutes) ..':'.. (seconds < 10 and ('0'.. seconds) or seconds))
                 last_LW_seconds = seconds
             end
@@ -1689,12 +1689,12 @@ local whitelistedName = false
                 messageTable[pid] = {}
             end
 
-            local messageCount = (#messageTable[pid] ~= nil and #messageTable[pid] or 0)
+            local messageCount = (#messageTable[pid] != nil and #messageTable[pid] or 0)
             messageTable[pid][messageCount + 1] = text
 
             if #messageTable[pid] < chatSpamSettings.identicalMessages then return end
             for i = 1, #messageTable[pid] - 1 do
-                if messageTable[pid][#messageTable[pid]] ~= messageTable[pid][#messageTable[pid] - i] then
+                if messageTable[pid][#messageTable[pid]] != messageTable[pid][#messageTable[pid] - i] then
                     messageTable[pid] = {}
                     return
                 end
@@ -1832,7 +1832,7 @@ local whitelistedName = false
                         VEHICLE.SET_VEHICLE_CHEAT_POWER_INCREASE(playerVehicle, all_torque/1000)
                     end
                 end
-                return (all_torque ~= 1000)
+                return (all_torque != 1000)
             end)
         end)
 
@@ -1972,7 +1972,7 @@ local whitelistedName = false
         mapZoom = value
         util.create_tick_handler(function()
             HUD.SET_RADAR_ZOOM_PRECISE(mapZoom)
-            return mapZoom ~= 83
+            return mapZoom != 83
         end)
     end)
 
@@ -2388,7 +2388,7 @@ local runningTogglingOff = false
                         NETWORK.NETWORK_REQUEST_CONTROL_OF_ENTITY(playerVehicle)
                         VEHICLE.SET_VEHICLE_CHEAT_POWER_INCREASE(playerVehicle, player_torque/1000)
                     end
-                    return (player_torque ~= 1000)
+                    return (player_torque != 1000)
                 end)
             end)
 
@@ -2485,7 +2485,7 @@ util.create_tick_handler(function()
         setCarOptions(false)
     end
     local carCheck = entities.get_user_vehicle_as_handle()
-    if my_cur_car ~= carCheck then
+    if my_cur_car != carCheck then
         my_cur_car = carCheck
         setCarOptions(true)
     end
