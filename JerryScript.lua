@@ -487,7 +487,7 @@ local whitelistedName = false
 
         local face_sliders = {}
         for i = 0, #faceFeatures do
-            face_sliders[faceFeatures[i]] = menu.slider(face_feature_list, faceFeatures[i], {'JSset'.. string.gsub(faceFeatures[i], ' ', '')}, '', -1000, 1000, roundDecimals(STAT_GET_FLOAT('FEATURE_'.. i), 2) * 100, 1, function(value)
+            face_sliders[faceFeatures[i]] = menu.slider(face_feature_list, faceFeatures[i], {'JSset'.. string.gsub(faceFeatures[i], ' ', '')}, '', -1000, 1000, math.floor(roundDecimals(STAT_GET_FLOAT('FEATURE_'.. i), 2) * 100), 1, function(value)
                 PED._SET_PED_MICRO_MORPH_VALUE(players.user_ped(), i, value / 100)
             end)
         end
