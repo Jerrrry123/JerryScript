@@ -442,7 +442,7 @@ end
     function getMk2Rounds(ped, weaponHash)
         local ammoType = WEAPON.GET_PED_AMMO_TYPE_FROM_WEAPON(ped, weaponHash)
         if mkIIammoTable[weaponHash] and mkIIammoTable[weaponHash][ammoType] then
-            return HUD._GET_LABEL_TEXT(mkIIammoTable[weaponHash][ammoType])
+            return util.get_label_text(mkIIammoTable[weaponHash][ammoType])
         end
     end
 
@@ -481,13 +481,13 @@ end
 
     function getWeaponName(weaponHash)
         if vehicleWeaponHashToLabel[weaponHash] then
-            return HUD._GET_LABEL_TEXT(vehicleWeaponHashToLabel[weaponHash])
+            return util.get_label_text(vehicleWeaponHashToLabel[weaponHash])
         elseif vehicleWeaponHashToString[weaponHash] then
             return vehicleWeaponHashToString[weaponHash]
         else
             for k, v in pairs(util.get_weapons()) do
                 if v.hash == weaponHash then
-                    return HUD._GET_LABEL_TEXT(v.label_key)
+                    return util.get_label_text(v.label_key)
                 end
             end
         end
@@ -497,7 +497,7 @@ end
         local playersVehicle = PED.GET_VEHICLE_PED_IS_IN(ped)
         local vehHash = ENTITY.GET_ENTITY_MODEL(playersVehicle)
         if vehHash == 0 then return end
-        return HUD._GET_LABEL_TEXT(VEHICLE.GET_DISPLAY_NAME_FROM_VEHICLE_MODEL(vehHash))
+        return util.get_label_text(VEHICLE.GET_DISPLAY_NAME_FROM_VEHICLE_MODEL(vehHash))
     end
 
     function isPlayerMoving(ped)
