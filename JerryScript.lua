@@ -1980,6 +1980,10 @@ local whitelistedName = false
         GRAPHICS._SET_FORCE_PED_FOOTSTEPS_TRACKS(toggle)
     end)
 
+    menu.toggle(world_root, 'Enable vehicle trails', {'JSvehicleTrails'}, 'Enables vehicle trails on all surfaces.', function(toggle)
+        GRAPHICS._SET_FORCE_VEHICLE_TRAILS(toggle)
+    end)
+
     menu.toggle_loop(world_root, 'Disable all map notifications', {'JSnoMapNotifications'}, 'Removes that constant spam.', function()
         HUD.THEFEED_HIDE_THIS_FRAME()
     end)
