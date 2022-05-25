@@ -411,7 +411,7 @@ local whitelistedName = false
                     local eggHash = 1803116220
                     STREAMING.REQUEST_MODEL(eggHash)
                     yieldModelLoad(eggHash)
-                    ptfxEgg = entities.create_object(eggHash, NETWORK._NETWORK_GET_PLAYER_COORDS(players.user_ped()))
+                    ptfxEgg = entities.create_object(eggHash, ENTITY.GET_ENTITY_COORDS(players.user_ped()))
                     ENTITY.SET_ENTITY_COLLISION(ptfxEgg, false, false)
                     ENTITY.SET_ENTITY_VISIBLE(ptfxEgg, false)
                     STREAMING.SET_MODEL_AS_NO_LONGER_NEEDED(eggHash)
@@ -425,7 +425,7 @@ local whitelistedName = false
                     fireWings[i].ptfx = GRAPHICS.START_NETWORKED_PARTICLE_FX_LOOPED_ON_ENTITY(firewingPtfx, ptfxEgg, 0, 0, 0.1, fireWings[i].pos[1], 0, fireWings[i].pos[2], fireWingsSettings.scale, false, false, false)
                     util.create_tick_handler(function()
                         for i = 1, #fireWings do
-                            set_entity_coords(ptfxEgg, NETWORK._NETWORK_GET_PLAYER_COORDS(players.user_ped()))
+                            set_entity_coords(ptfxEgg, ENTITY.GET_ENTITY_COORDS(players.user_ped()))
                             local rot = ENTITY.GET_ENTITY_ROTATION(players.user_ped(), 2)
                             ENTITY.SET_ENTITY_ROTATION(ptfxEgg, rot.x, rot.y, rot.z, 2, true)
                             GRAPHICS.SET_PARTICLE_FX_LOOPED_SCALE(fireWings[i].ptfx, fireWingsSettings.scale)
@@ -2242,17 +2242,17 @@ local runningTogglingOff = false
             end)
 
             menu.action(trolling_root, 'Primed grenade', {'JSprimedGrenade'}, 'Spawns a grenade on top of '.. playerName ..'.', function()
-                local pos = NETWORK._NETWORK_GET_PLAYER_COORDS(pid)
+                local pos = ENTITY.GET_ENTITY_COORDS(playerPed)
                 MISC.SHOOT_SINGLE_BULLET_BETWEEN_COORDS(pos.x, pos.y, pos.z + 1.4, pos.x, pos.y, pos.z + 1.3, 100, true, -1813897027, players.user_ped(), true, false, 100.0)
             end)
 
             menu.action(trolling_root, 'Sticky', {'JSsticky'}, 'Spawns a sticky bomb on '.. playerName ..' that might stick to their vehicle and you can detonate by pressing "G".', function()
-                local pos = NETWORK._NETWORK_GET_PLAYER_COORDS(pid)
+                local pos = ENTITY.GET_ENTITY_COORDS(playerPed)
                 MISC.SHOOT_SINGLE_BULLET_BETWEEN_COORDS(pos.x, pos.y, pos.z + 1 , pos.x, pos.y, pos.z + 1.1, 10, true, 741814745, players.user_ped(), true, false, 100.0)
             end)
 
             menu.toggle_loop(trolling_root, 'Shake camera', {'JScamShake'}, 'Shakes the camera of '.. playerName ..'.', function()
-                local pos = NETWORK._NETWORK_GET_PLAYER_COORDS(pid)
+                local pos = ENTITY.GET_ENTITY_COORDS(playerPed)
                 FIRE.ADD_EXPLOSION(pos.x, pos.y, pos.z, 1, 10, false, true, 1000, true)
             end)
 
@@ -2261,7 +2261,7 @@ local runningTogglingOff = false
             local yeetRange = 100
             local stormDelay = new.delay(250, 0, 0)
             local function yeetEntities()
-                local targetPos = NETWORK._NETWORK_GET_PLAYER_COORDS(pid)
+                local targetPos = ENTITY.GET_ENTITY_COORDS(playerPed)
                 local pointerTables = {
                     entities.get_all_peds_as_pointers(),
                     entities.get_all_vehicles_as_pointers()
