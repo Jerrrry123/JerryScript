@@ -55,7 +55,9 @@ local whitelistedName = false
             local playerInfoTogglesOptions = {
                 {
                     name = 'Disable name', command = 'PIdisableName', description = '', toggle = true,
-                    displayText = function(pid) return 'Player: '.. players.get_name(pid) end
+                    displayText = function(pid)
+                        return 'Player: '.. players.get_name(pid)
+                    end
                 },
                 {
                     name = 'Disable weapon', command = 'PIdisableWeapon', description = '', toggle = true,
@@ -1458,6 +1460,80 @@ local whitelistedName = false
             util.yield(7000)
             fixer_count_cooldown = false
         end)
+
+    -----------------------------------
+    -- Proberty tp
+    -----------------------------------
+        -- warehouse = 473
+        -- vehicle cargo = 524
+        local propertyBlips = {
+            [1] = { name = 'Ceo office',   sprite = 475 },
+            [2] = { name = 'MC clubhouse', sprite = 492,
+                subProperties = {listName = 'MC businesses', properties = {
+                    [1] = { name = 'Weed farm',           sprite = 496 },
+                    [2] = { name = 'Cocaine lockup',      sprite = 497 },
+                    [3] = { name = 'Document forgery',    sprite = 498 },
+                    [4] = { name = 'Methamphetamine Lab', sprite = 499 },
+                    [5] = { name = 'Counterfeit cash',    sprite = 500 },
+                }}
+            },
+            [3] = { name = 'Bunker',     sprite = 557 },
+            [4] = { name = 'Hangar',     sprite = 569 },
+            [5] = { name = 'Facility',   sprite = 590 },
+            [6] = { name = 'Night club', sprite = 614 },
+            [7] = { name = 'Arcade',     sprite = 740 },
+            [8] = { name = 'Auto shop',  sprite = 779 },
+            [9] = { name = 'Agency',     sprite = 826 },
+        }
+
+        local function getUserPropertyBlip(sprite)
+            local blip = HUD.GET_FIRST_BLIP_INFO_ID(sprite)
+            while blip ~= 0 do
+                if HUD.DOES_BLIP_EXIST(blip) and HUD.GET_BLIP_COLOUR(blip) != 55 then return blip end
+                blip = HUD.GET_NEXT_BLIP_INFO_ID(sprite)
+            end
+        end
+
+        local function tpToBlip(blip)
+            local pos = HUD.GET_BLIP_COORDS(blip)
+            local tpEntity = (PED.IS_PED_IN_ANY_VEHICLE(players.user_ped(), true) and my_cur_car or players.user_ped())
+            ENTITY.SET_ENTITY_COORDS(tpEntity, pos.x, pos.y, pos.z, false, false, false, false)
+        end
+
+        local propertyTpRefs = {}
+        local function regenerateTpLocations(root)
+            for k, _ in pairs(propertyTpRefs) do
+                menu.delete(propertyTpRefs[k])
+                propertyTpRefs[k] = nil
+            end
+            for i = 1, #propertyBlips do
+                local propertyBlip = getUserPropertyBlip(propertyBlips[i].sprite)
+                if propertyBlip ~= nil then
+                      propertyTpRefs[propertyBlips[i].name] = menu.action(root, propertyBlips[i].name, {}, '', function()
+                              tpToBlip(propertyBlip)
+                      end)
+                      if propertyBlips[i].subProperties then
+                          local subProperties = propertyBlips[i].subProperties
+                        local listName = subProperties.listName
+                        propertyTpRefs[listName] = menu.list(root, listName, {}, '', function()end)
+                        for j = 1, #subProperties.properties do
+                            local propertyBlip = getUserPropertyBlip(subProperties.properties[j].sprite)
+                            if propertyBlip ~= nil then
+                                menu.action(propertyTpRefs[listName], subProperties.properties[j].name, {}, '', function() --no need to have refs to these because they get deleted with the sublist
+                                    tpToBlip(propertyBlip)
+                                end)
+                            end
+                        end
+                      end
+                end
+            end
+        end
+
+        local property_tp_list property_tp_list = menu.list(online_root, 'Property tp\'s', {'JSpropertyTp'}, 'Lets you teleport to the properties you own.', function()
+            regenerateTpLocations(property_tp_list)
+        end)
+
+        propertyTpRefs['tmp'] = menu.action(property_tp_list, '', {}, '', function()end)
 
     -----------------------------------
     -- Cooldowns
