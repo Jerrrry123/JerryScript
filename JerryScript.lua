@@ -2321,6 +2321,7 @@ local runningTogglingOff = false
             menu.toggle_loop(trolling_root, 'Explode loop player', {'JSexplodeLoop'}, 'Loops explosions on '.. playerName ..' with your selected options.', function()
                 explodePlayer(playerPed, true, expSettings)
                 util.yield(getTotalDelay(expLoopDelay))
+                if not players.exists(pid) then util.stop_thread() end
             end)
 
             menu.action(trolling_root, 'Blame explosions', {'JSexpBlame'}, 'Makes your explosions blamed on '.. playerName ..'.', function()
@@ -2344,6 +2345,7 @@ local runningTogglingOff = false
             menu.toggle_loop(trolling_root, 'Shake camera', {'JScamShake'}, 'Shakes the camera of '.. playerName ..'.', function()
                 local pos = ENTITY.GET_ENTITY_COORDS(playerPed)
                 FIRE.ADD_EXPLOSION(pos.x, pos.y, pos.z, 1, 10, false, true, 1000, true)
+                if not players.exists(pid) then util.stop_thread() end
             end)
 
             --made by scriptcat#6566 ;) || requested by Erstarisk#5763
@@ -2393,6 +2395,7 @@ local runningTogglingOff = false
             menu.toggle_loop(trolling_root, 'Entity Storm', {'JSentityStorm'}, 'Constantly pushes all peds and vehicles near them.. into them :p\nRequires you to be near them or spectating them.', function ()
                 yeetEntities()
                 util.yield(getTotalDelay(stormDelay))
+                if not players.exists(pid) then util.stop_thread() end
             end)
 
             menu.slider(trolling_root, 'Range for YEET/Storm', {'JSpushRange'}, 'How close nearby entities have to be to get pushed towards '.. playerName ..'.', 1, 1000, yeetRange, 10, function (value)
@@ -2415,6 +2418,7 @@ local runningTogglingOff = false
                     util.trigger_script_event(1 << playerPid, {801199324, playerPid, 869796886})
                 end
             end
+            if not players.exists(pid) then util.stop_thread() end
         end)
 
         menu.toggle_loop(player_root, 'Give horn boost', {'JSgiveHornBoost'}, 'Gives '.. playerName ..' the ability to speed up their car by pressing honking their horn or activating the siren.', function()
@@ -2424,6 +2428,7 @@ local runningTogglingOff = false
             if AUDIO.IS_HORN_ACTIVE(vehicle) then
                 ENTITY.APPLY_FORCE_TO_ENTITY_CENTER_OF_MASS(vehicle, 1, 0.0, 1.0, 0.0, true, true, true, true)
             end
+            if not players.exists(pid) then util.stop_thread() end
         end)
 
         -----------------------------------
@@ -2444,12 +2449,14 @@ local runningTogglingOff = false
                 if playerIsTargetingEntity(playerPed) and karma[playerPed] then
                     explodePlayer(karma[playerPed].ped, true, expSettings)
                 end
+                if not players.exists(pid) then util.stop_thread() end
             end)
 
             menu.toggle_loop(give_karma_root, 'Disable godmode', {'JSgiveGodAimKarma'}, 'If a god mode player aims at '.. playerName ..' this disables the aimers god mode by pushing their camera forwards.', function()
                 if playerIsTargetingEntity(playerPed) and karma[playerPed] and players.is_godmode(karma[playerPed].pid) then
                     util.trigger_script_event(1 << karma[playerPed].pid, {801199324, karma[playerPed].pid, 869796886})
                 end
+                if not players.exists(pid) then util.stop_thread() end
             end)
 
         ----------------------------------
@@ -2495,6 +2502,7 @@ local runningTogglingOff = false
                     ENTITY.APPLY_FORCE_TO_ENTITY(playerVehicle, 1, 0, 0, 100, 0, 0, 0.5, 0, false, false, true)
                     util.yield(10)
                 end
+                if not players.exists(pid) then util.stop_thread() end
             end)
 
             menu.toggle_loop(player_veh_root, 'Anchor', {'JSanchor'}, 'Forces '.. playerName ..' info the ground if they\'re in a air born vehicle.', function()
@@ -2506,6 +2514,7 @@ local runningTogglingOff = false
                         util.yield(10)
                     end
                 end
+                if not players.exists(pid) then util.stop_thread() end
             end)
 
         -----------------------------------
@@ -2541,6 +2550,7 @@ local runningTogglingOff = false
                         rain(playerPed, v)
                         util.yield(500)
                     end
+                    if not players.exists(pid) then util.stop_thread() end
                 end)
             end
 
