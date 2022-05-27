@@ -1489,7 +1489,8 @@ local whitelistedName = false
         local function getUserPropertyBlip(sprite)
             local blip = HUD.GET_FIRST_BLIP_INFO_ID(sprite)
             while blip ~= 0 do
-                if HUD.DOES_BLIP_EXIST(blip) and HUD.GET_BLIP_COLOUR(blip) != 55 then return blip end
+                local blipColor = HUD.GET_BLIP_COLOUR(blip)
+                if HUD.DOES_BLIP_EXIST(blip) and blipColor != 55 and blipColor != 3 then return blip end
                 blip = HUD.GET_NEXT_BLIP_INFO_ID(sprite)
             end
         end
@@ -1509,22 +1510,30 @@ local whitelistedName = false
             for i = 1, #propertyBlips do
                 local propertyBlip = getUserPropertyBlip(propertyBlips[i].sprite)
                 if propertyBlip ~= nil then
-                      propertyTpRefs[propertyBlips[i].name] = menu.action(root, propertyBlips[i].name, {}, '', function()
-                              tpToBlip(propertyBlip)
-                      end)
-                      if propertyBlips[i].subProperties then
-                          local subProperties = propertyBlips[i].subProperties
+                    propertyTpRefs[propertyBlips[i].name] = menu.action(root, propertyBlips[i].name, {}, '', function()
+                        if not HUD.DOES_BLIP_EXIST(propertyBlip) then
+                            util.toast('Couldn\'t find property.')
+                            return
+                        end
+                        tpToBlip(propertyBlip)
+                    end)
+                    if propertyBlips[i].subProperties then
+                        local subProperties = propertyBlips[i].subProperties
                         local listName = subProperties.listName
                         propertyTpRefs[listName] = menu.list(root, listName, {}, '', function()end)
                         for j = 1, #subProperties.properties do
                             local propertyBlip = getUserPropertyBlip(subProperties.properties[j].sprite)
                             if propertyBlip ~= nil then
                                 menu.action(propertyTpRefs[listName], subProperties.properties[j].name, {}, '', function() --no need to have refs to these because they get deleted with the sublist
+                                    if not HUD.DOES_BLIP_EXIST(propertyBlip) then
+                                        util.toast('Couldn\'t find property.')
+                                        return
+                                    end
                                     tpToBlip(propertyBlip)
                                 end)
                             end
                         end
-                      end
+                    end
                 end
             end
         end
