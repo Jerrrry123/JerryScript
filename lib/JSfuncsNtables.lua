@@ -3,7 +3,8 @@ if not filesystem.exists(filesystem.scripts_dir() .. 'lib/natives-1651208000.lua
     util.stop_script()
 end
 
-function yieldModelLoad(hash)
+function loadModel(hash)
+    STREAMING.REQUEST_MODEL(hash)
     while not STREAMING.HAS_MODEL_LOADED(hash) do util.yield() end
 end
 

@@ -411,8 +411,7 @@ local whitelistedName = false
                 ENTITY.SET_ENTITY_PROOFS(players.user_ped(), false, true, false, false, false, false, 1, false)
                 if ptfxEgg == nil then
                     local eggHash = 1803116220
-                    STREAMING.REQUEST_MODEL(eggHash)
-                    yieldModelLoad(eggHash)
+                    loadModel(eggHash)
                     ptfxEgg = entities.create_object(eggHash, ENTITY.GET_ENTITY_COORDS(players.user_ped()))
                     ENTITY.SET_ENTITY_COLLISION(ptfxEgg, false, false)
                     ENTITY.SET_ENTITY_VISIBLE(ptfxEgg, false)
@@ -682,7 +681,7 @@ local whitelistedName = false
         end
 
         local modifiedFalloff = {}
-        menu.toggle_loop(weapon_settings_root, 'No damage falloff', {'JSnoFAlloff'}, '', function()
+        menu.toggle_loop(weapon_settings_root, 'Infinite range', {'JSinfiniteRange'}, '', function()
             local userPed = players.user_ped()
             local weaponHash = getWeaponHash(userPed)
             if modifiedFalloff[weaponHash] then return end
@@ -730,20 +729,25 @@ local whitelistedName = false
             resetWeapons(modifiedSpread)
         end)
 
-        local togglingRemoveMinigun = false
-        local remove_minigun_toggle remove_minigun_toggle = menu.toggle(weapon_settings_root, 'Remove minigun spin-up time', {'JSnoSpinUp'}, 'Requires you to hold a your minigun.', function(toggle)
-            if togglingRemoveMinigun then return end
-            if WEAPON.GET_SELECTED_PED_WEAPON(players.user_ped()) != util.joaat('weapon_minigun') then
-                util.toast('You aren\'t holding your minigun.')
-                togglingRemoveMinigun = true
-                menu.trigger_command(remove_minigun_toggle, (menu.get_value(remove_minigun_toggle) == 1 and 'off' or 'on'))
-                util.yield()
-                togglingRemoveMinigun = false
-                return
+        local modifiedSpinup = {
+            [1] = {hash = util.joaat('weapon_minigun')},
+            [2] = {hash = util.joaat('weapon_rayminigun')},
+        }
+        menu.toggle_loop(weapon_settings_root, 'Remove spin-up time', {'JSnoSpinUp'}, 'Removes the spin-up from both the minigun and the widowmaker.', function()
+            local weaponHash = WEAPON.GET_SELECTED_PED_WEAPON(players.user_ped())
+            for i = 1, #modifiedSpinup do
+                if weaponHash == modifiedSpinup[i].hash then
+                    modifiedSpinup[i].address = address_from_pointer_chain(entities.handle_to_pointer(players.user_ped()), {0x10D8, 0x20, 0x144})
+                    if modifiedSpinup[i].address == 0 then util.toast('Failed to find memory address.') return end
+                    memory.write_float(modifiedSpinup[i].address, 0)
+                end
             end
-            local address = address_from_pointer_chain(entities.handle_to_pointer(players.user_ped()), {0x10D8, 0x20, 0x144})
-            if address == 0 then util.toast('Failed to find memory address.') return end
-            memory.write_float(address, (toggle and 0 or 0.5))
+        end, function()
+            for i = 1, #modifiedSpinup do
+                if modifiedSpinup[i].address then
+                    memory.write_float(modifiedSpinup[i].address, 0.5)
+                end
+            end
         end)
 
         local modifiedCarForce = {}
@@ -902,8 +906,7 @@ local whitelistedName = false
                         end
                         util.create_thread(function()
                             local hash = util.joaat('w_arena_airmissile_01a')
-                            STREAMING.REQUEST_MODEL(hash)
-                            yieldModelLoad(hash)
+                            loadModel(hash)
                             local cam_rot = CAM.GET_FINAL_RENDERED_CAM_ROT(2)
                             local dir, pos = direction()
                             local bomb = entities.create_object(hash, pos)
@@ -940,8 +943,7 @@ local whitelistedName = false
         local waypointPos = get_waypoint_pos2()
         if waypointPos then
             local hash = util.joaat('w_arena_airmissile_01a')
-            STREAMING.REQUEST_MODEL(hash)
-            yieldModelLoad(hash)
+            loadModel(hash)
             waypointPos.z += 30
             local bomb = entities.create_object(hash, waypointPos)
             waypointPos.z -= 30
@@ -1033,8 +1035,7 @@ local whitelistedName = false
                     if PAD.IS_DISABLED_CONTROL_PRESSED(2, 24) and PLAYER.IS_PLAYER_FREE_AIMING(players.user_ped()) then
                         util.create_thread(function()
                             local hash = util.joaat(exp_animal)
-                            STREAMING.REQUEST_MODEL(hash)
-                            yieldModelLoad(hash)
+                            loadModel(hash)
                             local dir, c1 = direction()
                             local animal = entities.create_ped(28, hash, c1, 0)
                             local cam_rot = CAM.GET_FINAL_RENDERED_CAM_ROT(2)
@@ -1080,8 +1081,7 @@ local whitelistedName = false
     menu.toggle_loop(minecraft_gun_root, 'Minecraft gun', {'JSminecraftGun'}, 'Spawns blocks where you shoot.', function()
         if WEAPON.GET_PED_LAST_WEAPON_IMPACT_COORD(players.user_ped(), impactCords) then
             local hash = util.joaat('prop_mb_sandblock_01')
-            STREAMING.REQUEST_MODEL(hash)
-            yieldModelLoad(hash)
+            loadModel(hash)
             blocks[#blocks + 1] = entities.create_object(hash, impactCords)
         end
     end)
@@ -1462,7 +1462,7 @@ local whitelistedName = false
         end)
 
     -----------------------------------
-    -- Proberty tp
+    -- Property tp
     -----------------------------------
         -- warehouse = 473
         -- vehicle cargo = 524
@@ -2528,8 +2528,7 @@ local runningTogglingOff = false
                 pos.x += math.random(-30,30)
                 pos.y += math.random(-30,30)
                 pos.z += 30
-                STREAMING.REQUEST_MODEL(hash)
-                yieldModelLoad(hash)
+                loadModel(hash)
                 local animal = entities.create_ped(28, hash, pos, 0)
                 STREAMING.SET_MODEL_AS_NO_LONGER_NEEDED(hash)
                 -- ENTITY.SET_ENTITY_INVINCIBLE(animal, true)
