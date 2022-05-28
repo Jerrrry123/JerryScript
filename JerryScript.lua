@@ -2357,17 +2357,17 @@ local runningTogglingOff = false
             end)
 
             menu.action(trolling_root, 'Primed grenade', {'JSprimedGrenade'}, 'Spawns a grenade on top of '.. playerName ..'.', function()
-                local pos = ENTITY.GET_ENTITY_COORDS(playerPed)
+                local pos = getPlayerCoords(pid)
                 MISC.SHOOT_SINGLE_BULLET_BETWEEN_COORDS(pos.x, pos.y, pos.z + 1.4, pos.x, pos.y, pos.z + 1.3, 100, true, -1813897027, players.user_ped(), true, false, 100.0)
             end)
 
             menu.action(trolling_root, 'Sticky', {'JSsticky'}, 'Spawns a sticky bomb on '.. playerName ..' that might stick to their vehicle and you can detonate by pressing "G".', function()
-                local pos = ENTITY.GET_ENTITY_COORDS(playerPed)
+                local pos = getPlayerCoords(pid)
                 MISC.SHOOT_SINGLE_BULLET_BETWEEN_COORDS(pos.x, pos.y, pos.z + 1 , pos.x, pos.y, pos.z + 1.1, 10, true, 741814745, players.user_ped(), true, false, 100.0)
             end)
 
             menu.toggle_loop(trolling_root, 'Shake camera', {'JScamShake'}, 'Shakes the camera of '.. playerName ..'.', function()
-                local pos = ENTITY.GET_ENTITY_COORDS(playerPed)
+                local pos = getPlayerCoords(pid)
                 FIRE.ADD_EXPLOSION(pos.x, pos.y, pos.z, 1, 10, false, true, 1000, true)
                 if not players.exists(pid) then util.stop_thread() end
             end)
@@ -2377,7 +2377,7 @@ local runningTogglingOff = false
             local yeetRange = 100
             local stormDelay = new.delay(250, 0, 0)
             local function yeetEntities()
-                local targetPos = ENTITY.GET_ENTITY_COORDS(playerPed)
+                local targetPos = getPlayerCoords(pid)
                 local pointerTables = {
                     entities.get_all_peds_as_pointers(),
                     entities.get_all_vehicles_as_pointers()
@@ -2546,8 +2546,8 @@ local runningTogglingOff = false
         -----------------------------------
             local rain_root = menu.list(player_root, 'Entity rain', {'JSrain'}, '')
 
-            local function rain(playerPed, entity)
-                local pos = ENTITY.GET_ENTITY_COORDS(playerPed)
+            local function rain(pid, entity)
+                local pos = getPlayerCoords(pid)
                 local hash = util.joaat(entity)
                 pos.x += math.random(-30,30)
                 pos.y += math.random(-30,30)
@@ -2570,7 +2570,7 @@ local runningTogglingOff = false
             for i = 1, #rainOptions do
                 menu.toggle_loop(rain_root, rainOptions[i].name ..' rain', {'JS'.. rainOptions[i].name}, rainOptions[i].description, function()
                     for k, v in pairs(rainOptions[i].animals) do
-                        rain(playerPed, v)
+                        rain(pid, v)
                         util.yield(500)
                     end
                     if not players.exists(pid) then util.stop_thread() end

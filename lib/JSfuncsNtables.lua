@@ -22,6 +22,13 @@ function startBusySpinner(message)
     HUD.END_TEXT_COMMAND_BUSYSPINNER_ON(5)
 end
 
+function getPlayerCoords(pid)
+    if pid == players.user() then
+        return ENTITY.GET_ENTITY_COORDS(players.user_ped())
+    end
+    return NETWORK._NETWORK_GET_PLAYER_COORDS(pid)
+end
+
 new = {
     colour = function(R, G, B, A)
         return {r = R, g = G, b = B, a = A}
