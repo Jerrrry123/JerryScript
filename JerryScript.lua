@@ -495,8 +495,8 @@ local whitelistedName = false
         end
         menu.divider(face_profiles_list, '', {}, '')
 
-        script_store_dir = filesystem.store_dir() .. '/JerryScript/'
-        face_profiles_dir = script_store_dir .. '/Face Feature Profiles/'
+        script_store_dir = filesystem.store_dir() .. 'JerryScript\\'
+        face_profiles_dir = script_store_dir .. 'Face Feature Profiles\\'
 
         local function getProfileName(fullPath, removePath)
             local path = string.gsub(fullPath, removePath, '')
