@@ -394,15 +394,6 @@ local whitelistedName = false
             fireColour = new.colour(255 / 255, 127 / 255, 80 / 255, 1),
             on = false
         }
-        function set_entity_coords(entity, pos)
-            NETWORK.NETWORK_REQUEST_CONTROL_OF_ENTITY(entity)
-            while not NETWORK.NETWORK_HAS_CONTROL_OF_ENTITY(entity) do
-                NETWORK.NETWORK_REQUEST_CONTROL_OF_ENTITY(entity)
-                util.yield()
-            end
-            ENTITY.SET_ENTITY_VELOCITY(entity, 0, 0, 0)
-            ENTITY.SET_ENTITY_COORDS_NO_OFFSET(entity, pos.x, pos.y, pos.z)
-        end
         local ptfxEgg
         local firewingPtfx = 'muz_xs_turret_flamethrower_looping'
         menu.toggle(fire_wings_list, 'Fire Wings', {'JSfireWings'}, 'Puts flames made of fire on your back.', function (toggle)
@@ -425,10 +416,10 @@ local whitelistedName = false
                     GRAPHICS.USE_PARTICLE_FX_ASSET('weap_xs_vehicle_weapons')
                     fireWings[i].ptfx = GRAPHICS.START_NETWORKED_PARTICLE_FX_LOOPED_ON_ENTITY(firewingPtfx, ptfxEgg, 0, 0, 0.1, fireWings[i].pos[1], 0, fireWings[i].pos[2], fireWingsSettings.scale, false, false, false)
                     util.create_tick_handler(function()
+                        local rot = ENTITY.GET_ENTITY_ROTATION(players.user_ped(), 2)
+                        ENTITY.ATTACH_ENTITY_TO_ENTITY(ptfxEgg, players.user_ped(), -1, 0, 0, 0, rot.x, rot.y, rot.z, false, false, false, false, 0, false)
+                        ENTITY.SET_ENTITY_ROTATION(ptfxEgg, rot.x, rot.y, rot.z, 2, true)
                         for i = 1, #fireWings do
-                            set_entity_coords(ptfxEgg, ENTITY.GET_ENTITY_COORDS(players.user_ped()))
-                            local rot = ENTITY.GET_ENTITY_ROTATION(players.user_ped(), 2)
-                            ENTITY.SET_ENTITY_ROTATION(ptfxEgg, rot.x, rot.y, rot.z, 2, true)
                             GRAPHICS.SET_PARTICLE_FX_LOOPED_SCALE(fireWings[i].ptfx, fireWingsSettings.scale)
                             GRAPHICS.SET_PARTICLE_FX_LOOPED_COLOUR(fireWings[i].ptfx, fireWingsSettings.fireColour.r, fireWingsSettings.fireColour.g, fireWingsSettings.fireColour.b)
                         end
