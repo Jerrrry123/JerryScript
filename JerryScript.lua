@@ -489,7 +489,7 @@ local whitelistedName = false
         local face_sliders = {}
         for i = 0, #faceFeatures do
             local faceValue = math.floor(roundDecimals(STAT_GET_FLOAT('FEATURE_'.. i), 2) * 100)
-            while math.floor(faceValue) != faceValue and typeof(faceValue) != "number" do  --while faceValue isn't a integer i request it again because this fucking slider is a bitch
+            while math.floor(faceValue) != faceValue and type(faceValue) != 'number' do
                 faceValue = math.floor(roundDecimals(STAT_GET_FLOAT('FEATURE_'.. i), 2) * 100)
                 util.yield()
             end
