@@ -1617,20 +1617,42 @@ local whitelistedName = false
     ----------------------------------
         local tt_root = menu.list(online_root, 'Time trials', {'JStt'}, '')
 
-        menu.toggle_loop(tt_root, 'Best rc time trial time', {'JSbestRcTT'}, '', function()
-            util.toast('Best Time: '.. ttTimeToString(STAT_GET_INT_MPPLY('mpply_rcttbesttime')))
-            util.yield(100)
-        end)
-
-        function ttTimeToString(time)
+        local function ttTimeToString(time)
             local min = math.floor(time / 60000)
             local sec = (time % 60000) / 1000
             return (min == 0 and '' or min ..'min ') .. sec ..'s'
         end
 
+        menu.divider(tt_root, 'Time trial')
+
         menu.toggle_loop(tt_root, 'Best time trial time', {'JSbestTT'}, '', function()
             util.toast('Best Time: '.. ttTimeToString((STAT_GET_INT_MPPLY('mpply_timetrialbesttime'))))
             util.yield(100)
+        end)
+
+        menu.action(tt_root, 'Teleport to time trial', {'JStpToTT'}, '', function()
+            local ttBlip = HUD._GET_CLOSEST_BLIP_OF_TYPE(430)
+            if not HUD.DOES_BLIP_EXIST(ttBlip) then
+                util.toast('Couldn\'t find time trial.')
+                return
+            end
+            tpToBlip(ttBlip)
+        end)
+
+        menu.divider(tt_root, 'Rc time trial')
+
+        menu.toggle_loop(tt_root, 'Best rc time trial time', {'JSbestRcTT'}, '', function()
+            util.toast('Best Time: '.. ttTimeToString(STAT_GET_INT_MPPLY('mpply_rcttbesttime')))
+            util.yield(100)
+        end)
+
+        menu.action(tt_root, 'Teleport to rc time trial', {'JStpToRcTT'}, '', function()
+            local ttBlip = HUD._GET_CLOSEST_BLIP_OF_TYPE(673)
+            if not HUD.DOES_BLIP_EXIST(ttBlip) then
+                util.toast('Couldn\'t find rc time trial.')
+                return
+            end
+            tpToBlip(ttBlip)
         end)
 
     ----------------------------------
