@@ -658,11 +658,12 @@ local whitelistedName = false
     ----------------------------------
         local weapon_settings_root = menu.list(weapons_root, 'Weapon settings', {}, '')
 
-        local function readWeaponAddress(storeTable, offset, stopIfModified)
+        local function readWeaponAddress(storeTable, offset, stopIfModified, ignoreVehicleWeapons)
             local userPed = players.user_ped()
-            local weaponHash = getWeaponHash(userPed)
+            local weaponHash, vehicleWeapon = getWeaponHash(userPed)
+            if ignoreVehicleWeapons and vehicleWeapon then return end
             if stopIfModified and storeTable[weaponHash] then return 0 end
-            local pointer = (WEAPON.GET_CURRENT_PED_VEHICLE_WEAPON(userPed, 69) and 0x70 or 0x20)
+            local pointer = (vehicleWeapon and 0x70 or 0x20)
             local address = address_from_pointer_chain(entities.handle_to_pointer(userPed), {0x10D8, pointer, offset})
             if address == 0 then util.toast('Failed to find memory address.') return 0 end
             if not storeTable[weaponHash] then
@@ -681,14 +682,23 @@ local whitelistedName = false
             end
         end
 
-        local modifiedFalloff = {}
+        local modifiedRecoil = {}
+        menu.toggle_loop(weapon_settings_root, 'Disable recoil', {'JSnoRecoil'}, 'Disables the camera shake when shooting guns.', function()
+            local weaponHash = readWeaponAddress(modifiedRecoil, 0x2F4, true)
+            if weaponHash == 0 then return end
+            memory.write_float(modifiedRecoil[weaponHash].address, 0)
+        end, function()
+            resetWeapons(modifiedRecoil)
+        end)
+
+        local modifiedRange = {}
         menu.toggle_loop(weapon_settings_root, 'Infinite range', {'JSinfiniteRange'}, '', function()
             local userPed = players.user_ped()
-            local weaponHash = getWeaponHash(userPed)
-            if modifiedFalloff[weaponHash] then return end
-            local pointer = (WEAPON.GET_CURRENT_PED_VEHICLE_WEAPON(userPed, 69) and 0x70 or 0x20)
+            local weaponHash, vehicleWeapon = getWeaponHash(userPed)
+            if modifiedRange[weaponHash] then return end
+            local pointer = (vehicleWeapon and 0x70 or 0x20)
             local userPedPointer = entities.handle_to_pointer(userPed)
-            modifiedFalloff[weaponHash] = {
+            modifiedRange[weaponHash] = {
                 minAddress   = address_from_pointer_chain(userPedPointer, {0x10D8, pointer, 0x298}),
                 maxAddress   = address_from_pointer_chain(userPedPointer, {0x10D8, pointer, 0x29C}),
                 rangeAddress = address_from_pointer_chain(userPedPointer, {0x10D8, pointer, 0x28C}),
