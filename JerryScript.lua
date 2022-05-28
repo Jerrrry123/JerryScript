@@ -489,8 +489,9 @@ local whitelistedName = false
         local face_sliders = {}
         for i = 0, #faceFeatures do
             local faceValue = math.floor(roundDecimals(STAT_GET_FLOAT('FEATURE_'.. i), 2) * 100)
-            while math.floor(faceValue) != faceValue do  --while faceValue isn't a integer i request it again because this fucking slider is a bitch
+            while math.floor(faceValue) != faceValue and typeof(faceValue) != "number" do  --while faceValue isn't a integer i request it again because this fucking slider is a bitch
                 faceValue = math.floor(roundDecimals(STAT_GET_FLOAT('FEATURE_'.. i), 2) * 100)
+                util.yield()
             end
             face_sliders[faceFeatures[i]] = menu.slider(face_feature_list, faceFeatures[i], {'JSset'.. string.gsub(faceFeatures[i], ' ', '')}, '', -1000, 1000, faceValue, 1, function(value)
                 PED._SET_PED_MICRO_MORPH_VALUE(players.user_ped(), i, value / 100)
