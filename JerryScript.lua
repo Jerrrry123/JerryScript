@@ -149,7 +149,7 @@ local whitelistedName = false
                 camShake = 0, invisible = false, audible = true, noDamage = false, owned = false, blamed = false, blamedPlayer = false, expType = 0,
                 --stuff for fx explosions
                 currentFx = effects['Clown_Explosion'],
-                colour = new.color(1, 0, 1)
+                colour = new.colour(1, 0, 1)
             }
 
             local exp_fx_root = menu.list(epx_settings_root,'FX explosions', {'JSfxExp'}, 'Lets you choose effects instead of explosion type.')
@@ -269,7 +269,7 @@ local whitelistedName = false
             end)
 
 
-            menu.rainbow(menu.colour(exp_fx_root, 'FX color', {'JSPfxColor'}, 'Only works on some pfx\'s.',  new.color(1, 0, 1, 1), false, function(colour)
+            menu.rainbow(menu.colour(exp_fx_root, 'FX colour', {'JSPfxColour'}, 'Only works on some pfx\'s.',  new.colour(1, 0, 1, 1), false, function(colour)
                 expSettings.colour = colour
             end))
         -----------------------------------
@@ -391,7 +391,7 @@ local whitelistedName = false
         }
         local fireWingsSettings = {
             scale = 0.3,
-            fireColor = new.color(255 / 255, 127 / 255, 80 / 255, 1),
+            fireColour = new.colour(255 / 255, 127 / 255, 80 / 255, 1),
             on = false
         }
         function set_entity_coords(entity, pos)
@@ -430,7 +430,7 @@ local whitelistedName = false
                             local rot = ENTITY.GET_ENTITY_ROTATION(players.user_ped(), 2)
                             ENTITY.SET_ENTITY_ROTATION(ptfxEgg, rot.x, rot.y, rot.z, 2, true)
                             GRAPHICS.SET_PARTICLE_FX_LOOPED_SCALE(fireWings[i].ptfx, fireWingsSettings.scale)
-                            GRAPHICS.SET_PARTICLE_FX_LOOPED_COLOUR(fireWings[i].ptfx, fireWingsSettings.fireColor.r, fireWingsSettings.fireColor.g, fireWingsSettings.fireColor.b)
+                            GRAPHICS.SET_PARTICLE_FX_LOOPED_COLOUR(fireWings[i].ptfx, fireWingsSettings.fireColour.r, fireWingsSettings.fireColour.g, fireWingsSettings.fireColour.b)
                         end
                         return fireWingsSettings.on
                     end)
@@ -454,8 +454,8 @@ local whitelistedName = false
             fireWingsSettings.scale = value / 10
         end)
 
-        menu.rainbow(menu.colour(fire_wings_list, 'Fire wings colour', {'JSfireWingsColour'}, '', fireWingsSettings.fireColor, false, function(colour)
-            fireWingsSettings.fireColor = colour
+        menu.rainbow(menu.colour(fire_wings_list, 'Fire wings colour', {'JSfireWingsColour'}, '', fireWingsSettings.fireColour, false, function(colour)
+            fireWingsSettings.fireColour = colour
         end))
 
     -----------------------------------
@@ -1494,8 +1494,8 @@ local whitelistedName = false
         local function getUserPropertyBlip(sprite)
             local blip = HUD.GET_FIRST_BLIP_INFO_ID(sprite)
             while blip ~= 0 do
-                local blipColor = HUD.GET_BLIP_COLOUR(blip)
-                if HUD.DOES_BLIP_EXIST(blip) and blipColor != 55 and blipColor != 3 then return blip end
+                local blipColour = HUD.GET_BLIP_COLOUR(blip)
+                if HUD.DOES_BLIP_EXIST(blip) and blipColour != 55 and blipColour != 3 then return blip end
                 blip = HUD.GET_NEXT_BLIP_INFO_ID(sprite)
             end
         end
@@ -1874,22 +1874,22 @@ local whitelistedName = false
     end)
 
     -----------------------------------
-    -- Colored otr reveal
+    -- Coloured otr reveal
     -----------------------------------
-        local colored_otr_root = menu.list(players_root, 'Colored otr reveal', {}, '')
+        local coloured_otr_root = menu.list(players_root, 'Coloured otr reveal', {}, '')
 
         local markedPlayers = {}
-        local otrBlipColor = 58
-        menu.toggle_loop(colored_otr_root, 'Colored otr reveal', {'JScoloredOtrReveal'}, 'Marks otr players with colored blips.', function()
+        local otrBlipColour = 58
+        menu.toggle_loop(coloured_otr_root, 'Coloured otr reveal', {'JScolouredOtrReveal'}, 'Marks otr players with coloured blips.', function()
             local playerList = players.list(false, true, true)
             for i, pid in pairs(playerList) do
                 if players.is_otr(pid) and not markedPlayers[pid] then
                     local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
                     markedPlayers[pid] = HUD.ADD_BLIP_FOR_ENTITY(ped)
-                    HUD.SET_BLIP_COLOUR(markedPlayers[pid], otrBlipColor)
+                    HUD.SET_BLIP_COLOUR(markedPlayers[pid], otrBlipColour)
                     HUD.SHOW_HEADING_INDICATOR_ON_BLIP(markedPlayers[pid], true)
                 elseif players.is_otr(pid) then
-                    HUD.SET_BLIP_COLOUR(markedPlayers[pid], otrBlipColor)
+                    HUD.SET_BLIP_COLOUR(markedPlayers[pid], otrBlipColour)
                 elseif not players.is_otr(pid) and markedPlayers[pid] then
                     util.remove_blip(markedPlayers[pid])
                     markedPlayers[pid] = nil
@@ -1905,12 +1905,12 @@ local whitelistedName = false
             end
         end)
 
-        local otr_color_slider = menu.slider(colored_otr_root, 'otr reveal color', {'JSortRevealColor'}, '',1, 81, otrBlipColor, 1, function(value)
-            otrBlipColor = value + (value > 71 and 1 or 0) + (value > 77 and 2 or 0)
+        local otr_colour_slider = menu.slider(coloured_otr_root, 'otr reveal colour', {'JSortRevealColour'}, '',1, 81, otrBlipColour, 1, function(value)
+            otrBlipColour = value + (value > 71 and 1 or 0) + (value > 77 and 2 or 0)
         end)
 
-        menu.toggle_loop(colored_otr_root, 'Otr rgb reveal', {'JSortRgbReveal'}, '', function()
-            menu.trigger_command(otr_color_slider, (otrBlipColor == 84 and 1 or otrBlipColor + 1))
+        menu.toggle_loop(coloured_otr_root, 'Otr rgb reveal', {'JSortRgbReveal'}, '', function()
+            menu.trigger_command(otr_colour_slider, (otrBlipColour == 84 and 1 or otrBlipColour + 1))
             util.yield(250)
         end)
 
@@ -2221,8 +2221,8 @@ menu.hyperlink(menu_root, 'Join the discord server', 'https://discord.gg/QzqBdHQ
 
 local JS_logo = directx.create_texture(filesystem.resources_dir() ..'JS.png')
 
-local black = new.color(0, 0, 1 / 255, 1)
-local white = new.color(1, 1, 1, 1)
+local black = new.colour(0, 0, 1 / 255, 1)
+local white = new.colour(1, 1, 1, 1)
 local creditText = {
     [1]  = {line = 'Coded by Jerry123#4508', bold = true, wait = 85},
     [2]  = {line = 'Some contributions made by', bold = false, wait = 25},
@@ -2622,7 +2622,7 @@ util.create_tick_handler(function()
             local text = playerInfoTogglesOptions[i].displayText(playerInfoPid, playerInfoPed, weaponHash) --not all the functions uses all params but i don't wanna check what params i need to pass
             if playerInfoTogglesOptions[i].toggle and text then
                 ct += spacing
-                directx.draw_text(1 + sliderToScreenPos(piSettings.xOffset), ct + sliderToScreenPos(piSettings.yOffset), text, piSettings.alignment, piSettings.scale, piSettings.textColor, false)
+                directx.draw_text(1 + sliderToScreenPos(piSettings.xOffset), ct + sliderToScreenPos(piSettings.yOffset), text, piSettings.alignment, piSettings.scale, piSettings.textColour, false)
             end
         end
     end
@@ -2634,7 +2634,7 @@ util.create_tick_handler(function()
         for i = 1, #safeManagerToggles do
             if safeManagerToggles[i].toggle then
                 ct += spacing
-                directx.draw_text(1 + sliderToScreenPos(smSettings.xOffset), ct + sliderToScreenPos(smSettings.yOffset), safeManagerToggles[i].displayText(), smSettings.alignment, smSettings.scale, smSettings.textColor, false)
+                directx.draw_text(1 + sliderToScreenPos(smSettings.xOffset), ct + sliderToScreenPos(smSettings.yOffset), safeManagerToggles[i].displayText(), smSettings.alignment, smSettings.scale, smSettings.textColour, false)
             end
         end
     end

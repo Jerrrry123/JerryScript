@@ -23,11 +23,11 @@ function startBusySpinner(message)
 end
 
 new = {
-    color = function(R, G, B, A)
+    colour = function(R, G, B, A)
         return {r = R, g = G, b = B, a = A}
     end,
     hudSettings = function(X, Y, ALIGNMENT)
-        return {xOffset = X, yOffset = Y, scale = 0.5, alignment = ALIGNMENT, textColor = new.color(1, 1, 1, 1)}
+        return {xOffset = X, yOffset = Y, scale = 0.5, alignment = ALIGNMENT, textColour = new.colour(1, 1, 1, 1)}
     end,
     delay = function(MS, S, MIN)
         return {ms = MS, s = S, min = MIN}
@@ -155,8 +155,8 @@ end
         menu.slider(root, 'Text alignment', {prefix..'alignment'}, '1 is center, 2 is left and 3 is right.', 1, 3, settingsTable.alignment, 1, function(value)
             settingsTable.alignment = value
         end)
-        menu.colour(root, 'Text colour', {prefix..'colour'}, 'Sets the colour of the text overlay.', settingsTable.textColor, true, function(colour)
-            settingsTable.textColor = colour
+        menu.colour(root, 'Text colour', {prefix..'colour'}, 'Sets the colour of the text overlay.', settingsTable.textColour, true, function(colour)
+            settingsTable.textColour = colour
         end)
     end
 
