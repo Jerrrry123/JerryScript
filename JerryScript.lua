@@ -2355,12 +2355,14 @@ local runningTogglingOff = false
                 menu.set_menu_name(exp_blame_toggle, 'Blame: ' .. playerName)
             end)
 
-            menu.action(trolling_root, 'Primed grenade', {'JSprimedGrenade'}, 'Spawns a grenade on top of '.. playerName ..'.', function()
+            local damage_root = menu.list(trolling_root, 'Damage', {}, '')
+
+            menu.action(damage_root, 'Primed grenade', {'JSprimedGrenade'}, 'Spawns a grenade on top of '.. playerName ..'.', function()
                 local pos = getPlayerCoords(pid)
                 MISC.SHOOT_SINGLE_BULLET_BETWEEN_COORDS(pos.x, pos.y, pos.z + 1.4, pos.x, pos.y, pos.z + 1.3, 100, true, -1813897027, players.user_ped(), true, false, 100.0)
             end)
 
-            menu.action(trolling_root, 'Sticky', {'JSsticky'}, 'Spawns a sticky bomb on '.. playerName ..' that might stick to their vehicle and you can detonate by pressing "G".', function()
+            menu.action(damage_root, 'Sticky', {'JSsticky'}, 'Spawns a sticky bomb on '.. playerName ..' that might stick to their vehicle and you can detonate by pressing "G".', function()
                 local pos = getPlayerCoords(pid)
                 MISC.SHOOT_SINGLE_BULLET_BETWEEN_COORDS(pos.x, pos.y, pos.z + 1 , pos.x, pos.y, pos.z + 1.1, 10, true, 741814745, players.user_ped(), true, false, 100.0)
             end)
@@ -2369,6 +2371,25 @@ local runningTogglingOff = false
                 local pos = getPlayerCoords(pid)
                 FIRE.ADD_EXPLOSION(pos.x, pos.y, pos.z, 1, 10, false, true, 1000, true)
                 if not players.exists(pid) then util.stop_thread() end
+            end)
+
+            menu.toggle_loop(trolling_root, 'Undetected money drop 2022', {'JSfakeMoneyDrop'}, 'Drops money bags that wont give any money.', function()
+                util.create_thread(function()
+                    local hash = 2628187989
+                    loadModel(hash)
+                    local pos = getPlayerCoords(players.user())
+                    pos.x += math.random(-2, 2) / 10
+                    pos.y += math.random(-2, 2) / 10
+                    pos.z += math.random(13, 14) / 10
+                    local money = entities.create_object(hash, pos)
+                    ENTITY.APPLY_FORCE_TO_ENTITY(money, 3, 0, 0, -0.5, 0.0, 0.0, 0.0, true, true)
+                    while not ENTITY.HAS_ENTITY_COLLIDED_WITH_ANYTHING(money) do
+                        util.yield()
+                    end
+                    AUDIO.PLAY_SOUND_FROM_COORD(-1, 'LOCAL_PLYR_CASH_COUNTER_COMPLETE', pos.x, pos.y, pos.z, 'DLC_HEISTS_GENERAL_FRONTEND_SOUNDS', true, 2, false)
+                    pos = ENTITY.GET_ENTITY_COORDS(money)
+                    entities.delete(money)
+                end)
             end)
 
             --made by scriptcat#6566 ;) || requested by Erstarisk#5763
