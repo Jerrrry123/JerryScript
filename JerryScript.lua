@@ -490,7 +490,7 @@ local whitelistedName = false
         face_profiles_dir = script_store_dir .. 'Face Feature Profiles\\'
 
         local function getProfileName(fullPath, removePath)
-            local path = string.gsub(fullPath, removePath, '')
+            local path = string.sub(fullPath, #removePath + 1)
             return string.gsub(path, '.txt', '')
         end
         local profileReferences = {}
@@ -499,7 +499,7 @@ local whitelistedName = false
             for _, profilePath in pairs(faceProfiles) do
                 local profileName = getProfileName(profilePath, face_profiles_dir)
                 profileReferences[#profileReferences + 1] = menu.action(root, profileName, {'loadface'.. profileName}, '', function()
-                    if not filesystem.exists(face_profiles_dir .. profileName ..'.txt') then util.toast('Profile not found.') end
+                    if not filesystem.exists(faceProfiles) then util.toast('Profile not found.') end
 
                     local settings = util.read_colons_and_tabs_file(face_profiles_dir .. profileName ..'.txt')
                     for k, value in pairs(settings) do
@@ -524,8 +524,7 @@ local whitelistedName = false
             if not filesystem.is_dir(face_profiles_dir) then
                 filesystem.mkdirs(face_profiles_dir)
             end
-            local newfile = '/'.. fileName ..'.txt'
-            local file = io.open(face_profiles_dir .. newfile, 'w')
+            local file = io.open(face_profiles_dir .. fileName ..'.txt', 'w')
             for i = 0, #faceFeatures do
                 file:write(faceFeatures[i] ..': '.. menu.get_value(face_sliders[faceFeatures[i]]) ..'\n')
             end
