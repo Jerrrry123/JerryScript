@@ -499,7 +499,7 @@ local whitelistedName = false
             for _, profilePath in pairs(faceProfiles) do
                 local profileName = getProfileName(profilePath, face_profiles_dir)
                 profileReferences[#profileReferences + 1] = menu.action(root, profileName, {'loadface'.. profileName}, '', function()
-                    if not filesystem.exists(faceProfiles) then util.toast('Profile not found.') end
+                    if not filesystem.exists(profilePath) then util.toast('Profile not found.') end
 
                     local settings = util.read_colons_and_tabs_file(face_profiles_dir .. profileName ..'.txt')
                     for k, value in pairs(settings) do
