@@ -2377,7 +2377,7 @@ local runningTogglingOff = false
                 util.create_thread(function()
                     local hash = 2628187989
                     loadModel(hash)
-                    local pos = getPlayerCoords(players.user())
+                    local pos = getPlayerCoords(pid)
                     pos.x += math.random(-2, 2) / 10
                     pos.y += math.random(-2, 2) / 10
                     pos.z += math.random(13, 14) / 10
