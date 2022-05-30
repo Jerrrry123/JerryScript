@@ -712,15 +712,6 @@ local whitelistedName = false
             end
         end)
 
-        local modifiedRecoil = {}
-        menu.toggle_loop(weapon_settings_root, 'Disable recoil', {'JSnoRecoil'}, 'Disables the camera shake when shooting guns.', function()
-            local weaponHash = readWeaponAddress(modifiedRecoil, 0x2F4, true)
-            if weaponHash == 0 then return end
-            memory.write_float(modifiedRecoil[weaponHash].address, 0)
-        end, function()
-            resetWeapons(modifiedRecoil)
-        end)
-
         local modifiedSpread = {}
         menu.toggle_loop(weapon_settings_root, 'Disable spread', {'JSnoSpread'}, '', function()
             local weaponHash = readWeaponAddress(modifiedSpread, 0x74, true)
