@@ -2271,7 +2271,7 @@ local function scrollCreditsLine(textTable, index)
         if not playingCredits then return end
         i += creditsSpeed
         directx.draw_text(0.5, 1  - i / 1000, textTable.line, 1, textTable.bold and  0.7 or 0.5, white, false)
-        util.yield(10)
+        util.yield()
     end
     if index == #creditText then
         for i = 0, 500 do
