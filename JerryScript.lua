@@ -694,21 +694,21 @@ local whitelistedName = false
                 rangeAddress = address_from_pointer_chain(userPedPointer, {0x10D8, pointer, 0x28C}),
             }
 
-            if modifiedFalloff[weaponHash].minAddress == 0 or modifiedFalloff[weaponHash].maxAddress == 0 or modifiedFalloff[weaponHash].rangeAddress == 0 then util.toast('Failed to find memory address.') return end
+            if modifiedRange[weaponHash].minAddress == 0 or modifiedRange[weaponHash].maxAddress == 0 or modifiedRange[weaponHash].rangeAddress == 0 then util.toast('Failed to find memory address.') return end
 
-            modifiedFalloff[weaponHash].originalMin   = memory.read_float(modifiedFalloff[weaponHash].minAddress)
-            modifiedFalloff[weaponHash].originalMax   = memory.read_float(modifiedFalloff[weaponHash].maxAddress)
-            modifiedFalloff[weaponHash].originalRange = memory.read_float(modifiedFalloff[weaponHash].rangeAddress)
+            modifiedRange[weaponHash].originalMin   = memory.read_float(modifiedRange[weaponHash].minAddress)
+            modifiedRange[weaponHash].originalMax   = memory.read_float(modifiedRange[weaponHash].maxAddress)
+            modifiedRange[weaponHash].originalRange = memory.read_float(modifiedRange[weaponHash].rangeAddress)
 
-            memory.write_float(modifiedFalloff[weaponHash].minAddress,   150000)  --because the map is about 15km tall
-            memory.write_float(modifiedFalloff[weaponHash].maxAddress,   150000)
-            memory.write_float(modifiedFalloff[weaponHash].rangeAddress, 150000)
+            memory.write_float(modifiedRange[weaponHash].minAddress,   150000)  --because the map is about 15km tall
+            memory.write_float(modifiedRange[weaponHash].maxAddress,   150000)
+            memory.write_float(modifiedRange[weaponHash].rangeAddress, 150000)
         end, function()
-            for hash, _ in pairs(modifiedFalloff) do
-                memory.write_float(modifiedFalloff[hash].minAddress, modifiedFalloff[hash].originalMin)
-                memory.write_float(modifiedFalloff[hash].maxAddress, modifiedFalloff[hash].originalMax)
-                memory.write_float(modifiedFalloff[hash].rangeAddress, modifiedFalloff[hash].originalRange)
-                modifiedFalloff[hash] = nil
+            for hash, _ in pairs(modifiedRange) do
+                memory.write_float(modifiedRange[hash].minAddress, modifiedRange[hash].originalMin)
+                memory.write_float(modifiedRange[hash].maxAddress, modifiedRange[hash].originalMax)
+                memory.write_float(modifiedRange[hash].rangeAddress, modifiedRange[hash].originalRange)
+                modifiedRange[hash] = nil
             end
         end)
 
