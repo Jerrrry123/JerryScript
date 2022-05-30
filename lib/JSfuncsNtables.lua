@@ -53,7 +53,7 @@ function address_from_pointer_chain(address, offsets)
             return 0
         end
     end
-    addr = addr + offsets[#offsets]
+    addr += offsets[#offsets]
     return addr
 end
 
@@ -227,7 +227,7 @@ end
         table.sort(a, f)
         local i = 0
         local iter = function()
-            i = i + 1
+            i += 1
             if a[i] == nil then return nil
             else return a[i], t[a[i]]
             end
@@ -315,7 +315,7 @@ end
         local res = raycast_gameplay_cam(-1, 1000)
         local c2
 
-        if res[1] ~= 0 then
+        if res[1] != 0 then
             c2 = res[2]
         else
             c2 = get_offset_from_gameplay_camera(1000)
