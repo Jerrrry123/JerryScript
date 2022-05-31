@@ -2246,7 +2246,7 @@ local function creditsPlaying(toggle)
         directx.draw_rect(0, 0, 1, 1, black)
         directx.draw_texture(JS_logo, 0.25, 0.25, 0.5, 0.5, 0.14, 0.5, 0 , white)
         if PAD.IS_CONTROL_JUST_PRESSED(2, 202) and playingCredits then menu.trigger_command(play_credits_toggle, 'off') end
-        creditsSpeed = (PAD.IS_CONTROL_PRESSED(2, 22) and 2.5 or 1)
+        creditsSpeed = ((PAD.IS_CONTROL_PRESSED(2, 22) or PAD.IS_DISABLED_CONTROL_PRESSED(2, 22)) and 2.5 or 1)
         HUD.HUD_FORCE_WEAPON_WHEEL(false)
         return playingCredits
     end)
