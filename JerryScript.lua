@@ -649,6 +649,7 @@ local whitelistedName = false
         local weapon_settings_root = menu.list(weapons_root, 'Weapon settings', {}, '')
 
         local function readWeaponAddress(storeTable, offset, stopIfModified, ignoreVehicleWeapons)
+            if util.is_session_transition_active() then return 0 end
             local userPed = players.user_ped()
             local weaponHash, vehicleWeapon = getWeaponHash(userPed)
             if ignoreVehicleWeapons and vehicleWeapon then return end
@@ -683,6 +684,7 @@ local whitelistedName = false
 
         local modifiedRange = {}
         menu.toggle_loop(weapon_settings_root, 'Infinite range', {'JSinfiniteRange'}, '', function()
+            if util.is_session_transition_active() then return end
             local userPed = players.user_ped()
             local weaponHash, vehicleWeapon = getWeaponHash(userPed)
             if modifiedRange[weaponHash] then return end
