@@ -12,6 +12,8 @@
 
 JSlang = require 'JSlangLib'
 require 'JSfuncsNtables'
+local JSkey = require 'JSkeyLib'
+
 local menu_root = menu.my_root()
 
 local whitelistGroups = {user = true, friends = true, strangers  = true}
@@ -2282,8 +2284,8 @@ local function creditsPlaying(toggle)
     util.create_tick_handler(function()
         directx.draw_rect(0, 0, 1, 1, black)
         directx.draw_texture(JS_logo, 0.25, 0.25, 0.5, 0.5, 0.14, 0.5, 0 , white)
-        if PAD.IS_CONTROL_JUST_PRESSED(2, 202) and playingCredits then menu.trigger_command(play_credits_toggle, 'off') end
-        creditsSpeed = ((PAD.IS_CONTROL_PRESSED(2, 22) or PAD.IS_DISABLED_CONTROL_PRESSED(2, 22)) and 2.5 or 1)
+        if (JSkey.is_key_down('VK_ESCAPE') or JSkey.is_key_down('VK_BACK')) and playingCredits then menu.trigger_command(play_credits_toggle, 'off') end
+        creditsSpeed = (JSkey.is_key_down('VK_SPACE') and 2.5 or 1)
         HUD.HUD_FORCE_WEAPON_WHEEL(false)
         return playingCredits
     end)
@@ -2306,7 +2308,7 @@ local function scrollCreditsLine(textTable, index)
     if index == #creditText then
         for i = 0, 500 do
             directx.draw_text(0.5, 0.5, JSlang.str_trans('And thank you') ..' '.. players.get_name(players.user()) ..' '.. JSlang.str_trans('for using JerryScript'), 1, 0.7, white, false)
-            util.yield(10)
+            util.yield()
         end
         util.yield(750)
         menu.trigger_command(play_credits_toggle, 'off')
@@ -2327,6 +2329,7 @@ play_credits_toggle = JSlang.toggle(menu_root, 'Play credits', {}, '', function(
         end
     end
 end)
+
 
 local playerInfoPid = nil
 local playerInfoTogglesTable = {}
