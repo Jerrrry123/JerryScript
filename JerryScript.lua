@@ -46,7 +46,7 @@ local whitelistedName = false
             maxTimeBetweenPress = value
         end)
 
-        JSlang.action(script_settings_root, 'Create translation template', {'JStrnaslationTemplate'}, 'Creates a template file for translation in store/JerryScript/Language.', function()
+        JSlang.action(script_settings_root, 'Create translation template', {'JStranslationTemplate'}, 'Creates a template file for translation in store/JerryScript/Language.', function()
             async_http.init('raw.githubusercontent.com', '/Jerrrry123/JerryScript/'.. getLatestRelease() ..'/store/JerryScript/Language/template.lua', function(fileContent)
                 local i = '' 
                 if filesystem.exists(lang_dir .. 'template.lua') then
