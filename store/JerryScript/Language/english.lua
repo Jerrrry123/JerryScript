@@ -189,6 +189,7 @@ reg('Saves your customized face in a file so you can load it.')
 
 reg('Reload profiles')
 reg('Refreshes your profiles without having to restart the script.')
+reg('Profile not found.')
 
 reg('Profiles')
 
@@ -352,7 +353,10 @@ reg('Enable nitro')
 reg('Enable nitro boost on any vehicle, use it by pressing "X".')
 
 reg('Duration')
+reg('Lets you set a customize how long the nitro lasts.')
+
 reg('Recharge time')
+reg('Lets you set a custom delay of how long it takes for nitro to recharge.')
 
 -- Shunt boost
 reg('Shunt boost')
@@ -658,6 +662,7 @@ reg('Surfaced') --[[amount]] reg('submarines.')
 
 reg('No fly zone')
 reg('Forces all players in air born vehicles into the ground.')
+reg('Applied force')
 
 reg('Shoot gods')
 reg('Disables godmode for other players when aiming at them. Mostly works on trash menus.')

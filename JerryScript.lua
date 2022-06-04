@@ -278,7 +278,7 @@ local whitelistedName = false
             }, function(index, text)
                 if expSettings.currentFx then expSettings.currentFx = nil end
                 menu.set_menu_name(exp_type_root, JSlang.str_trans('Explosion type') ..': '.. text)
-                menu.set_menu_name(exp_fx_type_root, JSlang.str_trans('FX type') ..': none')
+                menu.set_menu_name(exp_fx_type_root, JSlang.str_trans('FX type') ..': '.. JSlang.str_trans('none'))
                 expSettings.expType = index - 1
             end)
 
@@ -531,7 +531,7 @@ local whitelistedName = false
             for _, profilePath in pairs(faceProfiles) do
                 local profileName = getProfileName(profilePath, face_profiles_dir)
                 profileReferences[#profileReferences + 1] = menu.action(root, profileName, {'loadface'.. profileName}, '', function()
-                    if not filesystem.exists(profilePath) then util.toast('Profile not found.') end
+                    if not filesystem.exists(profilePath) then JSlang.toast('Profile not found.') end
 
                     local settings = util.read_colons_and_tabs_file(face_profiles_dir .. profileName ..'.txt')
                     for k, value in pairs(settings) do
@@ -1208,7 +1208,7 @@ local whitelistedName = false
     -----------------------------------
         local boosts_root = JSlang.list(my_vehicle_root, 'Boosts', {'JSboosts'}, '')
 
-        menu.toggle_loop(boosts_root, JSlang.str_trans('Horn boost'), {'JShornBoost'}, JSlang.str_trans('Makes your car speed up when you honking your horn or activating your siren.'), function()
+        JSlang.toggle_loop(boosts_root, 'Horn boost', {'JShornBoost'}, 'Makes your car speed up when you honking your horn or activating your siren.', function()
             if not (AUDIO.IS_HORN_ACTIVE(my_cur_car) or VEHICLE.IS_VEHICLE_SIREN_ON(my_cur_car)) then return end
             VEHICLE.SET_VEHICLE_FORWARD_SPEED(my_cur_car, ENTITY.GET_ENTITY_SPEED(my_cur_car) + hornBoostMultiplier)
         end)
@@ -1254,10 +1254,10 @@ local whitelistedName = false
                 end
             end)
 
-            local nitro_duration_root = menu.list(boosts_root, JSlang.str_trans('Duration') ..': '.. getDelayDisplayValue(nitroSettings.level), {'JSnitroDuration'}, 'Lets you set a customize how long the nitro lasts.')
+            local nitro_duration_root = menu.list(boosts_root, JSlang.str_trans('Duration') ..': '.. getDelayDisplayValue(nitroSettings.level), {'JSnitroDuration'}, JSlang.str_trans('Lets you set a customize how long the nitro lasts.'))
             generateDelaySettings(nitro_duration_root, JSlang.str_trans('Duration'), nitroSettings.level)
 
-            local nitro_recharge_root = menu.list(boosts_root, JSlang.str_trans('Recharge time') ..': '.. getDelayDisplayValue(nitroSettings.rechargeTime), {'JSnitroRecharge'}, 'Lets you set a custom delay of how long it takes for nitro to recharge.')
+            local nitro_recharge_root = menu.list(boosts_root, JSlang.str_trans('Recharge time') ..': '.. getDelayDisplayValue(nitroSettings.rechargeTime), {'JSnitroRecharge'}, JSlang.str_trans('Lets you set a custom delay of how long it takes for nitro to recharge.'))
             generateDelaySettings(nitro_recharge_root, JSlang.str_trans('Recharge time'), nitroSettings.rechargeTime)
 
         -----------------------------------
@@ -1585,7 +1585,7 @@ local whitelistedName = false
                             if propertyBlip ~= nil then
                                 JSlang.action(propertyTpRefs[listName], subProperties.properties[j].name, {}, '', function() --no need to have refs to these because they get deleted with the sublist
                                     if not HUD.DOES_BLIP_EXIST(propertyBlip) then
-                                        util.toast('Couldn\'t find property.')
+                                        JSlang.toast('Couldn\'t find property.')
                                         return
                                     end
                                     tpToBlip(propertyBlip)
@@ -1708,7 +1708,7 @@ local whitelistedName = false
         JSlang.action(tt_root, 'Teleport to rc time trial', {'JStpToRcTT'}, '', function()
             local ttBlip = HUD._GET_CLOSEST_BLIP_OF_TYPE(673)
             if not HUD.DOES_BLIP_EXIST(ttBlip) then
-                util.toast('Couldn\'t find rc time trial.')
+                JSlang.toast('Couldn\'t find rc time trial.')
                 return
             end
             tpToBlip(ttBlip)
@@ -2025,7 +2025,7 @@ local whitelistedName = false
                 NETWORK.NETWORK_REQUEST_CONTROL_OF_ENTITY(playerVehicle)
                 ENTITY.APPLY_FORCE_TO_ENTITY(playerVehicle, 1, 0, 0, -0.8, 0, 0, 0.5, 0, false, false, true)
                 if notifications then
-                    util.toast('Applied force')
+                    JSlang.toast('Applied force')
                 end
             end
         end
@@ -2503,7 +2503,7 @@ local runningTogglingOff = false
                 yeetMultiplier = value
             end)
 
-            local strom_delay_root = menu.list(trolling_root, JSlang.str_trans('Storm delay') ..': '.. getDelayDisplayValue(stormDelay), {'JSentStormDelay'}, 'Lets you set the delay for how often entities are pushed in entity storm.')
+            local strom_delay_root = menu.list(trolling_root, JSlang.str_trans('Storm delay') ..': '.. getDelayDisplayValue(stormDelay), {'JSentStormDelay'}, JSlang.str_trans('Lets you set the delay for how often entities are pushed in entity storm.'))
             generateDelaySettings(strom_delay_root, JSlang.str_trans('Storm delay'), stormDelay)
         -----------------------------------
 

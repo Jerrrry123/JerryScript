@@ -191,6 +191,7 @@ trans(find('Saves your customized face in a file so you can load it.'), '')
 
 trans(find('Reload profiles'), '')
 trans(find('Refreshes your profiles without having to restart the script.'), '')
+trans(find('Profile not found.'), '')
 
 trans(find('Profiles'), '')
 
@@ -353,7 +354,10 @@ trans(find('Enable nitro'), '')
 trans(find('Enable nitro boost on any vehicle, use it by pressing "X".'), '')
 
 trans(find('Duration'), '')
+trans(find('Lets you set a customize how long the nitro lasts.'), '')
+
 trans(find('Recharge time'), '')
+trans(find('Lets you set a custom delay of how long it takes for nitro to recharge.'), '')
 
 -- Shunt boost
 trans(find('Shunt boost'), '')
@@ -659,6 +663,7 @@ trans(find('Surfaced'), '') --[[amount]] trans(find('submarines.'), '')
 
 trans(find('No fly zone'), '')
 trans(find('Forces all players in air born vehicles into the ground.'), '')
+trans(find('Applied force'), '')
 
 trans(find('Shoot gods'), '')
 trans(find('Disables godmode for other players when aiming at them. Mostly works on trash menus.'), '')
