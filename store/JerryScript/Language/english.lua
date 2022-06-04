@@ -20,27 +20,25 @@ reg('Player info settings')
 reg('Display options')
 
 reg('Disable name')
-reg('Player: ')
 
 reg('Disable weapon')
-reg('Weapon: ')
+reg('Weapon')
 
 reg('Disable ammo info')
-reg('Clip: ')
+reg('Clip')
 
 reg('Disable damage type')
 reg('Displays the type of damage the players weapon does, like melee / fire / bullets / mk2 ammo.')
-reg('Damage type: ')
+reg('Damage type')
 
 reg('Disable vehicle')
-reg('Vehicle: ')
 
 reg('Disable score')
 reg('Only shows when you or they have kills.')
-reg(' Vs ')
+reg('Vs')
 
 reg('Disable moving indicator')
-reg('Player is ')
+reg('Player is')
 
 reg('ragdolling')
 reg('climbing')
@@ -158,6 +156,27 @@ reg('Face features')
 reg('Customize face features')
 reg('Customizations reset after restarting the game.')
 
+reg('Nose Width')
+reg('Nose Peak Hight')
+reg('Nose Peak Length')
+reg('Nose Bone Hight')
+reg('Nose Peak Lowering')
+reg('Nose Bone Twist')
+reg('Eyebrow Hight')
+reg('Eyebrow Forward')
+reg('Cheeks Bone Hight')
+reg('Cheeks Bone Width')
+reg('Cheeks Width')
+reg('Eyes Opening')
+reg('Lips Thickness')
+reg('Jaw Bone Width')
+reg('Jaw Bone Back Length')
+reg('Chin Bone Lowering')
+reg('Chin Bone Length')
+reg('Chin Bone Width')
+reg('Chin Hole')
+reg('Neck Width')
+
 reg('Create face feature profile')
 reg('Saves your customized face in a file so you can load it.')
 
@@ -167,7 +186,20 @@ reg('Refreshes your profiles without having to restart the script.')
 reg('Profiles')
 
 reg('Customize face overlays')
-reg('Customizations reset after restarting the game.')
+
+reg('Blemishes')
+reg('Facial Hair')
+reg('Eyebrows')
+reg('Ageing')
+reg('Makeup')
+reg('Blush')
+reg('Complexion')
+reg('Sun Damage')
+reg('Lipstick')
+reg('Moles/Freckles')
+reg('Chest Hair')
+reg('Body Blemishes')
+reg('Add Body Blemishes')
 
 -- Ragdoll types
 reg('Ragdoll options')
@@ -195,7 +227,6 @@ reg('Quiet footsteps')
 reg('Disables the sound of your footsteps.')
 
 -- Weapons
--- reg('Weapons') stand
 
 reg('Thermal guns')
 reg('Makes it so when you aim any gun you can toggle thermal vision on "E".')
@@ -270,6 +301,7 @@ reg('Explosive animal gun')
 reg('Inspired by impulses explosive whale gun, but can fire other animals too.')
 
 reg('Current animal')
+reg('Choose wat animal the explosive animal gun has.')
 
 --Minecraft gun
 reg('Minecraft gun')
@@ -279,7 +311,6 @@ reg('Delete last block')
 reg('Delete all blocks')
 
 -- Vehicle
--- reg('Vehicle') stand
 
 -- Speed and handling
 reg('Speed and handling')
@@ -372,7 +403,6 @@ reg('Anchor')
 reg('Forces you info the ground if you\'re in a air born vehicle.')
 
 -- Online
-reg('Online')
 
 --Safe monitor
 reg('Safe monitor')
@@ -552,7 +582,7 @@ reg('hawick clubhouse')
 reg('arena war garages')
 
 --Players options
-reg('Players')
+-- reg('Players')
 
 reg('Whitelist')
 reg('Applies to most options in this section.')
@@ -632,7 +662,7 @@ reg('Aim karma')
 reg('Do stuff to players that aim at you.')
 
 reg('Shoot')
-reg'Shoots players that aim at you.'()
+reg('Shoots players that aim at you.')
 
 reg('Explode')
 reg('Explodes the player with your custom explosion settings.')
@@ -645,7 +675,7 @@ reg('Link to stands player aim punishments.')
 
 
 -- World
-reg('World')
+-- reg('World')
 
 reg('irl time')
 reg('Makes the in game time match your irl time. Disables stands "Smooth Transition".')
@@ -794,6 +824,7 @@ reg('Disable godmode')
 reg('If a god mode player aims at them this disables the aimers god mode by pushing their camera forwards.')
 
 -- Vehicle
+
 reg('Lock burnout')
 reg('Locks their car in a burnout.')
 
@@ -837,3 +868,42 @@ reg('Puts a Remote access trojan in your pc. (JK)')
 
 reg('Clear rain')
 reg('Deletes rained entities.')
+
+--list warning
+
+reg('I can\'t guarantee that these options are 100% safe. I tested them on my main, but im stupid.')
+
+--components
+
+--test options
+
+reg('X position')
+
+reg('Y position')
+
+reg('Scale')
+reg('The size of the text.')
+
+reg('Text alignment')
+reg('1 is center, 2 is left and 3 is right.')
+
+reg('Text colour')
+reg('Sets the colour of the text overlay.')
+
+
+--delay
+
+reg('Ms')
+reg('The delay is the added total of ms, sec and min values.')
+
+reg('Seconds')
+reg('The delay is the added total of ms, sec and min values.')
+
+reg('Minutes')
+reg('The delay is the added total of ms, sec and min values.')
+
+reg('min')
+
+reg('s')
+
+reg('ms')

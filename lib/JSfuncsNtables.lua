@@ -150,30 +150,30 @@ end
     end
 
     function generateHudSettings(root, prefix, settingsTable)
-        menu.slider(root, 'X position', {prefix..'XPos'}, '', -200, 0, settingsTable.xOffset, 1, function(value)
+        JSlang.slider(root, 'X position', {prefix..'XPos'}, '', -200, 0, settingsTable.xOffset, 1, function(value)
             settingsTable.xOffset = value
         end)
-        menu.slider(root, 'Y position', {prefix..'YPos'}, '', -5, 195, settingsTable.yOffset, 1, function(value)
+        JSlang.slider(root, 'Y position', {prefix..'YPos'}, '', -5, 195, settingsTable.yOffset, 1, function(value)
             settingsTable.yOffset = value
         end)
-        menu.slider(root, 'Scale', {prefix..'scale'}, 'The size of the text.', 200, 1500, 500, 1, function(value)
+        JSlang.slider(root, 'Scale', {prefix..'scale'}, 'The size of the text.', 200, 1500, 500, 1, function(value)
             settingsTable.scale = value / 1000
         end)
-        menu.slider(root, 'Text alignment', {prefix..'alignment'}, '1 is center, 2 is left and 3 is right.', 1, 3, settingsTable.alignment, 1, function(value)
+        JSlang.slider(root, 'Text alignment', {prefix..'alignment'}, '1 is center, 2 is left and 3 is right.', 1, 3, settingsTable.alignment, 1, function(value)
             settingsTable.alignment = value
         end)
-        menu.colour(root, 'Text colour', {prefix..'colour'}, 'Sets the colour of the text overlay.', settingsTable.textColour, true, function(colour)
+        JSlang.colour(root, 'Text colour', {prefix..'colour'}, 'Sets the colour of the text overlay.', settingsTable.textColour, true, function(colour)
             settingsTable.textColour = colour
         end)
     end
 
     function getDelayDisplayValue(delayTable)
         if delayTable.min > 0 then
-            return delayTable.min ..'min'
+            return delayTable.min .. JSlang.str_trans('min')
         elseif delayTable.s > 0 then
-            return delayTable.s + delayTable.ms / 1000 ..'s'
+            return delayTable.s + delayTable.ms / 1000 .. JSlang.str_trans('s')
         else
-            return delayTable.ms ..'ms'
+            return delayTable.ms .. JSlang.str_trans('ms')
         end
     end
 
@@ -182,15 +182,15 @@ end
     end
 
     function generateDelaySettings(root, name, delayTable)
-        menu.slider(root, 'Ms', {'JS'..name..'DelayMs'}, 'The delay is the added total of ms, sec and min values.', 1, 999, delayTable.ms, 1, function(value)
+        JSlang.slider(root, 'Ms', {'JS'..name..'DelayMs'}, 'The delay is the added total of ms, sec and min values.', 1, 999, delayTable.ms, 1, function(value)
             delayTable.ms = value
             setDelayDisplay(root, name, delayTable)
         end)
-        menu.slider(root, 'Seconds', {'JS'..name..'DelaySec'}, 'The delay is the added total of ms, sec and min values.', 0, 59, delayTable.s, 1, function(value)
+        JSlang.slider(root, 'Seconds', {'JS'..name..'DelaySec'}, 'The delay is the added total of ms, sec and min values.', 0, 59, delayTable.s, 1, function(value)
             delayTable.s = value
             setDelayDisplay(root, name, delayTable)
         end)
-        menu.slider(root, 'Minutes', {'JS'..name..'DelayMin'}, 'The delay is the added total of ms, sec and min values.', 0, 60, delayTable.min, 1, function(value)
+        JSlang.slider(root, 'Minutes', {'JS'..name..'DelayMin'}, 'The delay is the added total of ms, sec and min values.', 0, 60, delayTable.min, 1, function(value)
             delayTable.min = value
             setDelayDisplay(root, name, delayTable)
         end)
@@ -199,11 +199,11 @@ end
     function generateToggles(table, root, reversed)
         for i = 1, #table do
             if not reversed then
-                menu.toggle(root, table[i].name, {table[i].command}, table[i].description, function(toggle)
+                JSlang.toggle(root, table[i].name, {table[i].command}, table[i].description, function(toggle)
                     table[i].toggle = toggle
                 end, table[i].toggle)
             else
-                menu.toggle(root, table[i].name, {table[i].command}, table[i].description, function(toggle)
+                JSlang.toggle(root, table[i].name, {table[i].command}, table[i].description, function(toggle)
                     table[i].toggle = not toggle
                 end, not table[i].toggle)
             end
@@ -214,7 +214,7 @@ end
     --only warns on the first opening, credit to sai for providing this workaround
     function listWarning(listRoot, firstOpening)
         if not firstOpening[1] then return end
-        menu.show_warning(listRoot, CLICK_MENU, 'I can\'t guarantee that these options are 100% safe. I tested them on my main, but im stupid.', function()
+        menu.show_warning(listRoot, CLICK_MENU, JSlang.str_trans('I can\'t guarantee that these options are 100% safe. I tested them on my main, but im stupid.'), function()
             firstOpening[1] = false
             menu.trigger_command(listRoot, '')
         end)

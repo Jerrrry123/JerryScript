@@ -1,15 +1,9 @@
-require('store\\JerryScript\\Language\\english')
+lang.set_translate('') --insert lang code here e.x. fr en or de
 
 local find = lang.find
 local trans = lang.translate
 
-lang.set_translate('') --insert lang code here e.x. fr en or de
-
-
 --settings
--- trans(find('Settings') stand
-
-trans(find(''), '')
 
 --Script settings
 trans(find('Script settings'), '')
@@ -28,27 +22,25 @@ trans(find('Player info settings'), '')
 trans(find('Display options'), '')
 
 trans(find('Disable name'), '')
-trans(find('Player: '), '')
 
 trans(find('Disable weapon'), '')
-trans(find('Weapon: '), '')
+trans(find('Weapon'), '')
 
 trans(find('Disable ammo info'), '')
-trans(find('Clip: '), '')
+trans(find('Clip'), '')
 
 trans(find('Disable damage type'), '')
 trans(find('Displays the type of damage the players weapon does, like melee / fire / bullets / mk2 ammo.'), '')
-trans(find('Damage type: '), '')
+trans(find('Damage type'), '')
 
 trans(find('Disable vehicle'), '')
-trans(find('Vehicle: '), '')
 
 trans(find('Disable score'), '')
 trans(find('Only shows when you or they have kills.'), '')
-trans(find(' Vs '), '')
+trans(find('Vs'), '')
 
 trans(find('Disable moving indicator'), '')
-trans(find('Player is '), '')
+trans(find('Player is'), '')
 
 trans(find('ragdolling'), '')
 trans(find('climbing'), '')
@@ -160,11 +152,32 @@ trans(find('Fire wings scale'), '')
 
 trans(find('Fire wings colour'), '')
 
--- Ped customization, '')
+-- Ped customization
 
 trans(find('Face features'), '')
 trans(find('Customize face features'), '')
 trans(find('Customizations reset after restarting the game.'), '')
+
+trans(find('Nose Width'), '')
+trans(find('Nose Peak Hight'), '')
+trans(find('Nose Peak Length'), '')
+trans(find('Nose Bone Hight'), '')
+trans(find('Nose Peak Lowering'), '')
+trans(find('Nose Bone Twist'), '')
+trans(find('Eyebrow Hight'), '')
+trans(find('Eyebrow Forward'), '')
+trans(find('Cheeks Bone Hight'), '')
+trans(find('Cheeks Bone Width'), '')
+trans(find('Cheeks Width'), '')
+trans(find('Eyes Opening'), '')
+trans(find('Lips Thickness'), '')
+trans(find('Jaw Bone Width'), '')
+trans(find('Jaw Bone Back Length'), '')
+trans(find('Chin Bone Lowering'), '')
+trans(find('Chin Bone Length'), '')
+trans(find('Chin Bone Width'), '')
+trans(find('Chin Hole'), '')
+trans(find('Neck Width'), '')
 
 trans(find('Create face feature profile'), '')
 trans(find('Saves your customized face in a file so you can load it.'), '')
@@ -175,7 +188,20 @@ trans(find('Refreshes your profiles without having to restart the script.'), '')
 trans(find('Profiles'), '')
 
 trans(find('Customize face overlays'), '')
-trans(find('Customizations reset after restarting the game.'), '')
+
+trans(find('Blemishes'), '')
+trans(find('Facial Hair'), '')
+trans(find('Eyebrows'), '')
+trans(find('Ageing'), '')
+trans(find('Makeup'), '')
+trans(find('Blush'), '')
+trans(find('Complexion'), '')
+trans(find('Sun Damage'), '')
+trans(find('Lipstick'), '')
+trans(find('Moles/Freckles'), '')
+trans(find('Chest Hair'), '')
+trans(find('Body Blemishes'), '')
+trans(find('Add Body Blemishes'), '')
 
 -- Ragdoll types
 trans(find('Ragdoll options'), '')
@@ -277,6 +303,7 @@ trans(find('Explosive animal gun'), '')
 trans(find('Inspired by impulses explosive whale gun, but can fire other animals too.'), '')
 
 trans(find('Current animal'), '')
+trans(find('Choose wat animal the explosive animal gun has.'), '')
 
 --Minecraft gun
 trans(find('Minecraft gun'), '')
@@ -298,6 +325,9 @@ trans(find('Limits how much force your car applies when accelerating so it doesn
 
 trans(find('Set torque'), '')
 trans(find('Modifies the speed of your vehicle.'), '')
+
+trans(find('Quick brake'), '')
+trans(find('Slows down your speed more when pressing "S".'), '')
 
 trans(find('Quick brake force'), '')
 trans(find('1.00 is ordinary brakes.'), '')
@@ -375,7 +405,6 @@ trans(find('Anchor'), '')
 trans(find('Forces you info the ground if you\'re in a air born vehicle.'), '')
 
 -- Online
-trans(find('Online'), '')
 
 --Safe monitor
 trans(find('Safe monitor'), '')
@@ -555,7 +584,6 @@ trans(find('hawick clubhouse'), '')
 trans(find('arena war garages'), '')
 
 --Players options
-trans(find('Players'), '')
 
 trans(find('Whitelist'), '')
 trans(find('Applies to most options in this section.'), '')
@@ -647,8 +675,6 @@ trans(find('Link to stands player aim punishments.'), '')
 
 
 -- World
-trans(find('World'), '')
-
 trans(find('irl time'), '')
 trans(find('Makes the in game time match your irl time. Disables stands "Smooth Transition".'), '')
 
@@ -839,3 +865,38 @@ trans(find('Puts a Remote access trojan in your pc. (JK)'), '')
 
 trans(find('Clear rain'), '')
 trans(find('Deletes rained entities.'), '')
+
+--list warning
+trans(find('I can\'t guarantee that these options are 100% safe. I tested them on my main, but im stupid.'), '')
+
+--test options
+
+trans(find('X position'), '')
+
+trans(find('Y position'), '')
+
+trans(find('Scale'), '')
+trans(find('The size of the text.'), '')
+
+trans(find('Text alignment'), '')
+trans(find('1 is center, 2 is left and 3 is right.'), '')
+
+trans(find('Text colour'), '')
+trans(find('Sets the colour of the text overlay.'), '')
+
+
+--delay
+trans(find('Ms'), '')
+trans(find('The delay is the added total of ms, sec and min values.'), '')
+
+trans(find('Seconds'), '')
+trans(find('The delay is the added total of ms, sec and min values.'), '')
+
+trans(find('Minutes'), '')
+trans(find('The delay is the added total of ms, sec and min values.'), '')
+
+trans(find('min'), '')
+
+trans(find('s'), '')
+
+trans(find('ms'), '')

@@ -59,14 +59,14 @@ local whitelistedName = false
                 {
                     name = 'Disable name', command = 'PIdisableName', description = '', toggle = true,
                     displayText = function(pid)
-                        return 'Player: '.. players.get_name(pid)
+                        return JSlang.str_trans('Player') ..': '.. players.get_name(pid)
                     end
                 },
                 {
                     name = 'Disable weapon', command = 'PIdisableWeapon', description = '', toggle = true,
                     displayText = function(pid, ped, weaponHash)
                         local weaponName = getWeaponName(weaponHash)
-                        return weaponName and JSlang.str_trans('Weapon: ').. weaponName
+                        return weaponName and JSlang.str_trans('Weapon') ..': '.. weaponName
                     end
                 },
                 {
@@ -80,7 +80,7 @@ local whitelistedName = false
                             ammoCount = memory.read_int(ammo_ptr)
                             memory.free(ammo_ptr)
                             local clipSize = WEAPON.GET_MAX_AMMO_IN_CLIP(ped, weaponHash, 1)
-                            return ammoCount and JSlang.str_trans('Clip: ').. ammoCount ..' / '.. clipSize
+                            return ammoCount and JSlang.str_trans('Clip') ..': '.. ammoCount ..' / '.. clipSize
                         end
                     end
                 },
@@ -88,14 +88,14 @@ local whitelistedName = false
                     name = 'Disable damage type', command = 'PIdisableDamage', description = 'Displays the type of damage the players weapon does, like melee / fire / bullets / mk2 ammo.', toggle = true,
                     displayText = function(pid, ped, weaponHash)
                         local damageType = getDamageType(ped, weaponHash)
-                        return damageType and JSlang.str_trans('Damage type: ').. damageType
+                        return damageType and JSlang.str_trans('Damage type') ..': '.. damageType
                     end
                 },
                 {
                     name = 'Disable vehicle', command = 'PIdisableVehicle', description = '', toggle = true,
                     displayText = function(pid, ped)
                         local vehicleName = getPlayerVehicleName(ped)
-                        return vehicleName and JSlang.str_trans('Vehicle: ').. vehicleName
+                        return vehicleName and JSlang.str_trans('Vehicle') ..': '.. vehicleName
                     end
                 },
                 {
@@ -103,14 +103,14 @@ local whitelistedName = false
                     displayText = function(pid)
                         local myScore = GET_INT_GLOBAL(2863967 + 386 + 1 + pid)
                         local theirScore = GET_INT_GLOBAL(2863967 + 353 + 1 + pid)
-                        return (myScore > 0 or theirScore > 0) and (myScore ..JSlang.str_trans(' Vs ').. theirScore) --only returns score if either part has kills
+                        return (myScore > 0 or theirScore > 0) and (myScore ..' '.. JSlang.str_trans('Vs') ..' '.. theirScore) --only returns score if either part has kills
                     end
                 },
                 {
                     name = 'Disable moving indicator', command = 'PIdisableMovement', description = '', toggle = true,
                     displayText = function(pid, ped)
                         local movement = getMovementType(ped)
-                        return movement and JSlang.str_trans('Player is ').. JSlang.str_trans(movement)
+                        return movement and JSlang.str_trans('Player is') ..' '.. JSlang.str_trans(movement)
                     end
                 },
                 {
@@ -369,7 +369,7 @@ local whitelistedName = false
 -----------------------------------
 -- Self
 -----------------------------------
-    local self_root = menu.list(menu_root, 'Self', {'JSself'}, '')
+    local self_root = JSlang.list(menu_root, 'Self', {'JSself'}, '')
 
     --Transition points
     -- 49  -> 50
@@ -486,7 +486,7 @@ local whitelistedName = false
         local face_sliders = {}
         for i = 0, #faceFeatures do
             local faceValue = (util.is_session_started() and math.floor(STAT_GET_FLOAT('FEATURE_'.. i) * 100) or 0)
-            face_sliders[faceFeatures[i]] = menu.slider(face_feature_list, faceFeatures[i], {'JSset'.. string.gsub(faceFeatures[i], ' ', '')}, '', -1000, 1000, faceValue, 1, function(value)
+            face_sliders[faceFeatures[i]] = JSlang.slider(face_feature_list, faceFeatures[i], {'JSset'.. string.gsub(faceFeatures[i], ' ', '')}, '', -1000, 1000, faceValue, 1, function(value)
                 PED._SET_PED_MICRO_MORPH_VALUE(players.user_ped(), i, value / 100)
             end)
         end
@@ -567,7 +567,7 @@ local whitelistedName = false
 
         for i = 0, #faceOverlays do
             local overlayValue = PED._GET_PED_HEAD_OVERLAY_VALUE(players.user_ped(), i)
-            menu.slider(face_overlay_list, faceOverlays[i].name, {}, '', faceOverlays[i].min, faceOverlays[i].max, (overlayValue == 255 and -1 or overlayValue), 1, function(value)
+            JSlang.slider(face_overlay_list, faceOverlays[i].name, {}, '', faceOverlays[i].min, faceOverlays[i].max, (overlayValue == 255 and -1 or overlayValue), 1, function(value)
                 PED.SET_PED_HEAD_OVERLAY(players.user_ped(), i, (value == 255 and -1 or value), 1)
             end)
         end
@@ -812,7 +812,7 @@ local whitelistedName = false
             WEAPON.EXPLODE_PROJECTILES(players.user_ped(), util.joaat('weapon_stickybomb'))
         end
 
-        JSlang.toggle_loop(proxy_sticky_root, 'Proxy stickys', {'JSproxyStickys'}, 'Makes your sticky bombs automatically detonate around players or npcs, works with the player whitelist.', function()
+        JSlang.toggle_loop(proxy_sticky_root, 'Proxy stickys', {'JSproxyStickys'}, 'Makes your sticky bombs automatically detonate around players or npc\'s, works with the player whitelist.', function()
             if proxyStickySettings.players then
                 local specificWhitelistGroup = {user = false,  friends = whitelistGroups.friends, strangers = whitelistGroups.strangers}
                 local playerList = getNonWhitelistedPlayers(whitelistListTable, specificWhitelistGroup, whitelistedName)
@@ -835,7 +835,7 @@ local whitelistedName = false
             proxyStickySettings.players = toggle
         end, proxyStickySettings.players)
 
-        JSlang.toggle(proxy_sticky_root, 'Detonate near npcs', {'JSProxyStickyNpcs'}, 'If your sticky bombs automatically detonate near npcs.', function(toggle)
+        JSlang.toggle(proxy_sticky_root, 'Detonate near npc\'s', {'JSProxyStickyNpcs'}, 'If your sticky bombs automatically detonate near npc\'s.', function(toggle)
             proxyStickySettings.npcs = toggle
         end, proxyStickySettings.npcs)
 
@@ -1619,7 +1619,7 @@ local whitelistedName = false
     ----------------------------------
     -- Casino
     ----------------------------------
-        local casino_root = menu.list(online_root, 'Casino', {'JScasino'}, 'No theres no recoveries here.')
+        local casino_root = JSlang.list(online_root, 'Casino', {'JScasino'}, 'No theres no recoveries here.')
 
         local last_LW_seconds = 0
         JSlang.toggle_loop(casino_root, 'Lucky wheel cooldown', {'JSlwCool'}, 'Tells you if the lucky wheel is available or how much time is left until it is.', function()
@@ -1663,7 +1663,7 @@ local whitelistedName = false
             util.yield(100)
         end)
 
-        menu.action(tt_root, 'Teleport to time trial', {'JStpToTT'}, '', function()
+        JSlang.action(tt_root, 'Teleport to time trial', {'JStpToTT'}, '', function()
             local ttBlip = HUD._GET_CLOSEST_BLIP_OF_TYPE(430)
             if not HUD.DOES_BLIP_EXIST(ttBlip) then
                 JSlang.toast('Couldn\'t find time trial.')
@@ -1674,12 +1674,12 @@ local whitelistedName = false
 
         JSlang.divider(tt_root, 'Rc time trial')
 
-        menu.toggle_loop(tt_root, 'Best rc time trial time', {'JSbestRcTT'}, '', function()
+        JSlang.toggle_loop(tt_root, 'Best rc time trial time', {'JSbestRcTT'}, '', function()
             util.toast(JSlang.str_trans('Best Time') ..': '.. ttTimeToString(STAT_GET_INT_MPPLY('mpply_rcttbesttime')))
             util.yield(100)
         end)
 
-        menu.action(tt_root, 'Teleport to rc time trial', {'JStpToRcTT'}, '', function()
+        JSlang.action(tt_root, 'Teleport to rc time trial', {'JStpToRcTT'}, '', function()
             local ttBlip = HUD._GET_CLOSEST_BLIP_OF_TYPE(673)
             if not HUD.DOES_BLIP_EXIST(ttBlip) then
                 util.toast('Couldn\'t find rc time trial.')
@@ -1722,9 +1722,9 @@ local whitelistedName = false
             end
         end)
 
-        local block_lsc_root = menu.list(block_root, 'Block LSC', {'JSblockLSC'}, 'Block lsc from being accessed.')
-        local block_casino_root = menu.list(block_root, 'Block casino', {'JSblockCasino'}, 'Block casino from being accessed.')
-        local block_maze_root = menu.list(block_root, 'Block maze bank', {'JSblockCasino'}, 'Block maze bank from being accessed.')
+        local block_lsc_root = JSlang.list(block_root, 'Block LSC', {'JSblockLSC'}, 'Block lsc from being accessed.')
+        local block_casino_root = JSlang.list(block_root, 'Block casino', {'JSblockCasino'}, 'Block casino from being accessed.')
+        local block_maze_root = JSlang.list(block_root, 'Block maze bank', {'JSblockCasino'}, 'Block maze bank from being accessed.')
 
         local blockAreasActions = {
             --Orbital block
@@ -1793,7 +1793,7 @@ local whitelistedName = false
         local whitelistTogglesTable = {}
         players.on_join(function(pid)
             local playerName = players.get_name(pid)
-            whitelistTogglesTable[pid] = JSlang.toggle(whitelist_list_root, playerName, {'JSwhitelist'.. playerName}, JSlang.str_trans('Whitelist') ..' '.. playerName ..' '.. JSlang.str_trans('from options that affect all players.'), function(toggle)
+            whitelistTogglesTable[pid] = menu.toggle(whitelist_list_root, playerName, {'JSwhitelist'.. playerName}, JSlang.str_trans('Whitelist') ..' '.. playerName ..' '.. JSlang.str_trans('from options that affect all players.'), function(toggle)
                 if toggle then
                     whitelistListTable[pid] = pid
                     if notifications then
@@ -1904,7 +1904,7 @@ local whitelistedName = false
     -----------------------------------
     -- Coloured otr reveal
     -----------------------------------
-        local coloured_otr_root = menu.list(players_root, 'Coloured otr reveal', {}, '')
+        local coloured_otr_root = JSlang.list(players_root, 'Coloured otr reveal', {}, '')
 
         local markedPlayers = {}
         local otrBlipColour = 58
@@ -2591,7 +2591,7 @@ local runningTogglingOff = false
         -----------------------------------
         -- Entity rain
         -----------------------------------
-            local rain_root = menu.list(player_root, 'Entity rain', {'JSrain'}, '')
+            local rain_root = JSlang.list(player_root, 'Entity rain', {'JSrain'}, '')
 
             local function rain(pid, entity)
                 local pos = getPlayerCoords(pid)
