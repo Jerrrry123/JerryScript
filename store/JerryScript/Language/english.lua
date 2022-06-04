@@ -881,7 +881,6 @@ reg('X position')
 
 reg('Y position')
 
-reg('Scale')
 reg('The size of the text.')
 
 reg('Text alignment')

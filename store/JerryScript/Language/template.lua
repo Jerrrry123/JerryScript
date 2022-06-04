@@ -877,7 +877,6 @@ trans(find('X position'), '')
 
 trans(find('Y position'), '')
 
-trans(find('Scale'), '')
 trans(find('The size of the text.'), '')
 
 trans(find('Text alignment'), '')
