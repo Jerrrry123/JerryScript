@@ -16,6 +16,10 @@ local JSkey = require 'JSkeyLib'
 
 local menu_root = menu.my_root()
 
+local script_store_dir = filesystem.store_dir() .. 'JerryScript\\'
+local face_profiles_dir = script_store_dir .. 'Face Feature Profiles\\'
+local lang_dir = script_store_dir .. 'Language\\'
+
 local whitelistGroups = {user = true, friends = true, strangers  = true}
 local whitelistListTable = {}
 local whitelistedName = false
@@ -40,6 +44,31 @@ local whitelistedName = false
         local maxTimeBetweenPress = 300
         JSlang.slider(script_settings_root, 'Double tap interval', {'JSdoubleTapInterval'}, 'Lets you set the maximum time between double taps in ms.', 1, 1000, 300, 1, function(value)
             maxTimeBetweenPress = value
+        end)
+
+        JSlang.action(script_settings_root, 'Create translation template', {'JStrnaslationTemplate'}, 'Creates a template file for translation in store/JerryScript/Language.', function()
+            async_http.init('raw.githubusercontent.com', '/Jerrrry123/JerryScript/'.. getLatestRelease() ..'/store/JerryScript/Language/template.lua', function(fileContent)
+                local i = '' 
+                if filesystem.exists(lang_dir .. 'template.lua') then
+                    i = 1
+                    while filesystem.exists(lang_dir .. 'template'.. i ..'.lua') do
+                        i += 1
+                    end
+                end
+
+                local file = io.open(lang_dir .. 'template'.. i ..'.lua', 'w')
+                file:write(fileContent)
+                file:close()
+
+                local message = 'Successfully created file.'
+                if type(i) == 'number' and i >= 100 then
+                    message = 'Stop creating template files, you have way too many!'
+                end
+                JSlang.toast(message)
+            end, function()
+                JSlang.toast('Failed to create file.')
+            end)
+            async_http.dispatch()
         end)
 
     ----------------------------------
@@ -491,9 +520,6 @@ local whitelistedName = false
             end)
         end
         menu.divider(face_profiles_list, '', {}, '')
-
-        script_store_dir = filesystem.store_dir() .. 'JerryScript\\'
-        face_profiles_dir = script_store_dir .. 'Face Feature Profiles\\'
 
         local function getProfileName(fullPath, removePath)
             local path = string.sub(fullPath, #removePath + 1)

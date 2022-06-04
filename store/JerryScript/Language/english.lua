@@ -1,7 +1,6 @@
 local reg = lang.register
 
 --settings
--- reg('Settings') stand
 
 --Script settings
 reg('Script settings')
@@ -12,6 +11,14 @@ reg('Notifications on')
 
 reg('Double tap interval')
 reg('Lets you set the maximum time between double taps in ms.')
+
+reg('Create translation template')
+reg('Creates a template file for translation in store/JerryScript/Language.')
+
+reg('Failed to get latest release.')
+reg('Successfully created file.')
+reg('Stop creating template files, you have way too many!')
+reg('Failed to create file.')
 
 -- Player info settings
 reg('Player info settings')
@@ -477,7 +484,7 @@ reg('CEO/VIP')
 
 reg('Payphone hits') 
 reg('Use this before picking up the payphone.')
-reg('Security contracts') 
+reg('Security contracts')
 reg('Use this after completing the job.')
 
 reg('Between jobs')
@@ -582,8 +589,6 @@ reg('hawick clubhouse')
 reg('arena war garages')
 
 --Players options
--- reg('Players')
-
 reg('Whitelist')
 reg('Applies to most options in this section.')
 
@@ -612,7 +617,6 @@ reg('Anti chat spam')
 
 reg('Kicked') --[[playerName]] reg('for chat spam.')
 
---reg('Anti chat spam') (the option)
 reg('Kicks people if they spam chat.')
 
 reg('Ignore team chat')
@@ -675,8 +679,6 @@ reg('Link to stands player aim punishments.')
 
 
 -- World
--- reg('World')
-
 reg('irl time')
 reg('Makes the in game time match your irl time. Disables stands "Smooth Transition".')
 
@@ -828,7 +830,6 @@ reg('If a god mode player aims at them this disables the aimers god mode by push
 reg('Lock burnout')
 reg('Locks their car in a burnout.')
 
--- reg('Set tourqe')
 reg('Modifies the speed of their vehicle.')
 
 reg('Surface submarine')
@@ -875,8 +876,7 @@ reg('I can\'t guarantee that these options are 100% safe. I tested them on my ma
 
 --components
 
---test options
-
+--text options
 reg('X position')
 
 reg('Y position')
@@ -892,7 +892,6 @@ reg('Sets the colour of the text overlay.')
 
 
 --delay
-
 reg('Ms')
 reg('The delay is the added total of ms, sec and min values.')
 

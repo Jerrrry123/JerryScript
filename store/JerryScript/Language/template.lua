@@ -15,6 +15,14 @@ trans(find('Notifications on'), '')
 trans(find('Double tap interval'), '')
 trans(find('Lets you set the maximum time between double taps in ms.'), '')
 
+trans(find('Create translation template'), '')
+trans(find('Creates a template file for translation in store/JerryScript/Language.'), '')
+
+trans(find('Failed to get latest release.'), '')
+trans(find('Successfully created file.'), '')
+trans(find('Stop creating template files, you have way too many!'), '')
+trans(find('Failed to create file.'), '')
+
 -- Player info settings
 trans(find('Player info settings'), '')
 
@@ -153,7 +161,6 @@ trans(find('Fire wings scale'), '')
 trans(find('Fire wings colour'), '')
 
 -- Ped customization
-
 trans(find('Face features'), '')
 trans(find('Customize face features'), '')
 trans(find('Customizations reset after restarting the game.'), '')
@@ -229,7 +236,6 @@ trans(find('Quiet footsteps'), '')
 trans(find('Disables the sound of your footsteps.'), '')
 
 -- Weapons
-
 trans(find('Thermal guns'), '')
 trans(find('Makes it so when you aim any gun you can toggle thermal vision on "E".'), '')
 
@@ -584,7 +590,6 @@ trans(find('hawick clubhouse'), '')
 trans(find('arena war garages'), '')
 
 --Players options
-
 trans(find('Whitelist'), '')
 trans(find('Applies to most options in this section.'), '')
 
@@ -825,7 +830,6 @@ trans(find('If a god mode player aims at them this disables the aimers god mode 
 trans(find('Lock burnout'), '')
 trans(find('Locks their car in a burnout.'), '')
 
--- trans(find('Set tourqe'), '')
 trans(find('Modifies the speed of their vehicle.'), '')
 
 trans(find('Surface submarine'), '')
@@ -834,7 +838,6 @@ trans(find('Forces their submarine to the surface if they\'re driving it.'), '')
 trans(find('Forcing'), '') --[[name]] trans(find('\'s submarine to the surface.'), '')
 
 
--- trans(find('To the moon'), '')
 trans(find('Forces their vehicle into the sky.'), '')
 
 trans(find('Forces their into the sky if they\'re in a vehicle.'), '')
@@ -869,8 +872,7 @@ trans(find('Deletes rained entities.'), '')
 --list warning
 trans(find('I can\'t guarantee that these options are 100% safe. I tested them on my main, but im stupid.'), '')
 
---test options
-
+--text options
 trans(find('X position'), '')
 
 trans(find('Y position'), '')

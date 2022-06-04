@@ -4,7 +4,7 @@ local function getPathPart(fullPath, remove)
 end
 require('store\\JerryScript\\Language\\english')
 for _, profilePath in pairs(filesystem.list_files(filesystem.store_dir() ..'JerryScript\\Language')) do
-    if string.find(profilePath, 'english') == nil then
+    if string.find(profilePath, 'english') == nil and string.find(profilePath, 'template') == nil then
         require(getPathPart(profilePath, filesystem.scripts_dir()))
     end
 end

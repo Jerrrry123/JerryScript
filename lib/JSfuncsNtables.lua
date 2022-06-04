@@ -3,6 +3,28 @@ if not filesystem.exists(filesystem.scripts_dir() .. 'lib/natives-1651208000.lua
     util.stop_script()
 end
 
+local function isInteger(str)
+    return not (str == "" or str:find("%D"))
+end
+
+function getLatestRelease()
+    local version
+    async_http.init('api.github.com', '/repos/Jerrrry123/JerryScript/tags', function(res)
+        for match in string.gmatch(res, '"(.-)"') do 
+            local lastCharcter = string.sub(match, 0, 1)
+            if isInteger(lastCharcter) then
+                version = match
+                break
+            end
+          end
+    end, function()
+        JSlang.toast('Failed to get latest release.')
+    end)
+    async_http.dispatch()
+    while version == nil do util.yield() end
+    return version
+end
+
 function loadModel(hash)
     STREAMING.REQUEST_MODEL(hash)
     while not STREAMING.HAS_MODEL_LOADED(hash) do util.yield() end
