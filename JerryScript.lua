@@ -399,14 +399,103 @@ local whitelistedName = false
 -----------------------------------
     local self_root = JSlang.list(menu_root, 'Self', {'JSself'}, '')
 
-    --Transition points
-    -- 49  -> 50
-    -- 87  -> 88
-    -- 159 -> 160
-    -- 207 -> 208
-    local alphaPoints = {0, 87, 159, 207, 255}
-    JSlang.slider(self_root, 'Ghost', {'JSghost'}, 'Makes your player different levels off see through.', 0, 4, 4, 1, function(value)
-        ENTITY.SET_ENTITY_ALPHA(players.user_ped(),alphaPoints[value + 1], false)
+    local function getOffsetFromCam(dist)
+        local pos = CAM.GET_FINAL_RENDERED_CAM_COORD()
+        local dir = v3.toDir(CAM.GET_FINAL_RENDERED_CAM_ROT(2))
+        local offset = {
+            x = pos.x + dir.x * dist,
+            y = pos.y + dir.y * dist,
+            z = pos.z + dir.z * dist
+        }
+        return offset
+    end
+
+    local startViewMode
+    local scope_scaleform
+    local gaveHelmet = false
+    local levitationCommand = menu.ref_by_path('Self>Movement>Levitation>Levitation', 36)
+    local atomizerCommand = menu.ref_by_path('Self>Weapons>Get Weapons>Pistols>Up-n-Atomizer', 36)
+    local rpgCommand = menu.ref_by_path('Self>Weapons>Remove Weapons>Heavy Weapons>RPG', 36)
+    JSlang.toggle_loop(self_root, 'Ironman mode', {'JSironman'}, 'Grants you the abilities of ironman :)', function()
+        if menu.get_value(levitationCommand) == 0 then
+            menu.trigger_command(levitationCommand)
+        end
+        if not PED.IS_PED_WEARING_HELMET(players.user_ped()) then
+            PED.GIVE_PED_HELMET(players.user_ped(), true, 4096, -1)
+            gaveHelmet = true
+        end
+
+        local context = CAM._GET_CAM_ACTIVE_VIEW_MODE_CONTEXT()
+        if startViewMode == nil then
+            startViewMode = CAM.GET_CAM_VIEW_MODE_FOR_CONTEXT(context)
+        end
+        if CAM.GET_CAM_VIEW_MODE_FOR_CONTEXT(context) != 4 then
+            CAM.SET_CAM_VIEW_MODE_FOR_CONTEXT(context, 4)
+        end
+
+        scope_scaleform = GRAPHICS.REQUEST_SCALEFORM_MOVIE('REMOTE_SNIPER_HUD')
+        GRAPHICS.BEGIN_SCALEFORM_MOVIE_METHOD(scope_scaleform, 'REMOTE_SNIPER_HUD')
+        GRAPHICS.DRAW_SCALEFORM_MOVIE_FULLSCREEN(scope_scaleform, 255, 255, 255, 255, 0)
+        GRAPHICS.END_SCALEFORM_MOVIE_METHOD()
+
+        PLAYER.DISABLE_PLAYER_FIRING(PLAYER.PLAYER_PED_ID(), true)
+
+        PAD.DISABLE_CONTROL_ACTION(2, 106, true) -- INPUT_VEH_MOUSE_CONTROL_OVERRIDE
+        PAD.DISABLE_CONTROL_ACTION(2, 122, true) -- INPUT_VEH_FLY_MOUSE_CONTROL_OVERRIDE
+        PAD.DISABLE_CONTROL_ACTION(2, 135, true) -- INPUT_VEH_SUB_MOUSE_CONTROL_OVERRIDE
+
+        if not (PAD.IS_DISABLED_CONTROL_PRESSED(2, 24) or PAD.IS_DISABLED_CONTROL_PRESSED(2, 25) or PAD.IS_DISABLED_CONTROL_PRESSED(2, 38) ) then return end
+
+        local a = ENTITY.GET_ENTITY_COORDS(PLAYER.PLAYER_PED_ID())
+        local b = getOffsetFromCam(80)
+
+        local hash
+        if PAD.IS_DISABLED_CONTROL_PRESSED(2, 24) then
+            hash = util.joaat('VEHICLE_WEAPON_PLAYER_LAZER')
+            if not WEAPON.HAS_WEAPON_ASSET_LOADED(hash) then
+                WEAPON.REQUEST_WEAPON_ASSET(hash, 31, 26)
+                while not WEAPON.HAS_WEAPON_ASSET_LOADED(hash) do
+                    util.yield()
+                end
+            end
+        elseif PAD.IS_DISABLED_CONTROL_PRESSED(2, 25) then
+            hash = util.joaat('WEAPON_RAYPISTOL')
+            if WEAPON.HAS_PED_GOT_WEAPON(players.user_ped(), hash, false) then
+                menu.trigger_command(atomizerCommand)
+            end
+            WEAPON.SET_CURRENT_PED_WEAPON(players.user_ped(), hash, true)
+        else
+            hash = util.joaat('WEAPON_RPG')
+            if WEAPON.HAS_PED_GOT_WEAPON(players.user_ped(), hash, false) then
+                menu.trigger_command(rpgCommand)
+            end
+            WEAPON.SET_CURRENT_PED_WEAPON(players.user_ped(), hash, true)
+            a.x += math.random(0, 100) / 100
+            a.y += math.random(0, 100) / 100
+            a.z += math.random(0, 100) / 100
+        end
+
+        MISC.SHOOT_SINGLE_BULLET_BETWEEN_COORDS(
+            a.x, a.y, a.z,
+            b.x, b.y, b.z,
+            200,
+            true,
+            hash,
+            PLAYER.PLAYER_PED_ID(),
+            true, true, -1.0
+        )
+    end, function()
+        if gaveHelmet then
+            PED.REMOVE_PED_HELMET(players.user_ped(), true)
+            gaveHelmet = false
+        end
+        menu.trigger_command(levitationCommand, 'off')
+        util.yield()
+        local pScaleform = memory.alloc_int()
+        memory.write_int(pScaleform, scope_scaleform)
+        GRAPHICS.SET_SCALEFORM_MOVIE_AS_NO_LONGER_NEEDED(pScaleform)
+        CAM.SET_CAM_VIEW_MODE_FOR_CONTEXT(CAM._GET_CAM_ACTIVE_VIEW_MODE_CONTEXT(), startViewMode)
+        startViewMode = nil
     end)
 
     -----------------------------------
@@ -631,6 +720,17 @@ local whitelistedName = false
             PED.SET_PED_TO_RAGDOLL(players.user_ped(), 2000, 2000, 0, true, true, true)
         end)
     -----------------------------------
+
+    --Transition points
+    -- 49  -> 50
+    -- 87  -> 88
+    -- 159 -> 160
+    -- 207 -> 208
+    local alphaPoints = {0, 87, 159, 207, 255}
+    JSlang.slider(self_root, 'Ghost', {'JSghost'}, 'Makes your player different levels off see through.', 0, 4, 4, 1, function(value)
+        ENTITY.SET_ENTITY_ALPHA(players.user_ped(),alphaPoints[value + 1], false)
+    end)
+
     JSlang.toggle_loop(self_root, 'Full regen', {'JSfullRegen'}, 'Makes your hp regenerate until you\'re at full health.', function()
         local health = ENTITY.GET_ENTITY_HEALTH(players.user_ped())
         if ENTITY.GET_ENTITY_MAX_HEALTH(players.user_ped()) == health then return end

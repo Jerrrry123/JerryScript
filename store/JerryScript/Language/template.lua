@@ -150,8 +150,8 @@ trans(find('Horn boost multiplier'), '')
 trans(find('Set the force applied to the car when you or another player uses horn boost.'), '')
 
 --Self
-trans(find('Ghost'), '')
-trans(find('Makes your player different levels off see through.'), '')
+trans(find('Ironman mode'), '')
+trans(find('Grants you the abilities of ironman :)'), '')
 
 trans(find('Fire wings'), '')
 trans(find('Puts wings made of fire on your back.'), '')
@@ -226,6 +226,9 @@ trans(find('Makes you stumble, fall over and prevents you from getting back up.'
 
 trans(find('Ragdoll'), '')
 trans(find('Just makes you ragdoll.'), '')
+
+trans(find('Ghost'), '')
+trans(find('Makes your player different levels off see through.'), '')
 
 trans(find('Full regen'), '')
 trans(find('Makes your hp regenerate until you\'re at full health.'), '')

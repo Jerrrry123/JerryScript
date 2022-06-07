@@ -147,8 +147,8 @@ reg('Horn boost multiplier')
 reg('Set the force applied to the car when you or another player uses horn boost.')
 
 --Self
-reg('Ghost')
-reg('Makes your player different levels off see through.')
+reg('Ironman mode')
+reg('Grants you the abilities of ironman :)')
 
 reg('Fire wings')
 reg('Puts wings made of fire on your back.')
@@ -224,6 +224,9 @@ reg('Makes you stumble, fall over and prevents you from getting back up.')
 
 reg('Ragdoll')
 reg('Just makes you ragdoll.')
+
+reg('Ghost')
+reg('Makes your player different levels off see through.')
 
 reg('Full regen')
 reg('Makes your hp regenerate until you\'re at full health.')
