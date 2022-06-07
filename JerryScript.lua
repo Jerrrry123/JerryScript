@@ -2557,8 +2557,8 @@ local runningTogglingOff = false
                 local range = yeetRange * yeetRange --squaring it, for VDIST2
                 for _, pointerTable in pairs(pointerTables) do
                     for _, entityPointer in pairs(pointerTable) do
-                        local pos = entities.get_position(entityPointer)
-                        local distance = SYSTEM.VDIST2(pos.x, pos.y, pos.z, targetPos.x, targetPos.y, targetPos.z)
+                        local entityPos = entities.get_position(entityPointer)
+                        local distance = v3.distance(targetPos, entityPos)
                         if distance < range then
                             local entityHandle = entities.pointer_to_handle(entityPointer)
                             --check the entity is a ped in a car
@@ -2570,11 +2570,10 @@ local runningTogglingOff = false
                                         if PED.GET_VEHICLE_PED_IS_IN(ped, false) == entityHandle then goto continue end --if the entity is a players car ignore it
                                     end
                                 end
+                                local localTargetPos = players.get_position(pid)
                                 NETWORK.NETWORK_REQUEST_CONTROL_OF_ENTITY(entityHandle)
-                                local targetV3 = v3.new(targetPos)
-                                local buf = v3.new(ENTITY.GET_ENTITY_COORDS(entityHandle))
-                                v3.sub(targetV3, buf) --subtract here, for launch.
-                                ENTITY.APPLY_FORCE_TO_ENTITY_CENTER_OF_MASS(entityHandle, 1, v3.getX(targetV3) * yeetMultiplier, v3.getY(targetV3) * yeetMultiplier, v3.getZ(targetV3) * yeetMultiplier, true, false, true, true)
+                                v3.sub(localTargetPos, entityPos) --subtract here, for launch.
+                                ENTITY.APPLY_FORCE_TO_ENTITY_CENTER_OF_MASS(entityHandle, 1, v3.getX(localTargetPos) * yeetMultiplier, v3.getY(localTargetPos) * yeetMultiplier, v3.getZ(localTargetPos) * yeetMultiplier, true, false, true, true)
                                 ::continue::
                             end
                         end
