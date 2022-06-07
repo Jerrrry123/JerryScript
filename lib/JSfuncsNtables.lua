@@ -251,7 +251,7 @@ end
     end
 
     function string.space(str)
-        return string.gsub(str, "_", " ")
+        return string.gsub(str, '_', ' ')
     end
 
 ----------------------------------
@@ -402,8 +402,7 @@ end
 ----------------------------------
     function block(cord)
         local hash = 309416120
-        STREAMING.REQUEST_MODEL(hash)
-        yieldModelLoad(hash)
+        loadModel(hash)
         for i = 0, 180, 8 do
             local wall = OBJECT.CREATE_OBJECT_NO_OFFSET(hash, cord[1], cord[2], cord[3], true, true, true)
             ENTITY.SET_ENTITY_HEADING(wall, i)
