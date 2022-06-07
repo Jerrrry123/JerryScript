@@ -107,7 +107,6 @@ local whitelistedName = false
                         local ammo_ptr = memory.alloc_int()
                         if WEAPON.GET_AMMO_IN_CLIP(ped, weaponHash, ammo_ptr) and WEAPON.GET_WEAPONTYPE_GROUP(weaponHash) != util.joaat('GROUP_THROWN') then
                             ammoCount = memory.read_int(ammo_ptr)
-                            memory.free(ammo_ptr)
                             local clipSize = WEAPON.GET_MAX_AMMO_IN_CLIP(ped, weaponHash, 1)
                             return ammoCount and JSlang.str_trans('Clip') ..': '.. ammoCount ..' / '.. clipSize
                         end
@@ -2417,12 +2416,12 @@ local runningTogglingOff = false
             local damage_root = JSlang.list(trolling_root, 'Damage', {}, '')
 
             JSlang.action(damage_root, 'Primed grenade', {'JSprimedGrenade'}, 'Spawns a grenade on top of them.', function()
-                local pos = getPlayerCoords(pid)
+                local pos = players.get_position(pid)
                 MISC.SHOOT_SINGLE_BULLET_BETWEEN_COORDS(pos.x, pos.y, pos.z + 1.4, pos.x, pos.y, pos.z + 1.3, 100, true, -1813897027, players.user_ped(), true, false, 100.0)
             end)
 
             JSlang.action(damage_root, 'Sticky', {'JSsticky'}, 'Spawns a sticky bomb on them that might stick to their vehicle and you can detonate by pressing "G".', function()
-                local pos = getPlayerCoords(pid)
+                local pos = players.get_position(pid)
                 MISC.SHOOT_SINGLE_BULLET_BETWEEN_COORDS(pos.x, pos.y, pos.z + 1 , pos.x, pos.y, pos.z + 1.1, 10, true, 741814745, players.user_ped(), true, false, 100.0)
             end)
 
@@ -2430,7 +2429,7 @@ local runningTogglingOff = false
                 util.create_thread(function()
                     local hash = 2628187989
                     loadModel(hash)
-                    local pos = getPlayerCoords(pid)
+                    local pos = players.get_position(pid)
                     pos.x += math.random(-2, 2) / 10
                     pos.y += math.random(-2, 2) / 10
                     pos.z += math.random(13, 14) / 10
@@ -2450,7 +2449,7 @@ local runningTogglingOff = false
             local yeetRange = 100
             local stormDelay = new.delay(250, 0, 0)
             local function yeetEntities()
-                local targetPos = getPlayerCoords(pid)
+                local targetPos = players.get_position(pid)
                 local pointerTables = {
                     entities.get_all_peds_as_pointers(),
                     entities.get_all_vehicles_as_pointers()
@@ -2476,8 +2475,6 @@ local runningTogglingOff = false
                                 local buf = v3.new(ENTITY.GET_ENTITY_COORDS(entityHandle))
                                 v3.sub(targetV3, buf) --subtract here, for launch.
                                 ENTITY.APPLY_FORCE_TO_ENTITY_CENTER_OF_MASS(entityHandle, 1, v3.getX(targetV3) * yeetMultiplier, v3.getY(targetV3) * yeetMultiplier, v3.getZ(targetV3) * yeetMultiplier, true, false, true, true)
-                                v3.free(targetV3)
-                                v3.free(buf)
                                 ::continue::
                             end
                         end
@@ -2620,7 +2617,7 @@ local runningTogglingOff = false
             local rain_root = JSlang.list(player_root, 'Entity rain', {'JSrain'}, '')
 
             local function rain(pid, entity)
-                local pos = getPlayerCoords(pid)
+                local pos = players.get_position(pid)
                 local hash = util.joaat(entity)
                 pos.x += math.random(-30,30)
                 pos.y += math.random(-30,30)

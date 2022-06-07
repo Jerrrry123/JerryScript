@@ -44,13 +44,6 @@ function startBusySpinner(message)
     HUD.END_TEXT_COMMAND_BUSYSPINNER_ON(5)
 end
 
-function getPlayerCoords(pid)
-    if pid == players.user() then
-        return ENTITY.GET_ENTITY_COORDS(players.user_ped())
-    end
-    return NETWORK._NETWORK_GET_PLAYER_COORDS(pid)
-end
-
 new = {
     colour = function(R, G, B, A)
         return {r = R, g = G, b = B, a = A}
@@ -81,10 +74,6 @@ end
 
 --memory stuff skidded from heist control
 local Int_PTR = memory.alloc_int()
-
-util.on_stop(function ()
-    memory.free(Int_PTR)
-end)
 
 function getMPX()
     return 'MP'.. util.get_char_slot() ..'_'
@@ -268,7 +257,7 @@ end
 ----------------------------------
 -- Stuff for aiming and guns
 ----------------------------------
-    --aiming functions are skidded from lanceScript, credit to nowiry for probably helping lance with then
+    --aiming functions are skidded from lanceScript, credit to nowiry for probably helping lance with them
     function get_offset_from_gameplay_camera(distance)
         local cam_rot = CAM.GET_GAMEPLAY_CAM_ROT(2)
         local cam_pos = CAM.GET_GAMEPLAY_CAM_COORD()
@@ -309,10 +298,6 @@ end
         local p2 = memory.read_vector3(ptr2)
         local p3 = memory.read_vector3(ptr3)
         local p4 = memory.read_int(ptr4)
-        memory.free(ptr1)
-        memory.free(ptr2)
-        memory.free(ptr3)
-        memory.free(ptr4)
         return {p1, p2, p3, p4}
     end
 
@@ -506,7 +491,6 @@ end
         if WEAPON.GET_CURRENT_PED_VEHICLE_WEAPON(ped, wpn_ptr) then -- only returns true if the weapon is a vehicle weapon
             vehWeaponHash = memory.read_int(wpn_ptr)
             vehicleWeapon = true
-            memory.free(wpn_ptr)
         end
         return (vehWeaponHash and vehWeaponHash or weaponHash), vehicleWeapon
     end
