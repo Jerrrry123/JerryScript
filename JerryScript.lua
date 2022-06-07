@@ -2743,8 +2743,8 @@ local runningTogglingOff = false
             }
             for i = 1, #rainOptions do
                 JSlang.toggle_loop(rain_root, rainOptions[i].name, {'JS'.. rainOptions[i].name}, rainOptions[i].description, function()
-                    for k, v in pairs(rainOptions[i].animals) do
-                        rain(pid, v)
+                    for _, animal in pairs(rainOptions[i].animals) do
+                        rain(pid, animal)
                         util.yield(500)
                     end
                     if not players.exists(pid) then util.stop_thread() end
