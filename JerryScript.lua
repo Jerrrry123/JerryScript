@@ -14,11 +14,23 @@ require 'JSlangLib'
 require 'JSfuncsNtables'
 local JSkey = require 'JSkeyLib'
 
-local menu_root = menu.my_root()
-
 local script_store_dir = filesystem.store_dir() .. 'JerryScript\\'
+if not filesystem.is_dir(script_store_dir) then
+    filesystem.mkdirs(script_store_dir)
+end
+
 local face_profiles_dir = script_store_dir .. 'Face Feature Profiles\\'
+if not filesystem.is_dir(face_profiles_dir) then
+    filesystem.mkdirs(face_profiles_dir)
+end
+
 local lang_dir = script_store_dir .. 'Language\\'
+if not filesystem.is_dir(lang_dir) then
+    filesystem.mkdirs(lang_dir)
+end
+
+
+local menu_root = menu.my_root()
 
 local whitelistGroups = {user = true, friends = true, strangers  = true}
 local whitelistListTable = {}
@@ -48,7 +60,7 @@ local whitelistedName = false
 
         JSlang.action(script_settings_root, 'Create translation template', {'JStranslationTemplate'}, 'Creates a template file for translation in store/JerryScript/Language.', function()
             async_http.init('raw.githubusercontent.com', '/Jerrrry123/JerryScript/'.. getLatestRelease() ..'/store/JerryScript/Language/template.lua', function(fileContent)
-                local i = '' 
+                local i = ''
                 if filesystem.exists(lang_dir .. 'template.lua') then
                     i = 1
                     while filesystem.exists(lang_dir .. 'template'.. i ..'.lua') do
@@ -638,12 +650,6 @@ local whitelistedName = false
         JSlang.action(face_profiles_list, 'Create face feature profile', {"JSsaveFaceFeatures"}, 'Saves your customized face in a file so you can load it.', function()
             menu.show_command_box("JSsaveFaceFeatures ")
         end, function(fileName)
-            if not filesystem.is_dir(script_store_dir) then
-                filesystem.mkdirs(script_store_dir)
-            end
-            if not filesystem.is_dir(face_profiles_dir) then
-                filesystem.mkdirs(face_profiles_dir)
-            end
             local file = io.open(face_profiles_dir .. fileName ..'.txt', 'w')
             for i = 0, #faceFeatures do
                 file:write(faceFeatures[i] ..': '.. menu.get_value(face_sliders[faceFeatures[i]]) ..'\n')
