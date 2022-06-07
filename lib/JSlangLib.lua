@@ -104,5 +104,3 @@ function JSlang.action_slider(root, name, link, description, optionsTable, func)
     description = desc(description)
     return menu.action_slider(root, JSlang.trans(name), link, description, optionsTable, function()func() end)
 end
-
-return JSlang

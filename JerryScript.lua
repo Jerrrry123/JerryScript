@@ -10,7 +10,7 @@
     thx to Sai, ren, aaron, Nowry, JayMontana, IceDoomfist and scriptCat and everyone else that helped me in #programming :)
 ]]
 
-JSlang = require 'JSlangLib'
+require 'JSlangLib'
 require 'JSfuncsNtables'
 local JSkey = require 'JSkeyLib'
 
