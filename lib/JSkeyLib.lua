@@ -194,7 +194,7 @@ local keyLookupTable = {
 }
 
 local JSkey = {}
-JSkey.is_key_down = function(string_or_int)
+function JSkey.is_key_down(string_or_int)
     local keyCode = (keyLookupTable[string_or_int] and keyLookupTable[string_or_int] or string_or_int)
     return util.is_key_down(keyCode)
 end
