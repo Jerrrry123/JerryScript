@@ -2539,7 +2539,6 @@ local runningTogglingOff = false
                         util.yield()
                     end
                     AUDIO.PLAY_SOUND_FROM_COORD(-1, 'LOCAL_PLYR_CASH_COUNTER_COMPLETE', pos.x, pos.y, pos.z, 'DLC_HEISTS_GENERAL_FRONTEND_SOUNDS', true, 2, false)
-                    pos = ENTITY.GET_ENTITY_COORDS(money)
                     entities.delete(money)
                 end)
             end)
