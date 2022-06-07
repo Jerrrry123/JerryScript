@@ -261,7 +261,7 @@ end
     function get_offset_from_gameplay_camera(distance)
         local cam_rot = CAM.GET_GAMEPLAY_CAM_ROT(2)
         local cam_pos = CAM.GET_GAMEPLAY_CAM_COORD()
-        local direction = rotation_to_direction(cam_rot)
+        local direction = v3.toDir(cam_rot)
         local destination =
         {
             x = cam_pos.x + direction.x * distance,
@@ -273,9 +273,9 @@ end
 
     function raycast_gameplay_cam(flag, distance)
         local ptr1, ptr2, ptr3, ptr4 = memory.alloc(), memory.alloc(), memory.alloc(), memory.alloc()
-        local cam_rot = CAM.GET_GAMEPLAY_CAM_ROT(0)
+        local cam_rot = CAM.GET_GAMEPLAY_CAM_ROT(2)
         local cam_pos = CAM.GET_GAMEPLAY_CAM_COORD()
-        local direction = rotation_to_direction(cam_rot)
+        local direction = v3.toDir(cam_rot)
         local destination =
         {
             x = cam_pos.x + direction.x * distance,
@@ -299,22 +299,6 @@ end
         local p3 = memory.read_vector3(ptr3)
         local p4 = memory.read_int(ptr4)
         return {p1, p2, p3, p4}
-    end
-
-    function rotation_to_direction(rotation)
-        local adjusted_rotation =
-        {
-            x = (math.pi / 180) * rotation.x,
-            y = (math.pi / 180) * rotation.y,
-            z = (math.pi / 180) * rotation.z
-        }
-        local direction =
-        {
-            x = -math.sin(adjusted_rotation.z) * math.abs(math.cos(adjusted_rotation.x)),
-            y =  math.cos(adjusted_rotation.z) * math.abs(math.cos(adjusted_rotation.x)),
-            z =  math.sin(adjusted_rotation.x)
-        }
-        return direction
     end
 
     function direction()
