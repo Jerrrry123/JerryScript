@@ -3,136 +3,146 @@ if not filesystem.exists(filesystem.scripts_dir() .. 'lib/natives-1651208000.lua
     util.stop_script()
 end
 
-local function isInteger(str)
-    return not (str == "" or str:find("%D"))
-end
-
-function getLatestRelease()
-    local version
-    async_http.init('api.github.com', '/repos/Jerrrry123/JerryScript/tags', function(res)
-        for match in string.gmatch(res, '"(.-)"') do 
-            local lastCharcter = string.sub(match, 0, 1)
-            if isInteger(lastCharcter) then
-                version = match
-                break
-            end
-          end
-    end, function()
-        JSlang.toast('Failed to get latest release.')
-    end)
-    async_http.dispatch()
-    while version == nil do util.yield() end
-    return version
-end
-
-function loadModel(hash)
-    STREAMING.REQUEST_MODEL(hash)
-    while not STREAMING.HAS_MODEL_LOADED(hash) do util.yield() end
-end
-
-function getTotalDelay(delayTable)
-    return (delayTable.ms + (delayTable.s * 1000) + (delayTable.min * 1000 * 60))
-end
-
-function sliderToScreenPos(pos)
-    return pos / 200
-end
-
-function startBusySpinner(message)
-    HUD.BEGIN_TEXT_COMMAND_BUSYSPINNER_ON("STRING")
-    HUD.ADD_TEXT_COMPONENT_SUBSTRING_PLAYER_NAME(message)
-    HUD.END_TEXT_COMMAND_BUSYSPINNER_ON(5)
-end
-
-new = {
-    colour = function(R, G, B, A)
-        return {r = R, g = G, b = B, a = A}
-    end,
-    hudSettings = function(X, Y, ALIGNMENT)
-        return {xOffset = X, yOffset = Y, scale = 0.5, alignment = ALIGNMENT, textColour = new.colour(1, 1, 1, 1)}
-    end,
-    delay = function(MS, S, MIN)
-        return {ms = MS, s = S, min = MIN}
-    end,
-}
-
-function roundDecimals(float, decimals)
-    return math.floor(float * 10 ^ decimals) / 10 ^ decimals
-end
---function skidded from murtens utils
-function address_from_pointer_chain(address, offsets)
-    local addr = address
-    for k = 1, (#offsets - 1) do
-        addr = memory.read_long(addr + offsets[k])
-        if addr == 0 then
-            return 0
-        end
+----------------------------------
+-- Math
+----------------------------------
+    function roundDecimals(float, decimals)
+        return math.floor(float * 10 ^ decimals) / 10 ^ decimals
     end
-    addr += offsets[#offsets]
-    return addr
-end
 
---memory stuff skidded from heist control
-local Int_PTR = memory.alloc_int()
+    function sliderToScreenPos(pos)
+        return pos / 200
+    end
 
-function getMPX()
-    return 'MP'.. util.get_char_slot() ..'_'
-end
+    local function isInteger(str)
+        return not (str == '' or str:find('%D'))
+    end
 
-function STAT_SET_INT(Stat, Value)
-    STATS.STAT_SET_INT(util.joaat(getMPX() .. Stat), Value, true)
-end
+----------------------------------
+-- Misc
+----------------------------------
+    function getLatestRelease()
+        local version
+        async_http.init('api.github.com', '/repos/Jerrrry123/JerryScript/tags', function(res)
+            for match in string.gmatch(res, '"(.-)"') do 
+                local firstCharcter = string.sub(match, 0, 1)
+                if isInteger(firstCharcter) then
+                    version = match
+                    break
+                end
+            end
+        end, function()
+            JSlang.toast('Failed to get latest release.')
+        end)
+        async_http.dispatch()
+        while version == nil do util.yield() end
+        return version
+    end
 
-function STAT_GET_INT(Stat)
-    STATS.STAT_GET_INT(util.joaat(getMPX() .. Stat), Int_PTR, -1)
-    return memory.read_int(Int_PTR)
-end
+    function loadModel(hash)
+        STREAMING.REQUEST_MODEL(hash)
+        while not STREAMING.HAS_MODEL_LOADED(hash) do util.yield() end
+    end
 
-function STAT_GET_INT_MPPLY(Stat)
-    STATS.STAT_GET_INT(util.joaat(Stat), Int_PTR, -1)
-    return memory.read_int(Int_PTR)
-end
+    function getTotalDelay(delayTable)
+        return (delayTable.ms + (delayTable.s * 1000) + (delayTable.min * 1000 * 60))
+    end
 
-function STAT_GET_FLOAT(Stat)
-    STATS.STAT_GET_FLOAT(util.joaat(getMPX() .. Stat), Int_PTR, true)
-    return memory.read_float(Int_PTR)
-end
+    function startBusySpinner(message)
+        HUD.BEGIN_TEXT_COMMAND_BUSYSPINNER_ON("STRING")
+        HUD.ADD_TEXT_COMPONENT_SUBSTRING_PLAYER_NAME(message)
+        HUD.END_TEXT_COMMAND_BUSYSPINNER_ON(5)
+    end
 
-function STAT_SET_FLOAT(Stat, value)
-    STATS.STAT_SET_FLOAT(util.joaat(getMPX() .. Stat), value, true)
-end
-function STAT_SET_FLOAT_MPPLY(Hash, Value)
-    STATS.STAT_SET_FLOAT(util.joaat(Hash), Value, true)
-end
+    new = {
+        colour = function(R, G, B, A)
+            return {r = R, g = G, b = B, a = A}
+        end,
+        hudSettings = function(X, Y, ALIGNMENT)
+            return {xOffset = X, yOffset = Y, scale = 0.5, alignment = ALIGNMENT, textColour = new.colour(1, 1, 1, 1)}
+        end,
+        delay = function(MS, S, MIN)
+            return {ms = MS, s = S, min = MIN}
+        end,
+    }
 
-function STAT_SET_INT_MPPLY(Stat, Value)
-    STATS.STAT_SET_INT(util.joaat(Stat), Value, true)
-end
+----------------------------------
+-- Memory
+----------------------------------
+    --function skidded from murtens utils
+    function address_from_pointer_chain(address, offsets)
+        local addr = address
+        for k = 1, (#offsets - 1) do
+            addr = memory.read_long(addr + offsets[k])
+            if addr == 0 then
+                return 0
+            end
+        end
+        addr += offsets[#offsets]
+        return addr
+    end
 
-function STAT_SET_BOOL_MPPLY(Stat, Value)
-    STATS.STAT_SET_BOOL(util.joaat(Stat), Value, true)
-end
+    --memory stuff skidded from heist control
+    local Int_PTR = memory.alloc_int()
 
-function STAT_GET_BOOL_MPPLY(Stat)
-    STATS.STAT_GET_BOOL(util.joaat(Stat), Int_PTR, -1)
-    return memory.read_int(Int_PTR)
-end
+    function getMPX()
+        return 'MP'.. util.get_char_slot() ..'_'
+    end
 
-function STAT_SET_BOOL(Stat, Value)
-    STATS.STAT_SET_BOOL(util.joaat(getMPX() .. Stat), Value, true)
-end
+    function STAT_SET_INT(Stat, Value)
+        STATS.STAT_SET_INT(util.joaat(getMPX() .. Stat), Value, true)
+    end
 
-function STAT_SET_INCREMENT(Stat, Value)
-    STATS.STAT_INCREMENT(util.joaat(getMPX() .. Stat), Value)
-end
+    function STAT_GET_INT(Stat)
+        STATS.STAT_GET_INT(util.joaat(getMPX() .. Stat), Int_PTR, -1)
+        return memory.read_int(Int_PTR)
+    end
 
-function SET_INT_GLOBAL(Global, Value)
-    memory.write_int(memory.script_global(Global), Value)
-end
+    function STAT_GET_INT_MPPLY(Stat)
+        STATS.STAT_GET_INT(util.joaat(Stat), Int_PTR, -1)
+        return memory.read_int(Int_PTR)
+    end
 
-function GET_INT_GLOBAL(Global)
-    return memory.read_int(memory.script_global(Global))
-end
+    function STAT_GET_FLOAT(Stat)
+        STATS.STAT_GET_FLOAT(util.joaat(getMPX() .. Stat), Int_PTR, true)
+        return memory.read_float(Int_PTR)
+    end
+
+    function STAT_SET_FLOAT(Stat, value)
+        STATS.STAT_SET_FLOAT(util.joaat(getMPX() .. Stat), value, true)
+    end
+    function STAT_SET_FLOAT_MPPLY(Hash, Value)
+        STATS.STAT_SET_FLOAT(util.joaat(Hash), Value, true)
+    end
+
+    function STAT_SET_INT_MPPLY(Stat, Value)
+        STATS.STAT_SET_INT(util.joaat(Stat), Value, true)
+    end
+
+    function STAT_SET_BOOL_MPPLY(Stat, Value)
+        STATS.STAT_SET_BOOL(util.joaat(Stat), Value, true)
+    end
+
+    function STAT_GET_BOOL_MPPLY(Stat)
+        STATS.STAT_GET_BOOL(util.joaat(Stat), Int_PTR, -1)
+        return memory.read_int(Int_PTR)
+    end
+
+    function STAT_SET_BOOL(Stat, Value)
+        STATS.STAT_SET_BOOL(util.joaat(getMPX() .. Stat), Value, true)
+    end
+
+    function STAT_SET_INCREMENT(Stat, Value)
+        STATS.STAT_INCREMENT(util.joaat(getMPX() .. Stat), Value)
+    end
+
+    function SET_INT_GLOBAL(Global, Value)
+        memory.write_int(memory.script_global(Global), Value)
+    end
+
+    function GET_INT_GLOBAL(Global)
+        return memory.read_int(memory.script_global(Global))
+    end
 
 ----------------------------------
 -- Whitelist
