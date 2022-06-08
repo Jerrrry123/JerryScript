@@ -470,21 +470,21 @@ local whitelistedName = false
             end
         elseif PAD.IS_DISABLED_CONTROL_PRESSED(2, 25) then
             hash = util.joaat('WEAPON_RAYPISTOL')
-            if WEAPON.HAS_PED_GOT_WEAPON(players.user_ped(), hash, false) then
+            if not WEAPON.HAS_PED_GOT_WEAPON(players.user_ped(), hash, false) then
+                util.toast('gave atomizer')
                 WEAPON.GIVE_WEAPON_TO_PED(players.user_ped(), hash, 9999, false, false)
             end
-            WEAPON.SET_CURRENT_PED_WEAPON(players.user_ped(), hash, true)
         else
             hash = util.joaat('WEAPON_RPG')
-            if WEAPON.HAS_PED_GOT_WEAPON(players.user_ped(), hash, false) then
+            if not WEAPON.HAS_PED_GOT_WEAPON(players.user_ped(), hash, false) then
                 WEAPON.GIVE_WEAPON_TO_PED(players.user_ped(), hash, 9999, false, false)
             end
-            WEAPON.SET_CURRENT_PED_WEAPON(players.user_ped(), hash, true)
             a.x += math.random(0, 100) / 100
             a.y += math.random(0, 100) / 100
             a.z += math.random(0, 100) / 100
         end
 
+        WEAPON.SET_CURRENT_PED_WEAPON(players.user_ped(), util.joaat('WEAPON_UNARMED'), true)
         MISC.SHOOT_SINGLE_BULLET_BETWEEN_COORDS(
             a.x, a.y, a.z,
             b.x, b.y, b.z,
@@ -499,11 +499,11 @@ local whitelistedName = false
             PED.REMOVE_PED_HELMET(players.user_ped(), true)
             gaveHelmet = false
         end
-        menu.trigger_command(levitationCommand, 'off')
-        util.yield()
         local pScaleform = memory.alloc_int()
         memory.write_int(pScaleform, scope_scaleform)
         GRAPHICS.SET_SCALEFORM_MOVIE_AS_NO_LONGER_NEEDED(pScaleform)
+        menu.trigger_command(levitationCommand, 'off')
+        util.yield()
         CAM.SET_CAM_VIEW_MODE_FOR_CONTEXT(CAM._GET_CAM_ACTIVE_VIEW_MODE_CONTEXT(), startViewMode)
         startViewMode = nil
     end)
