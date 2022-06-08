@@ -471,7 +471,6 @@ local whitelistedName = false
         elseif PAD.IS_DISABLED_CONTROL_PRESSED(2, 25) then
             hash = util.joaat('WEAPON_RAYPISTOL')
             if not WEAPON.HAS_PED_GOT_WEAPON(players.user_ped(), hash, false) then
-                util.toast('gave atomizer')
                 WEAPON.GIVE_WEAPON_TO_PED(players.user_ped(), hash, 9999, false, false)
             end
         else
