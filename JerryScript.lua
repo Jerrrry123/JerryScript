@@ -426,8 +426,6 @@ local whitelistedName = false
     local scope_scaleform
     local gaveHelmet = false
     local levitationCommand = menu.ref_by_path('Self>Movement>Levitation>Levitation', 36)
-    local atomizerCommand = menu.ref_by_path('Self>Weapons>Get Weapons>Pistols>Up-n-Atomizer', 36)
-    local rpgCommand = menu.ref_by_path('Self>Weapons>Remove Weapons>Heavy Weapons>RPG', 36)
     JSlang.toggle_loop(self_root, 'Ironman mode', {'JSironman'}, 'Grants you the abilities of ironman :)', function()
         if menu.get_value(levitationCommand) == 0 then
             menu.trigger_command(levitationCommand)
@@ -473,13 +471,13 @@ local whitelistedName = false
         elseif PAD.IS_DISABLED_CONTROL_PRESSED(2, 25) then
             hash = util.joaat('WEAPON_RAYPISTOL')
             if WEAPON.HAS_PED_GOT_WEAPON(players.user_ped(), hash, false) then
-                menu.trigger_command(atomizerCommand)
+                WEAPON.GIVE_WEAPON_TO_PED(players.user_ped(), hash, 9999, false, false)
             end
             WEAPON.SET_CURRENT_PED_WEAPON(players.user_ped(), hash, true)
         else
             hash = util.joaat('WEAPON_RPG')
             if WEAPON.HAS_PED_GOT_WEAPON(players.user_ped(), hash, false) then
-                menu.trigger_command(rpgCommand)
+                WEAPON.GIVE_WEAPON_TO_PED(players.user_ped(), hash, 9999, false, false)
             end
             WEAPON.SET_CURRENT_PED_WEAPON(players.user_ped(), hash, true)
             a.x += math.random(0, 100) / 100
