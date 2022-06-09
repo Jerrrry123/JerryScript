@@ -1520,6 +1520,51 @@ local whitelistedName = false
 -----------------------------------
     local online_root = JSlang.list(menu_root, 'Online', {'JSonline'}, '')
 
+
+    -----------------------------------
+    -- Fake money
+    -----------------------------------
+        local fake_money_root = JSlang.list(online_root, 'Fake money', {'JSfakeMoney'}, 'Adds fake money, it is only a visual thing and you can\'t spend it.')
+
+        local cashFakeMoney = 0
+        local bankFakeMoney = 0
+        local fakeMoneyLoopDelay = new.delay(250, 0, 0)
+        local fakeMoneyTransactionPending = true
+
+        local function transactionPending()
+            if not fakeMoneyTransactionPending then return end
+            startBusySpinner('Transaction pending')
+            util.yield(math.random(1, 1000))
+            HUD.BUSYSPINNER_OFF()
+        end
+
+        JSlang.action(fake_money_root, 'Add fake money', {'JSaddFakeMoney'}, 'Adds money once.', function()
+            HUD._SET_PLAYER_CASH_CHANGE(cashFakeMoney, bankFakeMoney)
+            transactionPending()
+        end)
+
+        JSlang.toggle_loop(fake_money_root, 'Loop fake money', {'JSloopFakeMoney'}, 'Adds loops money with your chosen delay.', function()
+            HUD._SET_PLAYER_CASH_CHANGE(cashFakeMoney, bankFakeMoney)
+            transactionPending()
+            util.yield(getTotalDelay(fakeMoneyLoopDelay))
+        end)
+
+        JSlang.toggle(fake_money_root, 'Show transaction pending', {'JSfakeTransaction'}, 'Adds a loading transaction pending message when adding fake money.', function(toggle)
+            fakeMoneyTransactionPending = toggle
+        end, fakeMoneyTransactionPending)
+
+        local fake_money_loop_delay_root = menu.list(fake_money_root, JSlang.str_trans('Fake money loop delay') ..': '.. getDelayDisplayValue(fakeMoneyLoopDelay), {'JSexpDelay'}, JSlang.str_trans('Lets you set a custom delay to the fake money loop.'))
+
+        generateDelaySettings(fake_money_loop_delay_root, JSlang.str_trans('Fake money loop delay'), fakeMoneyLoopDelay)
+
+        JSlang.slider(fake_money_root, 'Bank fake money', {'JSbankFakeMoney'}, 'How much fake money that gets added into your bank.', -2000000000, 2000000000, bankFakeMoney, 1, function(value)
+            bankFakeMoney = value
+        end)
+
+        JSlang.slider(fake_money_root, 'Cash fake money', {'JScashFakeMoney'}, 'How much fake money that gets added in cash.', -2000000000, 2000000000, cashFakeMoney, 1, function(value)
+            cashFakeMoney = value
+        end)
+
     -----------------------------------
     -- Safe monitor
     -----------------------------------

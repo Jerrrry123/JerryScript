@@ -418,6 +418,29 @@ reg('Forces you info the ground if you\'re in a air born vehicle.')
 
 -- Online
 
+--Fake money
+reg('Fake money')
+reg('Adds fake money, it is only a visual thing and you can\'t spend it.')
+
+reg('Add fake money')
+reg('Adds money once.')
+
+reg('Loop fake money')
+reg('Adds loops money with your chosen delay.')
+
+reg('Show transaction pending')
+reg('Adds a loading transaction pending message when adding fake money.')
+
+reg('Fake money loop delay')
+reg('Lets you set a custom delay to the fake money loop.')
+
+reg('Bank fake money')
+reg('How much fake money that gets added into your bank.')
+
+
+reg('Cash fake money')
+reg('How much fake money that gets added in cash.')
+
 --Safe monitor
 reg('Safe monitor')
 reg('Safe monitor allows you to monitor your safes. It does NOT affect the money being generated.')

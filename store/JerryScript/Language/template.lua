@@ -419,6 +419,29 @@ trans(find('Forces you info the ground if you\'re in a air born vehicle.'), '')
 
 -- Online
 
+--Fake money
+trans(find('Fake money'), '')
+trans(find('Adds fake money, it is only a visual thing and you can\'t spend it.'), '')
+
+trans(find'Add fake money'(), '')
+trans(find('Adds money once.'), '')
+
+trans(find('Loop fake money'), '')
+trans(find('Adds loops money with your chosen delay.'), '')
+
+trans(find('Show transaction pending'), '')
+trans(find('Adds a loading transaction pending message when adding fake money.'), '')
+
+trans(find('Fake money loop delay'), '')
+trans(find('Lets you set a custom delay to the fake money loop.'), '')
+
+trans(find('Bank fake money'), '')
+trans(find('How much fake money that gets added into your bank.'), '')
+
+
+trans(find('Cash fake money'), '')
+trans(find('How much fake money that gets added in cash.'), '')
+
 --Safe monitor
 trans(find('Safe monitor'), '')
 trans(find('Safe monitor allows you to monitor your safes. It does NOT affect the money being generated.'), '')
