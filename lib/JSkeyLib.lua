@@ -1,3 +1,5 @@
+local JSkey = {}
+
 local keyLookupTable = {
     ['VK_LBUTTON']              =  0x01,	--Left mouse button
     ['VK_RBUTTON']              =  0x02,	--Right mouse button
@@ -192,11 +194,527 @@ local keyLookupTable = {
     ['VK_PA1']	                =  0xFD,	--PA1 key
     ['VK_OEM_CLEAR']	        =  0xFE,	--Clear key
 }
+local justPressed = {}
+local lastPressMS = {}
 
-local JSkey = {}
+local function getKeyCode(string_or_int)
+    local lookup = keyLookupTable[string_or_int]
+    return (lookup and lookup or string_or_int)
+end
+
 function JSkey.is_key_down(string_or_int)
-    local keyCode = (keyLookupTable[string_or_int] and keyLookupTable[string_or_int] or string_or_int)
+    local keyCode = getKeyCode(string_or_int)
     return util.is_key_down(keyCode)
+end
+
+function JSkey.is_key_just_down(string_or_int)
+    local keyCode = getKeyCode(string_or_int)
+    local isDown = util.is_key_down(keyCode)
+
+    if isDown and not justPressed[keyCode] then
+        justPressed[keyCode] = true
+        return true
+    elseif not isDown then
+        justPressed[keyCode] = false
+    end
+    return false
+end
+
+--if the key is pressed this returns the time the current press and not 0, -1 if never pressed
+function JSkey.get_ms_since_last_press(string_or_int)
+    local keyCode = getKeyCode(string_or_int)
+    local isDown = util.is_key_down(keyCode)
+    if lastPressMS[keyCode] == nil then
+        if isDown then
+            lastPressMS[keyCode] = util.current_time_millis()
+        end
+        return -1
+    end
+    local prevPress = lastPressMS[keyCode]
+    if isDown then
+        lastPressMS[keyCode] = util.current_time_millis()
+        return prevPress != nil and util.current_time_millis() - prevPress or -1
+    end
+    return util.current_time_millis() - lastPressMS[keyCode]
+end
+
+local controlTypes = {
+    ['PLAYER_CONTROL'] = 0,
+    ['FRONTEND_CONTROL'] = 2,
+}
+
+local controls = {
+    ['INPUT_NEXT_CAMERA'] = 0,	--V	BACK
+    ['INPUT_LOOK_LR'] = 1,	--MOUSE RIGHT	RIGHT STICK
+    ['INPUT_LOOK_UD'] = 2,	--MOUSE DOWN	RIGHT STICK
+    ['INPUT_LOOK_UP_ONLY'] = 3,	--(NONE)	RIGHT STICK
+    ['INPUT_LOOK_DOWN_ONLY'] = 4,	--MOUSE DOWN	RIGHT STICK
+    ['INPUT_LOOK_LEFT_ONLY'] = 5,	--(NONE)	RIGHT STICK
+    ['INPUT_LOOK_RIGHT_ONLY'] = 6,	--MOUSE RIGHT	RIGHT STICK
+    ['INPUT_CINEMATIC_SLOWMO'] = 7,	--(NONE)	R3
+    ['INPUT_SCRIPTED_FLY_UD'] = 8,	--S	LEFT STICK
+    ['INPUT_SCRIPTED_FLY_LR'] = 9,	--D	LEFT STICK
+    ['INPUT_SCRIPTED_FLY_ZUP'] = 10,	--PAGEUP	LT
+    ['INPUT_SCRIPTED_FLY_ZDOWN'] = 11,	--PAGEDOWN	RT
+    ['INPUT_WEAPON_WHEEL_UD'] = 12,	--MOUSE DOWN	RIGHT STICK
+    ['INPUT_WEAPON_WHEEL_LR'] = 13,	--MOUSE RIGHT	RIGHT STICK
+    ['INPUT_WEAPON_WHEEL_NEXT'] = 14,	--SCROLLWHEEL DOWN	DPAD RIGHT
+    ['INPUT_WEAPON_WHEEL_PREV'] = 15,	--SCROLLWHEEL UP	DPAD LEFT
+    ['INPUT_SELECT_NEXT_WEAPON'] = 16,	--SCROLLWHEEL DOWN	(NONE)
+    ['INPUT_SELECT_PREV_WEAPON'] = 17,	--SCROLLWHEEL UP	(NONE)
+    ['INPUT_SKIP_CUTSCENE'] = 18,	--ENTER / LEFT MOUSE BUTTON / SPACEBAR	A
+    ['INPUT_CHARACTER_WHEEL'] = 19,	--LEFT ALT	DPAD DOWN
+    ['INPUT_MULTIPLAYER_INFO'] = 20,	--Z	DPAD DOWN
+    ['INPUT_SPRINT'] = 21,	--LEFT SHIFT	A
+    ['INPUT_JUMP'] = 22,	--SPACEBAR	X
+    ['INPUT_ENTER'] = 23,	--F	Y
+    ['INPUT_ATTACK'] = 24,	--LEFT MOUSE BUTTON	RT
+    ['INPUT_AIM'] = 25,	--RIGHT MOUSE BUTTON	LT
+    ['INPUT_LOOK_BEHIND'] = 26,	--C	R3
+    ['INPUT_PHONE'] = 27,	--ARROW UP / SCROLLWHEEL BUTTON (PRESS)	DPAD UP
+    ['INPUT_SPECIAL_ABILITY'] = 28,	--(NONE)	L3
+    ['INPUT_SPECIAL_ABILITY_SECONDARY'] = 29,	--B	R3
+    ['INPUT_MOVE_LR'] = 30,	--D	LEFT STICK
+    ['INPUT_MOVE_UD'] = 31,	--S	LEFT STICK
+    ['INPUT_MOVE_UP_ONLY'] = 32,	--W	LEFT STICK
+    ['INPUT_MOVE_DOWN_ONLY'] = 33,	--S	LEFT STICK
+    ['INPUT_MOVE_LEFT_ONLY'] = 34,	--A	LEFT STICK
+    ['INPUT_MOVE_RIGHT_ONLY'] = 35,	--D	LEFT STICK
+    ['INPUT_DUCK'] = 36,	--LEFT CTRL	L3
+    ['INPUT_SELECT_WEAPON'] = 37,	--TAB	LB
+    ['INPUT_PICKUP'] = 38,	--E	LB
+    ['INPUT_SNIPER_ZOOM'] = 39,	--[	LEFT STICK
+    ['INPUT_SNIPER_ZOOM_IN_ONLY'] = 40,	--]	LEFT STICK
+    ['INPUT_SNIPER_ZOOM_OUT_ONLY'] = 41,	--[	LEFT STICK
+    ['INPUT_SNIPER_ZOOM_IN_SECONDARY'] = 42,	--]	DPAD UP
+    ['INPUT_SNIPER_ZOOM_OUT_SECONDARY'] = 43,	--[	DPAD DOWN
+    ['INPUT_COVER'] = 44,	--Q	RB
+    ['INPUT_RELOAD'] = 45,	--R	B
+    ['INPUT_TALK'] = 46,	--E	DPAD RIGHT
+    ['INPUT_DETONATE'] = 47,	--G	DPAD LEFT
+    ['INPUT_HUD_SPECIAL'] = 48,	--Z	DPAD DOWN
+    ['INPUT_ARREST'] = 49,	--F	Y
+    ['INPUT_ACCURATE_AIM'] = 50,	--SCROLLWHEEL DOWN	R3
+    ['INPUT_CONTEXT'] = 51,	--E	DPAD RIGHT
+    ['INPUT_CONTEXT_SECONDARY'] = 52,	--Q	DPAD LEFT
+    ['INPUT_WEAPON_SPECIAL'] = 53,	--(NONE)	Y
+    ['INPUT_WEAPON_SPECIAL_TWO'] = 54,	--E	DPAD RIGHT
+    ['INPUT_DIVE'] = 55,	--SPACEBAR	RB
+    ['INPUT_DROP_WEAPON'] = 56,	--F9	Y
+    ['INPUT_DROP_AMMO'] = 57,	--F10	B
+    ['INPUT_THROW_GRENADE'] = 58,	--G	DPAD LEFT
+    ['INPUT_VEH_MOVE_LR'] = 59,	--D	LEFT STICK
+    ['INPUT_VEH_MOVE_UD'] = 60,	--LEFT CTRL	LEFT STICK
+    ['INPUT_VEH_MOVE_UP_ONLY'] = 61,	--LEFT SHIFT	LEFT STICK
+    ['INPUT_VEH_MOVE_DOWN_ONLY'] = 62,	--LEFT CTRL	LEFT STICK
+    ['INPUT_VEH_MOVE_LEFT_ONLY'] = 63,	--A	LEFT STICK
+    ['INPUT_VEH_MOVE_RIGHT_ONLY'] = 64,	--D	LEFT STICK
+    ['INPUT_VEH_SPECIAL'] = 65,	--(NONE)	(NONE)
+    ['INPUT_VEH_GUN_LR'] = 66,	--MOUSE RIGHT	RIGHT STICK
+    ['INPUT_VEH_GUN_UD'] = 67,	--MOUSE DOWN	RIGHT STICK
+    ['INPUT_VEH_AIM'] = 68,	--RIGHT MOUSE BUTTON	LB
+    ['INPUT_VEH_ATTACK'] = 69,	--LEFT MOUSE BUTTON	RB
+    ['INPUT_VEH_ATTACK2'] = 70,	--RIGHT MOUSE BUTTON	A
+    ['INPUT_VEH_ACCELERATE'] = 71,	--W	RT
+    ['INPUT_VEH_BRAKE'] = 72,	--S	LT
+    ['INPUT_VEH_DUCK'] = 73,	--X	A
+    ['INPUT_VEH_HEADLIGHT'] = 74,	--H	DPAD RIGHT
+    ['INPUT_VEH_EXIT'] = 75,	--F	Y
+    ['INPUT_VEH_HANDBRAKE'] = 76,	--SPACEBAR	RB
+    ['INPUT_VEH_HOTWIRE_LEFT'] = 77,	--W	LT
+    ['INPUT_VEH_HOTWIRE_RIGHT'] = 78,	--S	RT
+    ['INPUT_VEH_LOOK_BEHIND'] = 79,	--C	R3
+    ['INPUT_VEH_CIN_CAM'] = 80,	--R	B
+    ['INPUT_VEH_NEXT_RADIO'] = 81,	--.	(NONE)
+    ['INPUT_VEH_PREV_RADIO'] = 82,	--,	(NONE)
+    ['INPUT_VEH_NEXT_RADIO_TRACK'] = 83,	--=	(NONE)
+    ['INPUT_VEH_PREV_RADIO_TRACK'] = 84,	-- -	(NONE)
+    ['INPUT_VEH_RADIO_WHEEL'] = 85,	--Q	DPAD LEFT
+    ['INPUT_VEH_HORN'] = 86,	--E	L3
+    ['INPUT_VEH_FLY_THROTTLE_UP'] = 87,	--W	RT
+    ['INPUT_VEH_FLY_THROTTLE_DOWN'] = 88,	--S	LT
+    ['INPUT_VEH_FLY_YAW_LEFT'] = 89,	--A	LB
+    ['INPUT_VEH_FLY_YAW_RIGHT'] = 90,	--D	RB
+    ['INPUT_VEH_PASSENGER_AIM'] = 91,	--RIGHT MOUSE BUTTON	LT
+    ['INPUT_VEH_PASSENGER_ATTACK'] = 92,	--LEFT MOUSE BUTTON	RT
+    ['INPUT_VEH_SPECIAL_ABILITY_FRANKLIN'] = 93,	--(NONE)	R3
+    ['INPUT_VEH_STUNT_UD'] = 94,	--(NONE)	(NONE)
+    ['INPUT_VEH_CINEMATIC_UD'] = 95,	--MOUSE DOWN	RIGHT STICK
+    ['INPUT_VEH_CINEMATIC_UP_ONLY'] = 96,	--NUMPAD- / SCROLLWHEEL UP	(NONE)
+    ['INPUT_VEH_CINEMATIC_DOWN_ONLY'] = 97,	--NUMPAD+ / SCROLLWHEEL DOWN	(NONE)
+    ['INPUT_VEH_CINEMATIC_LR'] = 98,	--MOUSE RIGHT	RIGHT STICK
+    ['INPUT_VEH_SELECT_NEXT_WEAPON'] = 99,	--SCROLLWHEEL UP	X
+    ['INPUT_VEH_SELECT_PREV_WEAPON'] = 100,	--[	(NONE)
+    ['INPUT_VEH_ROOF'] = 101,	--H	DPAD RIGHT
+    ['INPUT_VEH_JUMP'] = 102,	--SPACEBAR	RB
+    ['INPUT_VEH_GRAPPLING_HOOK'] = 103,	--E	DPAD RIGHT
+    ['INPUT_VEH_SHUFFLE'] = 104,	--H	DPAD RIGHT
+    ['INPUT_VEH_DROP_PROJECTILE'] = 105,	--X	A
+    ['INPUT_VEH_MOUSE_CONTROL_OVERRIDE'] = 106,	--LEFT MOUSE BUTTON	(NONE)
+    ['INPUT_VEH_FLY_ROLL_LR'] = 107,	--NUMPAD 6	LEFT STICK
+    ['INPUT_VEH_FLY_ROLL_LEFT_ONLY'] = 108,	--NUMPAD 4	LEFT STICK
+    ['INPUT_VEH_FLY_ROLL_RIGHT_ONLY'] = 109,	--NUMPAD 6	LEFT STICK
+    ['INPUT_VEH_FLY_PITCH_UD'] = 110,	--NUMPAD 5	LEFT STICK
+    ['INPUT_VEH_FLY_PITCH_UP_ONLY'] = 111,	--NUMPAD 8	LEFT STICK
+    ['INPUT_VEH_FLY_PITCH_DOWN_ONLY'] = 112,	--NUMPAD 5	LEFT STICK
+    ['INPUT_VEH_FLY_UNDERCARRIAGE'] = 113,	--G	L3
+    ['INPUT_VEH_FLY_ATTACK'] = 114,	--RIGHT MOUSE BUTTON	A
+    ['INPUT_VEH_FLY_SELECT_NEXT_WEAPON'] = 115,	--SCROLLWHEEL UP	DPAD LEFT
+    ['INPUT_VEH_FLY_SELECT_PREV_WEAPON'] = 116,	--[	(NONE)
+    ['INPUT_VEH_FLY_SELECT_TARGET_LEFT'] = 117,	--NUMPAD 7	LB
+    ['INPUT_VEH_FLY_SELECT_TARGET_RIGHT'] = 118,	--NUMPAD 9	RB
+    ['INPUT_VEH_FLY_VERTICAL_FLIGHT_MODE'] = 119,	--E	DPAD RIGHT
+    ['INPUT_VEH_FLY_DUCK'] = 120,	--X	A
+    ['INPUT_VEH_FLY_ATTACK_CAMERA'] = 121,	--INSERT	R3
+    ['INPUT_VEH_FLY_MOUSE_CONTROL_OVERRIDE'] = 122,	--LEFT MOUSE BUTTON	(NONE)
+    ['INPUT_VEH_SUB_TURN_LR'] = 123,	--NUMPAD 6	LEFT STICK
+    ['INPUT_VEH_SUB_TURN_LEFT_ONLY'] = 124,	--NUMPAD 4	LEFT STICK
+    ['INPUT_VEH_SUB_TURN_RIGHT_ONLY'] = 125,	--NUMPAD 6	LEFT STICK
+    ['INPUT_VEH_SUB_PITCH_UD'] = 126,	--NUMPAD 5	LEFT STICK
+    ['INPUT_VEH_SUB_PITCH_UP_ONLY'] = 127,	--NUMPAD 8	LEFT STICK
+    ['INPUT_VEH_SUB_PITCH_DOWN_ONLY'] = 128,	--NUMPAD 5	LEFT STICK
+    ['INPUT_VEH_SUB_THROTTLE_UP'] = 129,	--W	RT
+    ['INPUT_VEH_SUB_THROTTLE_DOWN'] = 130,	--S	LT
+    ['INPUT_VEH_SUB_ASCEND'] = 131,	--LEFT SHIFT	X
+    ['INPUT_VEH_SUB_DESCEND'] = 132,	--LEFT CTRL	A
+    ['INPUT_VEH_SUB_TURN_HARD_LEFT'] = 133,	--A	LB
+    ['INPUT_VEH_SUB_TURN_HARD_RIGHT'] = 134,	--D	RB
+    ['INPUT_VEH_SUB_MOUSE_CONTROL_OVERRIDE'] = 135,	--LEFT MOUSE BUTTON	(NONE)
+    ['INPUT_VEH_PUSHBIKE_PEDAL'] = 136,	--W	A
+    ['INPUT_VEH_PUSHBIKE_SPRINT'] = 137,	--CAPSLOCK	A
+    ['INPUT_VEH_PUSHBIKE_FRONT_BRAKE'] = 138,	--Q	LT
+    ['INPUT_VEH_PUSHBIKE_REAR_BRAKE'] = 139,	--S	RT
+    ['INPUT_MELEE_ATTACK_LIGHT'] = 140,	--R	B
+    ['INPUT_MELEE_ATTACK_HEAVY'] = 141,	--Q	A
+    ['INPUT_MELEE_ATTACK_ALTERNATE'] = 142,	--LEFT MOUSE BUTTON	RT
+    ['INPUT_MELEE_BLOCK'] = 143,	--SPACEBAR	X
+    ['INPUT_PARACHUTE_DEPLOY'] = 144,	--F / LEFT MOUSE BUTTON	Y
+    ['INPUT_PARACHUTE_DETACH'] = 145,	--F	Y
+    ['INPUT_PARACHUTE_TURN_LR'] = 146,	--D	LEFT STICK
+    ['INPUT_PARACHUTE_TURN_LEFT_ONLY'] = 147,	--A	LEFT STICK
+    ['INPUT_PARACHUTE_TURN_RIGHT_ONLY'] = 148,	--D	LEFT STICK
+    ['INPUT_PARACHUTE_PITCH_UD'] = 149,	--S	LEFT STICK
+    ['INPUT_PARACHUTE_PITCH_UP_ONLY'] = 150,	--W	LEFT STICK
+    ['INPUT_PARACHUTE_PITCH_DOWN_ONLY'] = 151,	--S	LEFT STICK
+    ['INPUT_PARACHUTE_BRAKE_LEFT'] = 152,	--Q	LB
+    ['INPUT_PARACHUTE_BRAKE_RIGHT'] = 153,	--E	RB
+    ['INPUT_PARACHUTE_SMOKE'] = 154,	--X	A
+    ['INPUT_PARACHUTE_PRECISION_LANDING'] = 155,	--LEFT SHIFT	(NONE)
+    ['INPUT_MAP'] = 156,	--(NONE)	(NONE)
+    ['INPUT_SELECT_WEAPON_UNARMED'] = 157,	--1	(NONE)
+    ['INPUT_SELECT_WEAPON_MELEE'] = 158,	--2	(NONE)
+    ['INPUT_SELECT_WEAPON_HANDGUN'] = 159,	--6	(NONE)
+    ['INPUT_SELECT_WEAPON_SHOTGUN'] = 160,	--3	(NONE)
+    ['INPUT_SELECT_WEAPON_SMG'] = 161,	--7	(NONE)
+    ['INPUT_SELECT_WEAPON_AUTO_RIFLE'] = 162,	--8	(NONE)
+    ['INPUT_SELECT_WEAPON_SNIPER'] = 163,	--9	(NONE)
+    ['INPUT_SELECT_WEAPON_HEAVY'] = 164,	--4	(NONE)
+    ['INPUT_SELECT_WEAPON_SPECIAL'] = 165,	--5	(NONE)
+    ['INPUT_SELECT_CHARACTER_MICHAEL'] = 166,	--F5	(NONE)
+    ['INPUT_SELECT_CHARACTER_FRANKLIN'] = 167,	--F6	(NONE)
+    ['INPUT_SELECT_CHARACTER_TREVOR'] = 168,	--F7	(NONE)
+    ['INPUT_SELECT_CHARACTER_MULTIPLAYER'] = 169,	--F8 (CONSOLE)	(NONE)
+    ['INPUT_SAVE_REPLAY_CLIP'] = 170,	--F3	B
+    ['INPUT_SPECIAL_ABILITY_PC'] = 171,	--CAPSLOCK	(NONE)
+    ['INPUT_CELLPHONE_UP'] = 172,	--ARROW UP	DPAD UP
+    ['INPUT_CELLPHONE_DOWN'] = 173,	--ARROW DOWN	DPAD DOWN
+    ['INPUT_CELLPHONE_LEFT'] = 174,	--ARROW LEFT	DPAD LEFT
+    ['INPUT_CELLPHONE_RIGHT'] = 175,	--ARROW RIGHT	DPAD RIGHT
+    ['INPUT_CELLPHONE_SELECT'] = 176,	--ENTER / LEFT MOUSE BUTTON	A
+    ['INPUT_CELLPHONE_CANCEL'] = 177,	--BACKSPACE / ESC / RIGHT MOUSE BUTTON	B
+    ['INPUT_CELLPHONE_OPTION'] = 178,	--DELETE	Y
+    ['INPUT_CELLPHONE_EXTRA_OPTION'] = 179,	--SPACEBAR	X
+    ['INPUT_CELLPHONE_SCROLL_FORWARD'] = 180,	--SCROLLWHEEL DOWN	(NONE)
+    ['INPUT_CELLPHONE_SCROLL_BACKWARD'] = 181,	--SCROLLWHEEL UP	(NONE)
+    ['INPUT_CELLPHONE_CAMERA_FOCUS_LOCK'] = 182,	--L	RT
+    ['INPUT_CELLPHONE_CAMERA_GRID'] = 183,	--G	RB
+    ['INPUT_CELLPHONE_CAMERA_SELFIE'] = 184,	--E	R3
+    ['INPUT_CELLPHONE_CAMERA_DOF'] = 185,	--F	LB
+    ['INPUT_CELLPHONE_CAMERA_EXPRESSION'] = 186,	--X	L3
+    ['INPUT_FRONTEND_DOWN'] = 187,	--ARROW DOWN	DPAD DOWN
+    ['INPUT_FRONTEND_UP'] = 188,	--ARROW UP	DPAD UP
+    ['INPUT_FRONTEND_LEFT'] = 189,	--ARROW LEFT	DPAD LEFT
+    ['INPUT_FRONTEND_RIGHT'] = 190,	--ARROW RIGHT	DPAD RIGHT
+    ['INPUT_FRONTEND_RDOWN'] = 191,	--ENTER	A
+    ['INPUT_FRONTEND_RUP'] = 192,	--TAB	Y
+    ['INPUT_FRONTEND_RLEFT'] = 193,	--(NONE)	X
+    ['INPUT_FRONTEND_RRIGHT'] = 194,	--BACKSPACE	B
+    ['INPUT_FRONTEND_AXIS_X'] = 195,	--D	LEFT STICK
+    ['INPUT_FRONTEND_AXIS_Y'] = 196,	--S	LEFT STICK
+    ['INPUT_FRONTEND_RIGHT_AXIS_X'] = 197,	--]	RIGHT STICK
+    ['INPUT_FRONTEND_RIGHT_AXIS_Y'] = 198,	--SCROLLWHEEL DOWN	RIGHT STICK
+    ['INPUT_FRONTEND_PAUSE'] = 199,	--P	START
+    ['INPUT_FRONTEND_PAUSE_ALTERNATE'] = 200,	--ESC	(NONE)
+    ['INPUT_FRONTEND_ACCEPT'] = 201,	--ENTER / NUMPAD ENTER	A
+    ['INPUT_FRONTEND_CANCEL'] = 202,	--BACKSPACE / ESC	B
+    ['INPUT_FRONTEND_X'] = 203,	--SPACEBAR	X
+    ['INPUT_FRONTEND_Y'] = 204,	--TAB	Y
+    ['INPUT_FRONTEND_LB'] = 205,	--Q	LB
+    ['INPUT_FRONTEND_RB'] = 206,	--E	RB
+    ['INPUT_FRONTEND_LT'] = 207,	--PAGE DOWN	LT
+    ['INPUT_FRONTEND_RT'] = 208,	--PAGE UP	RT
+    ['INPUT_FRONTEND_LS'] = 209,	--LEFT SHIFT	L3
+    ['INPUT_FRONTEND_RS'] = 210,	--LEFT CONTROL	R3
+    ['INPUT_FRONTEND_LEADERBOARD'] = 211,	--TAB	RB
+    ['INPUT_FRONTEND_SOCIAL_CLUB'] = 212,	--HOME	BACK
+    ['INPUT_FRONTEND_SOCIAL_CLUB_SECONDARY'] = 213,	--HOME	RB
+    ['INPUT_FRONTEND_DELETE'] = 214,	--DELETE	X
+    ['INPUT_FRONTEND_ENDSCREEN_ACCEPT'] = 215,	--ENTER	A
+    ['INPUT_FRONTEND_ENDSCREEN_EXPAND'] = 216,	--SPACEBAR	X
+    ['INPUT_FRONTEND_SELECT'] = 217,	--CAPSLOCK	BACK
+    ['INPUT_SCRIPT_LEFT_AXIS_X'] = 218,	--D	LEFT STICK
+    ['INPUT_SCRIPT_LEFT_AXIS_Y'] = 219,	--S	LEFT STICK
+    ['INPUT_SCRIPT_RIGHT_AXIS_X'] = 220,	--MOUSE RIGHT	RIGHT STICK
+    ['INPUT_SCRIPT_RIGHT_AXIS_Y'] = 221,	--MOUSE DOWN	RIGHT STICK
+    ['INPUT_SCRIPT_RUP'] = 222,	--RIGHT MOUSE BUTTON	Y
+    ['INPUT_SCRIPT_RDOWN'] = 223,	--LEFT MOUSE BUTTON	A
+    ['INPUT_SCRIPT_RLEFT'] = 224,	--LEFT CTRL	X
+    ['INPUT_SCRIPT_RRIGHT'] = 225,	--RIGHT MOUSE BUTTON	B
+    ['INPUT_SCRIPT_LB'] = 226,	--(NONE)	LB
+    ['INPUT_SCRIPT_RB'] = 227,	--(NONE)	RB
+    ['INPUT_SCRIPT_LT'] = 228,	--(NONE)	LT
+    ['INPUT_SCRIPT_RT'] = 229,	--LEFT MOUSE BUTTON	RT
+    ['INPUT_SCRIPT_LS'] = 230,	--(NONE)	L3
+    ['INPUT_SCRIPT_RS'] = 231,	--(NONE)	R3
+    ['INPUT_SCRIPT_PAD_UP'] = 232,	--W	DPAD UP
+    ['INPUT_SCRIPT_PAD_DOWN'] = 233,	--S	DPAD DOWN
+    ['INPUT_SCRIPT_PAD_LEFT'] = 234,	--A	DPAD LEFT
+    ['INPUT_SCRIPT_PAD_RIGHT'] = 235,	--D	DPAD RIGHT
+    ['INPUT_SCRIPT_SELECT'] = 236,	--V	BACK
+    ['INPUT_CURSOR_ACCEPT'] = 237,	--LEFT MOUSE BUTTON	(NONE)
+    ['INPUT_CURSOR_CANCEL'] = 238,	--RIGHT MOUSE BUTTON	(NONE)
+    ['INPUT_CURSOR_X'] = 239,	--(NONE)	(NONE)
+    ['INPUT_CURSOR_Y'] = 240,	--(NONE)	(NONE)
+    ['INPUT_CURSOR_SCROLL_UP'] = 241,	--SCROLLWHEEL UP	(NONE)
+    ['INPUT_CURSOR_SCROLL_DOWN'] = 242,	--SCROLLWHEEL DOWN	(NONE)
+    ['INPUT_ENTER_CHEAT_CODE'] = 243,	--~ / `	(NONE)
+    ['INPUT_INTERACTION_MENU'] = 244,	--M	BACK
+    ['INPUT_MP_TEXT_CHAT_ALL'] = 245,	--T	(NONE)
+    ['INPUT_MP_TEXT_CHAT_TEAM'] = 246,	--Y	(NONE)
+    ['INPUT_MP_TEXT_CHAT_FRIENDS'] = 247,	--(NONE)	(NONE)
+    ['INPUT_MP_TEXT_CHAT_CREW'] = 248,	--(NONE)	(NONE)
+    ['INPUT_PUSH_TO_TALK'] = 249,	--N	(NONE)
+    ['INPUT_CREATOR_LS'] = 250,	--R	L3
+    ['INPUT_CREATOR_RS'] = 251,	--F	R3
+    ['INPUT_CREATOR_LT'] = 252,	--X	LT
+    ['INPUT_CREATOR_RT'] = 253,	--C	RT
+    ['INPUT_CREATOR_MENU_TOGGLE'] = 254,	--LEFT SHIFT	(NONE)
+    ['INPUT_CREATOR_ACCEPT'] = 255,	--SPACEBAR	A
+    ['INPUT_CREATOR_DELETE'] = 256,	--DELETE	X
+    ['INPUT_ATTACK2'] = 257,	--LEFT MOUSE BUTTON	RT
+    ['INPUT_RAPPEL_JUMP'] = 258,	--(NONE)	A
+    ['INPUT_RAPPEL_LONG_JUMP'] = 259,	--(NONE)	X
+    ['INPUT_RAPPEL_SMASH_WINDOW'] = 260,	--(NONE)	RT
+    ['INPUT_PREV_WEAPON'] = 261,	--SCROLLWHEEL UP	DPAD LEFT
+    ['INPUT_NEXT_WEAPON'] = 262,	--SCROLLWHEEL DOWN	DPAD RIGHT
+    ['INPUT_MELEE_ATTACK1'] = 263,	--R	B
+    ['INPUT_MELEE_ATTACK2'] = 264,	--Q	A
+    ['INPUT_WHISTLE'] = 265,	--(NONE)	(NONE)
+    ['INPUT_MOVE_LEFT'] = 266,	--D	LEFT STICK
+    ['INPUT_MOVE_RIGHT'] = 267,	--D	LEFT STICK
+    ['INPUT_MOVE_UP'] = 268,	--S	LEFT STICK
+    ['INPUT_MOVE_DOWN'] = 269,	--S	LEFT STICK
+    ['INPUT_LOOK_LEFT'] = 270,	--MOUSE RIGHT	RIGHT STICK
+    ['INPUT_LOOK_RIGHT'] = 271,	--MOUSE RIGHT	RIGHT STICK
+    ['INPUT_LOOK_UP'] = 272,	--MOUSE DOWN	RIGHT STICK
+    ['INPUT_LOOK_DOWN'] = 273,	--MOUSE DOWN	RIGHT STICK
+    ['INPUT_SNIPER_ZOOM_IN'] = 274,	--[	RIGHT STICK
+    ['INPUT_SNIPER_ZOOM_OUT'] = 275,	--[	RIGHT STICK
+    ['INPUT_SNIPER_ZOOM_IN_ALTERNATE'] = 276,	--[	LEFT STICK
+    ['INPUT_SNIPER_ZOOM_OUT_ALTERNATE'] = 277,	--[	LEFT STICK
+    ['INPUT_VEH_MOVE_LEFT'] = 278,	--D	LEFT STICK
+    ['INPUT_VEH_MOVE_RIGHT'] = 279,	--D	LEFT STICK
+    ['INPUT_VEH_MOVE_UP'] = 280,	--LEFT CTRL	LEFT STICK
+    ['INPUT_VEH_MOVE_DOWN'] = 281,	--LEFT CTRL	LEFT STICK
+    ['INPUT_VEH_GUN_LEFT'] = 282,	--MOUSE RIGHT	RIGHT STICK
+    ['INPUT_VEH_GUN_RIGHT'] = 283,	--MOUSE RIGHT	RIGHT STICK
+    ['INPUT_VEH_GUN_UP'] = 284,	--MOUSE RIGHT	RIGHT STICK
+    ['INPUT_VEH_GUN_DOWN'] = 285,	--MOUSE RIGHT	RIGHT STICK
+    ['INPUT_VEH_LOOK_LEFT'] = 286,	--MOUSE RIGHT	RIGHT STICK
+    ['INPUT_VEH_LOOK_RIGHT'] = 287,	--MOUSE RIGHT	RIGHT STICK
+    ['INPUT_REPLAY_START_STOP_RECORDING'] = 288,	--F1	A
+    ['INPUT_REPLAY_START_STOP_RECORDING_SECONDARY'] = 289,	--F2	X
+    ['INPUT_SCALED_LOOK_LR'] = 290,	--MOUSE RIGHT	RIGHT STICK
+    ['INPUT_SCALED_LOOK_UD'] = 291,	--MOUSE DOWN	RIGHT STICK
+    ['INPUT_SCALED_LOOK_UP_ONLY'] = 292,	--(NONE)	RIGHT STICK
+    ['INPUT_SCALED_LOOK_DOWN_ONLY'] = 293,	--(NONE)	RIGHT STICK
+    ['INPUT_SCALED_LOOK_LEFT_ONLY'] = 294,	--(NONE)	RIGHT STICK
+    ['INPUT_SCALED_LOOK_RIGHT_ONLY'] = 295,	--(NONE)	RIGHT STICK
+    ['INPUT_REPLAY_MARKER_DELETE'] = 296,	--DELETE	X
+    ['INPUT_REPLAY_CLIP_DELETE'] = 297,	--DELETE	Y
+    ['INPUT_REPLAY_PAUSE'] = 298,	--SPACEBAR	A
+    ['INPUT_REPLAY_REWIND'] = 299,	--ARROW DOWN	LB
+    ['INPUT_REPLAY_FFWD'] = 300,	--ARROW UP	RB
+    ['INPUT_REPLAY_NEWMARKER'] = 301,	--M	A
+    ['INPUT_REPLAY_RECORD'] = 302,	--S	(NONE)
+    ['INPUT_REPLAY_SCREENSHOT'] = 303,	--U	DPAD UP
+    ['INPUT_REPLAY_HIDEHUD'] = 304,	--H	R3
+    ['INPUT_REPLAY_STARTPOINT'] = 305,	--B	(NONE)
+    ['INPUT_REPLAY_ENDPOINT'] = 306,	--N	(NONE)
+    ['INPUT_REPLAY_ADVANCE'] = 307,	--ARROW RIGHT	DPAD RIGHT
+    ['INPUT_REPLAY_BACK'] = 308,	--ARROW LEFT	DPAD LEFT
+    ['INPUT_REPLAY_TOOLS'] = 309,	--T	DPAD DOWN
+    ['INPUT_REPLAY_RESTART'] = 310,	--R	BACK
+    ['INPUT_REPLAY_SHOWHOTKEY'] = 311,	--K	DPAD DOWN
+    ['INPUT_REPLAY_CYCLEMARKERLEFT'] = 312,	--[	DPAD LEFT
+    ['INPUT_REPLAY_CYCLEMARKERRIGHT'] = 313,	--]	DPAD RIGHT
+    ['INPUT_REPLAY_FOVINCREASE'] = 314,	--NUMPAD +	RB
+    ['INPUT_REPLAY_FOVDECREASE'] = 315,	--NUMPAD -	LB
+    ['INPUT_REPLAY_CAMERAUP'] = 316,	--PAGE UP	(NONE)
+    ['INPUT_REPLAY_CAMERADOWN'] = 317,	--PAGE DOWN	(NONE)
+    ['INPUT_REPLAY_SAVE'] = 318,	--F5	START
+    ['INPUT_REPLAY_TOGGLETIME'] = 319,	--C	(NONE)
+    ['INPUT_REPLAY_TOGGLETIPS'] = 320,	--V	(NONE)
+    ['INPUT_REPLAY_PREVIEW'] = 321,	--SPACEBAR	(NONE)
+    ['INPUT_REPLAY_TOGGLE_TIMELINE'] = 322,	--ESC	(NONE)
+    ['INPUT_REPLAY_TIMELINE_PICKUP_CLIP'] = 323,	--X	(NONE)
+    ['INPUT_REPLAY_TIMELINE_DUPLICATE_CLIP'] = 324,	--C	(NONE)
+    ['INPUT_REPLAY_TIMELINE_PLACE_CLIP'] = 325,	--V	(NONE)
+    ['INPUT_REPLAY_CTRL'] = 326,	--LEFT CTRL	(NONE)
+    ['INPUT_REPLAY_TIMELINE_SAVE'] = 327,	--F5	(NONE)
+    ['INPUT_REPLAY_PREVIEW_AUDIO'] = 328,	--SPACEBAR	RT
+    ['INPUT_VEH_DRIVE_LOOK'] = 329,	--LEFT MOUSE BUTTON	(NONE)
+    ['INPUT_VEH_DRIVE_LOOK2'] = 330,	--RIGHT MOUSE BUTTON	(NONE)
+    ['INPUT_VEH_FLY_ATTACK2'] = 331,	--RIGHT MOUSE BUTTON	(NONE)
+    ['INPUT_RADIO_WHEEL_UD'] = 332,	--MOUSE DOWN	RIGHT STICK
+    ['INPUT_RADIO_WHEEL_LR'] = 333,	--MOUSE RIGHT	RIGHT STICK
+    ['INPUT_VEH_SLOWMO_UD'] = 334,	--SCROLLWHEEL DOWN	LEFT STICK
+    ['INPUT_VEH_SLOWMO_UP_ONLY'] = 335,	--SCROLLWHEEL UP	LEFT STICK
+    ['INPUT_VEH_SLOWMO_DOWN_ONLY'] = 336,	--SCROLLWHEEL DOWN	LEFT STICK
+    ['INPUT_VEH_HYDRAULICS_CONTROL_TOGGLE'] = 337,	--X	A
+    ['INPUT_VEH_HYDRAULICS_CONTROL_LEFT'] = 338,	--A	LEFT STICK
+    ['INPUT_VEH_HYDRAULICS_CONTROL_RIGHT'] = 339,	--D	LEFT STICK
+    ['INPUT_VEH_HYDRAULICS_CONTROL_UP'] = 340,	--LEFT SHIFT	LEFT STICK
+    ['INPUT_VEH_HYDRAULICS_CONTROL_DOWN'] = 341,	--LEFT CTRL	LEFT STICK
+    ['INPUT_VEH_HYDRAULICS_CONTROL_UD'] = 342,	--D	LEFT STICK
+    ['INPUT_VEH_HYDRAULICS_CONTROL_LR'] = 343,	--LEFT CTRL	LEFT STICK
+    ['INPUT_SWITCH_VISOR'] = 344,	--F11	DPAD RIGHT
+    ['INPUT_VEH_MELEE_HOLD'] = 345,	--X	A
+    ['INPUT_VEH_MELEE_LEFT'] = 346,	--LEFT MOUSE BUTTON	LB
+    ['INPUT_VEH_MELEE_RIGHT'] = 347,	--RIGHT MOUSE BUTTON	RB
+    ['INPUT_MAP_POI'] = 348,	--SCROLLWHEEL BUTTON (PRESS)	Y
+    ['INPUT_REPLAY_SNAPMATIC_PHOTO'] = 349,	--TAB	X
+    ['INPUT_VEH_CAR_JUMP'] = 350,	--E	L3
+    ['INPUT_VEH_ROCKET_BOOST'] = 351,	--E	L3
+    ['INPUT_VEH_FLY_BOOST'] = 352,	--LEFT SHIFT	L3
+    ['INPUT_VEH_PARACHUTE'] = 353,	--SPACEBAR	A
+    ['INPUT_VEH_BIKE_WINGS'] = 354,	--X	A
+    ['INPUT_VEH_FLY_BOMB_BAY'] = 355,	--E	DPAD RIGHT
+    ['INPUT_VEH_FLY_COUNTER'] = 356,	--E	DPAD RIGHT
+    ['INPUT_VEH_TRANSFORM'] = 357,	--X	A
+    ['INPUT_QUAD_LOCO_REVERSE'] = 358,		--RB
+    ['INPUT_RESPAWN_FASTER'] = 359,
+    ['INPUT_HUDMARKER_SELECT'] = 360,
+}
+
+function JSkey.is_control_enabled(controlType, control)
+    return PAD.IS_CONTROL_ENABLED(controlTypes[controlType] or controltype, controls[control] or control)
+end
+
+function JSkey.is_control_pressed(controlType, control)
+    return PAD.IS_CONTROL_PRESSED(controlTypes[controlType] or controltype, controls[control] or control)
+end
+
+function JSkey.is_control_released(controlType, control)
+    return PAD.IS_CONTROL_RELEASED(controlTypes[controlType] or controltype, controls[control] or control)
+end
+
+function JSkey.is_control_just_pressed(controlType, control)
+    return PAD.IS_CONTROL_JUST_PRESSED(controlTypes[controlType] or controltype, controls[control] or control)
+end
+
+function JSkey.is_control_just_released(controlType, control)
+    return PAD.IS_CONTROL_JUST_RELEASED(controlTypes[controlType] or controltype, controls[control] or control)
+end
+
+function JSkey.get_control_value(controlType, control, amount)
+    return PAD.GET_CONTROL_VALUE(controlTypes[controlType] or controltype, controls[control] or control, amount)
+end
+
+function JSkey.get_control_normal(controlType, control, amount)
+    return PAD.GET_CONTROL_NORMAL(controlTypes[controlType] or controltype, controls[control] or control, amount)
+end
+
+function JSkey.get_control_unbound_normal(controlType, control)
+    return PAD.GET_CONTROL_UNBOUND_NORMAL(controlTypes[controlType] or controlType, controls[control] or control)
+end
+
+function JSkey.set_control_normal(controlType, control, amount)
+    return PAD._SET_CONTROL_NORMAL(controlTypes[controlType] or controlType, controls[control] or control, amount)
+end
+
+function JSkey.is_disabled_control_pressed(controlType, control)
+    return PAD.IS_DISABLED_CONTROL_PRESSED(controlTypes[controlType] or controlType, controls[control] or control)
+end
+
+function JSkey.is_disabled_control_released(controlType, control)
+    return PAD.IS_DISABLED_CONTROL_RELEASED(controlTypes[controlType] or controlType, controls[control] or control)
+end
+
+function JSkey.is_disabled_control_just_pressed(controlType, control)
+    return PAD.IS_DISABLED_CONTROL_JUST_PRESSED(controlTypes[controlType] or controlType, controls[control] or control)
+end
+
+function JSkey.is_disabled_control_just_released(controlType, control)
+    return PAD.IS_DISABLED_CONTROL_JUST_RELEASED(controlTypes[controlType] or controlType, controls[control] or control)
+end
+
+function JSkey.get_disabled_control_normal(controlType, control)
+    return PAD.GET_DISABLED_CONTROL_NORMAL(controlTypes[controlType] or controlType, controls[control] or control)
+end
+
+function JSkey.get_disabled_control_unbound_normal(controlType, control)
+    return PAD.GET_DISABLED_CONTROL_UNBOUND_NORMAL(controlTypes[controlType] or controlType, controls[control] or control)
+end
+
+function JSkey.get_control_instructional_button(controlType, control)
+    return PAD.GET_CONTROL_INSTRUCTIONAL_BUTTON(controlTypes[controlType] or controlType, controls[control] or control, true --[[unused variable]])
+end
+
+function JSkey.get_control_group_instructional_button(controlType, control)
+    return PAD.GET_CONTROL_GROUP_INSTRUCTIONAL_BUTTON(controlTypes[controlType] or controlType, controls[control] or control, true --[[unused variable]])
+end
+
+function JSkey.set_input_exclusive(controlType, control)
+    PAD.SET_INPUT_EXCLUSIVE(controlTypes[controlType] or controlType, controls[control] or control)
+end
+
+function JSkey.disable_control_action(controlType, control, disable)
+    PAD.DISABLE_CONTROL_ACTION(controlTypes[controlType] or controlType, controls[control] or control, disable)
+end
+
+function JSkey.enable_control_action(controlType, control, enable)
+    PAD.ENABLE_CONTROL_ACTION(controlTypes[controlType] or controlType, controls[control] or control, enable)
+end
+
+function JSkey.disable_all_control_actions(controlType)
+    PAD.DISABLE_ALL_CONTROL_ACTIONS(controlTypes[controlType] or controlType)
+end
+
+function JSkey.enable_all_control_actions(controlType)
+    PAD.ENABLE_ALL_CONTROL_ACTIONS(controlTypes[controlType] or controlType)
+end
+
+local lastControlPressMS = {}
+
+--the same as get_ms_since_last_press but for controls
+function JSkey.get_ms_since_control_last_pressed(controlType, control)
+    local isDown = PAD.IS_CONTROL_PRESSED(controlTypes[controlType] or controltype, controls[control] or control)
+    if not lastControlPressMS[controlType] then
+        lastControlPressMS[controlType] = {}
+    end
+    if lastControlPressMS[controlType][control] == nil then
+        if isDown then
+            lastControlPressMS[controlType][control] = util.current_time_millis()
+        end
+        return -1
+    end
+    local prevPress = lastControlPressMS[controlType][control]
+    if isDown then
+        lastControlPressMS[controlType][control] = util.current_time_millis()
+        return prevPress != nil and util.current_time_millis() - prevPress or -1
+    end
+    return util.current_time_millis() - lastControlPressMS[controlType][control]
 end
 
 return JSkey

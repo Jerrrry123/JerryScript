@@ -450,17 +450,17 @@ local whitelistedName = false
 
         PLAYER.DISABLE_PLAYER_FIRING(PLAYER.PLAYER_PED_ID(), true)
 
-        PAD.DISABLE_CONTROL_ACTION(2, 106, true) -- INPUT_VEH_MOUSE_CONTROL_OVERRIDE
-        PAD.DISABLE_CONTROL_ACTION(2, 122, true) -- INPUT_VEH_FLY_MOUSE_CONTROL_OVERRIDE
-        PAD.DISABLE_CONTROL_ACTION(2, 135, true) -- INPUT_VEH_SUB_MOUSE_CONTROL_OVERRIDE
+        JSkey.disable_control_action(2, 'INPUT_VEH_MOUSE_CONTROL_OVERRIDE')
+        JSkey.disable_control_action(2, 'INPUT_VEH_FLY_MOUSE_CONTROL_OVERRIDE')
+        JSkey.disable_control_action(2, 'INPUT_VEH_SUB_MOUSE_CONTROL_OVERRIDE')
 
-        if not (PAD.IS_DISABLED_CONTROL_PRESSED(2, 24) or PAD.IS_DISABLED_CONTROL_PRESSED(2, 25) or PAD.IS_DISABLED_CONTROL_PRESSED(2, 38) ) then return end
-
+        if not (JSkey.is_key_down('VK_LBUTTON') or JSkey.is_key_down('VK_RBUTTON') or JSkey.is_key_down('VK_E')) then return end
+        
         local a = ENTITY.GET_ENTITY_COORDS(PLAYER.PLAYER_PED_ID())
         local b = getOffsetFromCam(80)
 
         local hash
-        if PAD.IS_DISABLED_CONTROL_PRESSED(2, 24) then
+        if JSkey.is_key_down('VK_LBUTTON') then
             hash = util.joaat('VEHICLE_WEAPON_PLAYER_LAZER')
             if not WEAPON.HAS_WEAPON_ASSET_LOADED(hash) then
                 WEAPON.REQUEST_WEAPON_ASSET(hash, 31, 26)
@@ -468,7 +468,7 @@ local whitelistedName = false
                     util.yield()
                 end
             end
-        elseif PAD.IS_DISABLED_CONTROL_PRESSED(2, 25) then
+        elseif JSkey.is_key_down('VK_RBUTTON') then
             hash = util.joaat('WEAPON_RAYPISTOL')
             if not WEAPON.HAS_PED_GOT_WEAPON(players.user_ped(), hash, false) then
                 WEAPON.GIVE_WEAPON_TO_PED(players.user_ped(), hash, 9999, false, false)
@@ -757,7 +757,7 @@ local whitelistedName = false
     local thermal_command = menu.ref_by_path('Game>Rendering>Thermal Vision', 34)
     JSlang.toggle_loop(weapons_root, 'Thermal guns', {'JSthermalGuns'}, 'Makes it so when you aim any gun you can toggle thermal vision on "E".', function()
         if PLAYER.IS_PLAYER_FREE_AIMING(players.user_ped()) then
-            if PAD.IS_CONTROL_JUST_PRESSED(2, 38) then
+            if JSkey.is_key_just_down('VK_E') then
                 if not GRAPHICS.GET_USINGSEETHROUGH() then
                     menu.trigger_command(thermal_command, 'on')
                     GRAPHICS._SEETHROUGH_SET_MAX_THICKNESS(50)
@@ -981,7 +981,7 @@ local whitelistedName = false
     end)
 
     JSlang.toggle_loop(weapons_root, 'Reload when rolling', {'JSrollReload'}, 'Reloads your weapon when doing a roll.', function()
-        if TASK.GET_IS_TASK_ACTIVE(players.user_ped(), 4) and PAD.IS_CONTROL_PRESSED(2, 22) and not PED.IS_PED_SHOOTING(players.user_ped())  then --checking if player is rolling
+        if TASK.GET_IS_TASK_ACTIVE(players.user_ped(), 4) and JSkey.is_control_pressed(2, 'INPUT_JUMP') and not PED.IS_PED_SHOOTING(players.user_ped())  then --checking if player is rolling
             util.yield(900)
             WEAPON.REFILL_AMMO_INSTANTLY(players.user_ped())
         end
@@ -1031,11 +1031,14 @@ local whitelistedName = false
                         util.create_thread(function()
                             local hash = util.joaat('w_arena_airmissile_01a')
                             loadModel(hash)
+
                             local cam_rot = CAM.GET_FINAL_RENDERED_CAM_ROT(2)
                             local dir, pos = direction()
+
                             local bomb = entities.create_object(hash, pos)
                             ENTITY.APPLY_FORCE_TO_ENTITY(bomb, 0, dir.x, dir.y, dir.z, 0.0, 0.0, 0.0, 0, true, false, true, false, true)
                             ENTITY.SET_ENTITY_ROTATION(bomb, cam_rot.x, cam_rot.y, cam_rot.z, 1, true)
+
                             while not ENTITY.HAS_ENTITY_COLLIDED_WITH_ANYTHING(bomb) do util.yield() end
                             local nukePos = ENTITY.GET_ENTITY_COORDS(bomb, true)
                             entities.delete(bomb)
@@ -1068,12 +1071,14 @@ local whitelistedName = false
         if waypointPos then
             local hash = util.joaat('w_arena_airmissile_01a')
             loadModel(hash)
+
             waypointPos.z += 30
             local bomb = entities.create_object(hash, waypointPos)
             waypointPos.z -= 30
             ENTITY.SET_ENTITY_ROTATION(bomb, -90, 0, 0,  2, true)
             ENTITY.APPLY_FORCE_TO_ENTITY(bomb, 0, 0, 0, 0, 0.0, 0.0, 0.0, 0, true, false, true, false, true)
             STREAMING.SET_MODEL_AS_NO_LONGER_NEEDED(hash)
+
             while not ENTITY.HAS_ENTITY_COLLIDED_WITH_ANYTHING(bomb) do util.yield() end
             entities.delete(bomb)
             executeNuke(waypointPos)
@@ -1156,15 +1161,18 @@ local whitelistedName = false
                 if weaponType == 3 or (weaponType == 5 and WEAPON.GET_WEAPONTYPE_GROUP(weaponHash) != 1548507267) then --weapons that shoot bullets or explosions and isn't in the throwables category (grenades, proximity mines etc...)
                     disable_firing = true
                     disableFiringLoop()
-                    if PAD.IS_DISABLED_CONTROL_PRESSED(2, 24) and PLAYER.IS_PLAYER_FREE_AIMING(players.user_ped()) then
+                    if JSkey.is_key_down('VK_LBUTTON') and PLAYER.IS_PLAYER_FREE_AIMING(players.user_ped()) then
                         util.create_thread(function()
                             local hash = util.joaat(exp_animal)
                             loadModel(hash)
+
                             local dir, c1 = direction()
                             local animal = entities.create_ped(28, hash, c1, 0)
                             local cam_rot = CAM.GET_FINAL_RENDERED_CAM_ROT(2)
+
                             ENTITY.APPLY_FORCE_TO_ENTITY(animal, 0, dir.x, dir.y, dir.z, 0.0, 0.0, 0.0, 0, true, false, true, false, true)
                             ENTITY.SET_ENTITY_ROTATION(animal, cam_rot.x, cam_rot.y, cam_rot.z, 1, true)
+
                             while not ENTITY.HAS_ENTITY_COLLIDED_WITH_ANYTHING(animal) do util.yield() end
                             local animalPos = ENTITY.GET_ENTITY_COORDS(animal, true)
                             entities.delete(animal)
@@ -1228,14 +1236,16 @@ local whitelistedName = false
     local my_vehicle_root = JSlang.list(menu_root, 'Vehicle', {'JSVeh'}, '')
 
     local my_cur_car = entities.get_user_vehicle_as_handle() --gets updated in the tick loop at the bottom of the script
+
     local carDoors = {
-        "Driver Door",
-        "Passenger Door",
-        "Rear Left",
-        "Rear Right",
-        "Hood",
-        "Trunk"
+        'Driver Door',
+        'Passenger Door',
+        'Rear Left',
+        'Rear Right',
+        'Hood',
+        'Trunk',
     }
+
     local carSettings carSettings = { --makes carSettings available inside this table
         disableExhaustPops = {on = false, setOption = function(toggle)
             AUDIO.ENABLE_VEHICLE_EXHAUST_POPS(my_cur_car, not toggle)
@@ -1263,6 +1273,7 @@ local whitelistedName = false
             VEHICLE._SET_VEHICLE_REDUCE_TRACTION(my_cur_car, toggle and 0 or 3)
         end},
     }
+
     local function setCarOptions(toggle)
         for k, option in pairs(carSettings) do
             if option.on then option.setOption(toggle) end
@@ -1295,7 +1306,7 @@ local whitelistedName = false
 
         local quickBrakeLvL = 1.5
         JSlang.toggle_loop(speedHandling_root, 'Quick brake', {'JSquickBrake'}, 'Slows down your speed more when pressing "S".', function(toggle)
-            if PAD.IS_CONTROL_JUST_PRESSED(2, 72) and ENTITY.GET_ENTITY_SPEED(my_cur_car) >= 0 and not ENTITY.IS_ENTITY_IN_AIR(my_cur_car) and VEHICLE.GET_PED_IN_VEHICLE_SEAT(my_cur_car, -1, false) == players.user_ped() then
+            if JSkey.is_control_just_pressed(2, 'INPUT_VEH_BRAKE') and ENTITY.GET_ENTITY_SPEED(my_cur_car) >= 0 and not ENTITY.IS_ENTITY_IN_AIR(my_cur_car) and VEHICLE.GET_PED_IN_VEHICLE_SEAT(my_cur_car, -1, false) == players.user_ped() then
                 VEHICLE.SET_VEHICLE_FORWARD_SPEED(my_cur_car, ENTITY.GET_ENTITY_SPEED(my_cur_car) / quickBrakeLvL)
                 util.yield(250)
             end
@@ -1315,14 +1326,10 @@ local whitelistedName = false
             VEHICLE.SET_VEHICLE_FORWARD_SPEED(my_cur_car, ENTITY.GET_ENTITY_SPEED(my_cur_car) + hornBoostMultiplier)
         end)
 
-        local pressedW = util.current_time_millis()
         JSlang.toggle_loop(boosts_root, 'Vehicle jump', {'JSVehJump'}, 'Lets you jump with your car if you double tap "W".', function()
             if VEHICLE.GET_PED_IN_VEHICLE_SEAT(my_cur_car, -1, false) == players.user_ped() and PED.IS_PED_IN_VEHICLE(players.user_ped(), my_cur_car, true) then
-                if PAD.IS_CONTROL_JUST_PRESSED(2, 32) then
-                    if not (util.current_time_millis() - pressedW <= maxTimeBetweenPress) then
-                        pressedW = util.current_time_millis()
-                        return
-                    end
+                local prevPress = JSkey.get_ms_since_control_last_press(2, 'INPUT_MOVE_UP_ONLY')
+                if JSkey.is_control_just_pressed(2, 'INPUT_MOVE_UP_ONLY') and prevPress != -1 and prevPress <= maxTimeBetweenPress then
                     local mySpeed = ENTITY.GET_ENTITY_SPEED(my_cur_car)
                     ENTITY.APPLY_FORCE_TO_ENTITY_CENTER_OF_MASS(my_cur_car, 1, 0, 2, (mySpeed / 10) + 14, 0, true, true, true)
                     AUDIO.PLAY_SOUND_FROM_ENTITY(-1, 'Hydraulics_Down', players.user_ped(), 'Lowrider_Super_Mod_Garage_Sounds', true, 20)
@@ -1345,7 +1352,7 @@ local whitelistedName = false
                     while not STREAMING.HAS_NAMED_PTFX_ASSET_LOADED('veh_xs_vehicle_mods') do util.yield() end
                 end
                 while nitroBoostActive do
-                    if PAD.IS_CONTROL_JUST_PRESSED(2, 357) and PED.IS_PED_IN_ANY_VEHICLE(players.user_ped(), true) then --control is x
+                    if JSkey.is_control_just_pressed(2, 'INPUT_VEH_TRANSFORM') and PED.IS_PED_IN_ANY_VEHICLE(players.user_ped(), true) then --control is x
                         VEHICLE._SET_VEHICLE_NITRO_ENABLED(my_cur_car, true, getTotalDelay(nitroSettings.level) / 10, nitroSettings.power, 999999999999999999, false)
                         util.yield(getTotalDelay(nitroSettings.level))
                         VEHICLE._SET_VEHICLE_NITRO_ENABLED(my_cur_car, false, getTotalDelay(nitroSettings.level) / 10, nitroSettings.power, 999999999999999999, false)
@@ -1369,9 +1376,6 @@ local whitelistedName = false
 
             local shuntSettings = {
                 maxForce = 30, force = 30, disableRecharge = false,
-                lastPress = {
-                    A = util.current_time_millis(), D = util.current_time_millis()
-                }
             }
             local function forceRecharge()
                 util.create_thread(function()
@@ -1391,20 +1395,15 @@ local whitelistedName = false
                 AUDIO.PLAY_SOUND_FROM_ENTITY(-1, 'Hydraulics_Down', players.user_ped(), 'Lowrider_Super_Mod_Garage_Sounds', true, 20)
                 forceRecharge()
             end
+
             JSlang.toggle_loop(boosts_root, 'Shunt boost', {'JSshuntBoost'}, 'Lets you shunt boost in any vehicle by double tapping "A" or "D".', function()
                 util.create_thread(function()
                     if VEHICLE.GET_PED_IN_VEHICLE_SEAT(my_cur_car, -1, false) == players.user_ped() and PED.IS_PED_IN_VEHICLE(players.user_ped(), my_cur_car, true) then
-                        if PAD.IS_CONTROL_JUST_PRESSED(2, 35) then --D
-                            if not (util.current_time_millis() - shuntSettings.lastPress.D <= maxTimeBetweenPress) then
-                                shuntSettings.lastPress.D = util.current_time_millis()
-                                return
-                            end
+                        local prevDPress = JSkey.get_ms_since_last_press('VK_D')
+                        local prevAPress = JSkey.get_ms_since_last_press('VK_A')
+                        if JSkey.is_key_just_down('VK_D') and prevDPress != -1 and prevDPress <= maxTimeBetweenPress then
                             shunt(1)
-                        elseif PAD.IS_CONTROL_JUST_PRESSED(2, 34) then --A
-                            if not (util.current_time_millis() - shuntSettings.lastPress.A <= maxTimeBetweenPress) then
-                                shuntSettings.lastPress.A = util.current_time_millis()
-                                return
-                            end
+                        elseif JSkey.is_key_just_down('VK_A') and prevAPress != -1 and prevAPress <= maxTimeBetweenPress then
                             shunt(-1)
                         end
                     end
@@ -1468,7 +1467,7 @@ local whitelistedName = false
         JSlang.toggle(plane_root, 'Toggle plane afterburner', {'JSafterburner'}, 'Makes you able to toggle afterburner on planes by pressing "left shift".', function(toggle)
             afterburnerToggle = toggle
             util.create_tick_handler(function()
-                if PAD.IS_CONTROL_JUST_PRESSED(2, 61) then
+                if JSkey.is_key_just_down('VK_LSHIFT') then
                     afterBurnerState = not afterBurnerState
                     VEHICLE.SET_VEHICLE_FORCE_AFTERBURNER(my_cur_car, afterBurnerState)
                 end
@@ -1519,7 +1518,6 @@ local whitelistedName = false
 -- Online
 -----------------------------------
     local online_root = JSlang.list(menu_root, 'Online', {'JSonline'}, '')
-
 
     -----------------------------------
     -- Fake money
@@ -1887,7 +1885,7 @@ local whitelistedName = false
         JSlang.toggle_loop(block_root, 'Custom block', {}, 'Makes you able to block an area in front of you by pressing "B".', function()
             local dir, c1 = direction()
             GRAPHICS._DRAW_SPHERE(c1.x, c1.y, c1.z, 0.3, 52, 144, 233, 0.5)
-            if PAD.IS_CONTROL_JUST_PRESSED(2, 29) then
+            if JSkey.is_key_down('VK_B') then
                 if blockInProgress then JSlang.toast('A block is already being run.') return end
                 setBlockStatus(true)
                 block({c1.x, c1.y, c1.z - 0.6})
@@ -2142,7 +2140,7 @@ local whitelistedName = false
                     if PED.IS_PED_IN_ANY_VEHICLE(playerPed, true) then
                         local playerVehicle = PED.GET_VEHICLE_PED_IS_IN(playerPed, false)
                         NETWORK.NETWORK_REQUEST_CONTROL_OF_ENTITY(playerVehicle)
-                        VEHICLE.SET_VEHICLE_CHEAT_POWER_INCREASE(playerVehicle, all_torque/1000)
+                        VEHICLE.SET_VEHICLE_CHEAT_POWER_INCREASE(playerVehicle, all_torque / 1000)
                     end
                 end
                 return (all_torque != 1000)
@@ -2273,7 +2271,6 @@ local whitelistedName = false
             128,
     }
     JSlang.toggle_loop(world_root, 'Disable numpad', {'JSdisableNumpad'}, 'Disables numpad so you don\'t rotate your plane/submarine while navigating stand', function()
-        if PAD.IS_CONTROL_PRESSED(2, 122) then return end --so you can rortate the plane with your mouse
         for _, control in pairs(numpadControls) do
             PAD.DISABLE_CONTROL_ACTION(2, control, true)
         end
