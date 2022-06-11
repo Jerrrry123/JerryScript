@@ -1,5 +1,9 @@
 local JSkey = {}
 
+----------------------------------
+-- System input functions
+----------------------------------
+
 local keyLookupTable = {
     ['VK_LBUTTON']              =  0x01,	--Left mouse button
     ['VK_RBUTTON']              =  0x02,	--Right mouse button
@@ -220,7 +224,7 @@ function JSkey.is_key_just_down(string_or_int)
     return false
 end
 
---if the key is pressed this returns the time the current press and not 0, -1 if never pressed
+--if the key is currently pressed this returns the time the previous last press and not 0, -1 if never pressed
 function JSkey.get_ms_since_last_press(string_or_int)
     local keyCode = getKeyCode(string_or_int)
     local isDown = util.is_key_down(keyCode)
@@ -237,6 +241,11 @@ function JSkey.get_ms_since_last_press(string_or_int)
     end
     return util.current_time_millis() - lastPressMS[keyCode]
 end
+
+
+----------------------------------
+-- Native control functions
+----------------------------------
 
 local controlTypes = {
     ['PLAYER_CONTROL'] = 0,
