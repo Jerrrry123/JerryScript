@@ -850,10 +850,13 @@ reg('Gives them the ability to speed up their car by pressing honking their horn
 reg('Give aim karma')
 reg('Allows you to to stuff to players who target this player.')
 
-reg('Explode')
+-- reg('Shoot')
+reg('Shoots players that aim at them.')
+
+-- reg('Explode')
 reg('Explosions with your custom explosion settings.')
 
-reg('Disable godmode')
+-- reg('Disable godmode')
 reg('If a god mode player aims at them this disables the aimers god mode by pushing their camera forwards.')
 
 -- Vehicle

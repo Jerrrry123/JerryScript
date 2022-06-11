@@ -851,10 +851,13 @@ trans(find('Gives them the ability to speed up their car by pressing honking the
 trans(find('Give aim karma'), '')
 trans(find('Allows you to to stuff to players who target this player.'), '')
 
-trans(find('Explode'), '')
+-- trans(find('Shoot'), '') for context
+trans(find('Shoots players that aim at them.'), '')
+
+-- trans(find('Explode'), '') for context
 trans(find('Explosions with your custom explosion settings.'), '')
 
-trans(find('Disable godmode'), '')
+-- trans(find('Disable godmode'), '') for context
 trans(find('If a god mode player aims at them this disables the aimers god mode by pushing their camera forwards.'), '')
 
 -- Vehicle

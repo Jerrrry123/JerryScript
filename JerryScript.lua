@@ -2674,14 +2674,14 @@ local runningTogglingOff = false
         -----------------------------------
             local give_karma_root = JSlang.list(player_root, 'Give aim karma', {'JSgiveAimKarma'}, 'Allows you to to stuff to players who target this player.')
 
-            --dosnt work
-            -- menu.toggle_loop(give_karma_root, 'Shoot', {'JSgiveBulletAimKarma'}, 'Shoots players that aim at '.. playerName ..'.', function()
-            --     if playerIsTargetingEntity(playerPed) and karma[playerPed] then
-            --         local pos = ENTITY.GET_ENTITY_COORDS(karma[playerPed].ped)
-            --         MISC.SHOOT_SINGLE_BULLET_BETWEEN_COORDS(pos.x, pos.y, pos.z, pos.x, pos.y, pos.z +0.1, 100, true, 100416529, players.user_ped(), true, false, 100.0)
-            --         util.yield(getTotalDelay(expLoopDelay))
-            --     end
-            -- end)
+            --dosnt work on yourself
+            JSlang.toggle_loop(give_karma_root, 'Shoot', {'JSgiveBulletAimKarma'}, 'Shoots players that aim at them.', function()
+                if playerIsTargetingEntity(playerPed) and karma[playerPed] then
+                    local pos = ENTITY.GET_ENTITY_COORDS(karma[playerPed].ped)
+                    MISC.SHOOT_SINGLE_BULLET_BETWEEN_COORDS(pos.x, pos.y, pos.z, pos.x, pos.y, pos.z +0.1, 100, true, 100416529, players.user_ped(), true, false, 100.0)
+                    util.yield(getTotalDelay(expLoopDelay))
+                end
+            end)
 
             JSlang.toggle_loop(give_karma_root, 'Explode', {'JSgiveExpAimKarma'}, 'Explosions with your custom explosion settings.', function()
                 if playerIsTargetingEntity(playerPed) and karma[playerPed] then
