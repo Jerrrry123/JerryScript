@@ -537,7 +537,6 @@ local whitelistedName = false
                     loadModel(eggHash)
                     ptfxEgg = entities.create_object(eggHash, ENTITY.GET_ENTITY_COORDS(players.user_ped()))
                     ENTITY.SET_ENTITY_COLLISION(ptfxEgg, false, false)
-                    ENTITY.SET_ENTITY_VISIBLE(ptfxEgg, false)
                     STREAMING.SET_MODEL_AS_NO_LONGER_NEEDED(eggHash)
                 end
                 for i = 1, #fireWings do
@@ -555,6 +554,8 @@ local whitelistedName = false
                             GRAPHICS.SET_PARTICLE_FX_LOOPED_SCALE(fireWings[i].ptfx, fireWingsSettings.scale)
                             GRAPHICS.SET_PARTICLE_FX_LOOPED_COLOUR(fireWings[i].ptfx, fireWingsSettings.fireColour.r, fireWingsSettings.fireColour.g, fireWingsSettings.fireColour.b)
                         end
+
+                        ENTITY.SET_ENTITY_VISIBLE(ptfxEgg, false)
                         return fireWingsSettings.on
                     end)
                 end
