@@ -1,15 +1,16 @@
+--if the lib should generate a template.lua in your LANG_DIR for translation templates on startup, this will log all the menu options, and after the main script had loaded the lib will check your STRING_FILES for unregistered strings
 local GENERATE_TEMPLATE = false
---if the lib should generate a template.lua in your LANG_DIR for translation templates on startup, then you press the action at the top of your script to include toast and str_trans strings that aren't in menu options, this is to minimize duplicate strings.
 
-local LANG_DIR = filesystem.store_dir() .. 'JerryScript\\Language\\'
 --the dir lang files are stored in
+local LANG_DIR = filesystem.store_dir() .. 'JerryScript\\Language\\'
 
-local TOAST_FILES = {
+--files to search for JSlang.toast and JSlang.str_trans in when generating a template
+local STRING_FILES = {
     filesystem.scripts_dir() ..'JerryScript.lua',
     filesystem.scripts_dir() ..'lib//JSfuncsNtables.lua',
 }
---files to search for toasts in when generating a template
 
+--require translations
 if not filesystem.is_dir(LANG_DIR) then
     filesystem.mkdirs(LANG_DIR)
 end
@@ -25,7 +26,8 @@ for _, profilePath in pairs(filesystem.list_files(LANG_DIR)) do
     end
 end
 
-JSlang = {}
+--add lang functions
+local JSlang = {}
 
 function JSlang.trans(txt)
     if txt == nil or #txt < 1 then return '' end
@@ -82,16 +84,20 @@ if GENERATE_TEMPLATE then
         f:close()
     end
 
-    menu.action(menu.my_root(), 'write strings to translation template', {}, '', function()
+    --asynchronous code that runs after the main script has loaded
+    util.create_thread(function()
+        --wait for main script to load
+        util.yield()
+
         local f = io.open(LANG_DIR .. 'template.lua', 'a')
         f:write('\n--toasts\n')
 
-        for _, file in pairs(TOAST_FILES) do
+        for _, file in pairs(STRING_FILES) do
             writeToasts(file, f)
         end
 
         f:write('\n--other strings\n')
-        for _, file in pairs(TOAST_FILES) do
+        for _, file in pairs(STRING_FILES) do
             writeStrings(file, f)
         end
         f:close()
@@ -185,3 +191,5 @@ end
 function JSlang.action_slider(root, name, link, description, optionsTable, func)
     return menu.action_slider(root, JSlang.trans(name), link, JSlang.trans(description), optionsTable, function()func() end)
 end
+
+return JSlang

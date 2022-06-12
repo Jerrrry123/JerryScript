@@ -10,7 +10,7 @@
     thx to Sai, ren, aaron, Nowry, JayMontana, IceDoomfist and scriptCat and everyone else that helped me in #programming :)
 ]]
 
-require 'JSlangLib'
+JSlang = require 'JSlangLib'
 require 'JSfuncsNtables'
 local JSkey = require 'JSkeyLib'
 
@@ -454,9 +454,9 @@ local whitelistedName = false
         memory.write_int(memory.script_global(1645739+1121), 1)
         SF.CLEAR_ALL()
         SF.TOGGLE_MOUSE_BUTTONS(false)
-        SF.SET_DATA_SLOT(2, JSkey.get_control_instructional_button(0, 'INPUT_ATTACK'), 'Explode')
-        SF.SET_DATA_SLOT(1, JSkey.get_control_instructional_button(0, 'INPUT_AIM'), 'Beam')
-        SF.SET_DATA_SLOT(0, JSkey.get_control_instructional_button(0, 'INPUT_PICKUP'), 'Barrage')
+        SF.SET_DATA_SLOT(2, JSkey.get_control_instructional_button(0, 'INPUT_ATTACK'), JSlang.str_trans('Explode'))
+        SF.SET_DATA_SLOT(1, JSkey.get_control_instructional_button(0, 'INPUT_AIM'), JSlang.str_trans('Beam'))
+        SF.SET_DATA_SLOT(0, JSkey.get_control_instructional_button(0, 'INPUT_PICKUP'), JSlang.str_trans('Barrage'))
         SF.DRAW_INSTRUCTIONAL_BUTTONS()
         SF:draw_fullscreen()
 
