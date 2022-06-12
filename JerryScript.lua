@@ -343,7 +343,7 @@ local whitelistedName = false
 
         local runningToggling = false
         local function mutuallyExclusiveToggles(toggle)
-            if menu.get_value(toggle) == 1 then
+            if menu.get_value(toggle) then
                 runningToggling = true
                 menu.trigger_command(toggle)
                 util.yield()
@@ -373,7 +373,7 @@ local whitelistedName = false
             local playerName = players.get_name(pid)
             blamesTogglesTable[pid] = menu.action(blame_list_root, playerName, {'JSblame'.. playerName}, JSlang.str_trans('Blames your explosions on them.'), function()
                 expSettings.blamedPlayer = pid
-                if menu.get_value(exp_blame_toggle) == 0 then
+                if not menu.get_value(exp_blame_toggle) then
                     menu.trigger_command(exp_blame_toggle)
                 end
                 menu.set_menu_name(exp_blame_toggle, JSlang.str_trans('Blame') ..': '.. playerName)
@@ -398,7 +398,7 @@ local whitelistedName = false
 
         JSlang.action(blame_settings_root, 'Random blames', {'JSblameRandomExp'}, 'Switches blamed explosions back to random if you already chose a player to blame.', function()
             expSettings.blamedPlayer = false
-            if menu.get_value(exp_blame_toggle) == 0 then
+            if not menu.get_value(exp_blame_toggle) then
                 menu.trigger_command(exp_blame_toggle)
             end
             menu.set_menu_name(exp_blame_toggle, JSlang.str_trans('Blame') ..': '.. JSlang.str_trans('Random'))
@@ -430,7 +430,7 @@ local whitelistedName = false
     local gaveHelmet = false
     local levitationCommand = menu.ref_by_path('Self>Movement>Levitation>Levitation', 36)
     JSlang.toggle_loop(self_root, 'Ironman mode', {'JSironman'}, 'Grants you the abilities of ironman :)', function()
-        if menu.get_value(levitationCommand) == 0 then
+        if not menu.get_value(levitationCommand) then
             menu.trigger_command(levitationCommand)
         end
         if not PED.IS_PED_WEARING_HELMET(players.user_ped()) then
@@ -2258,7 +2258,7 @@ local whitelistedName = false
     local smoothTransitionCommand = menu.ref_by_path('World>Atmosphere>Clock>Smooth Transition', 34)
     JSlang.toggle(world_root, 'irl time', {'JSirlTime'}, 'Makes the in game time match your irl time. Disables stands "Smooth Transition".', function(toggle)
         irlTime = toggle
-        if menu.get_value(smoothTransitionCommand) == 1 then menu.trigger_command(smoothTransitionCommand) end
+        if menu.get_value(smoothTransitionCommand) then menu.trigger_command(smoothTransitionCommand) end
         util.create_tick_handler(function()
             menu.trigger_command(setClockCommand, os.date('%H:%M:%S'))
             return irlTime
@@ -2535,7 +2535,7 @@ local runningTogglingOff = false
                         runningTogglingOff = true
                         local playerList = players.list(true, true, true)
                         for i, playerPid in pairs(playerList) do
-                            if menu.get_value(playerInfoTogglesTable[playerPid]) == 1 and not (playerInfoTogglesTable[playerPid] == playerInfoTogglesTable[pid]) then
+                            if menu.get_value(playerInfoTogglesTable[playerPid]) and not (playerInfoTogglesTable[playerPid] == playerInfoTogglesTable[pid]) then
                                 menu.trigger_command(playerInfoTogglesTable[playerPid])
                             end
                         end
@@ -2565,7 +2565,7 @@ local runningTogglingOff = false
 
             JSlang.action(trolling_root, 'Blame explosions', {'JSexpBlame'}, 'Makes your explosions blamed on them.', function()
                 expSettings.blamedPlayer = pid
-                if menu.get_value(exp_blame_toggle) == 0 then
+                if not menu.get_value(exp_blame_toggle) then
                     menu.trigger_command(exp_blame_toggle)
                 end
                 menu.set_menu_name(exp_blame_toggle, JSlang.str_trans('Blame') ..': '.. playerName)
