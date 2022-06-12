@@ -1,5 +1,5 @@
 local GENERATE_TEMPLATE = false
---if the lib should generate a template.lua in your LANG__DIR for translation templates on startup
+--if the lib should generate a template.lua in your LANG_DIR for translation templates on startup, then you press the action at the top of your script to include toast and str_trans strings that aren't in menu options, this is to minimize duplicate strings.
 
 local LANG_DIR = filesystem.store_dir() .. 'JerryScript\\Language\\'
 --the dir lang files are stored in
@@ -45,6 +45,7 @@ if GENERATE_TEMPLATE then
         return content
     end
 
+    local loggedStrings = {}
     local function writeToasts(path, f)
         local script_file = readAll(path)
         for text in string.gmatch(script_file, 'JSlang.toast%(\'.-\'%)') do
@@ -53,20 +54,48 @@ if GENERATE_TEMPLATE then
             text = string.gsub(text, '\'', '\\\'')
             text = string.gsub(text, '\n', '\\n')
             text = string.gsub(text, '\\\\', '\\')
-            f:write('trans(find(\''.. text ..'\'), \'\')' ..'\n')
+            if loggedStrings[text] == nil and lang.find(text, 'en') == 0 then
+                f:write('trans(find(\''.. text ..'\'), \'\')' ..'\n')
+                loggedStrings[text] = true
+            end
+        end
+    end
+
+    local function writeStrings(path, f)
+        local script_file = readAll(path)
+        for text in string.gmatch(script_file, 'JSlang.str_trans%(\'.-\'%)') do
+            text = string.gsub(text, 'JSlang.str_trans%(\'', '')
+            text = string.gsub(text, '\'%)', '')
+            text = string.gsub(text, '\'', '\\\'')
+            text = string.gsub(text, '\n', '\\n')
+            text = string.gsub(text, '\\\\', '\\')
+            if loggedStrings[text] == nil and lang.find(text, 'en') == 0 then
+                f:write('trans(find(\''.. text ..'\'), \'\')' ..'\n')
+                loggedStrings[text] = true
+            end
         end
     end
 
     if not filesystem.exists(LANG_DIR .. 'template.lua') then
-        local f = io.open(LANG_DIR .. 'template.lua', 'w')
-        f:write('lang.set_translate(\'\') --insert lang code here e.x. fr en or de\n\nlocal find = lang.find\nlocal trans = lang.translate\n\n--toasts\n')
-
-        for _, file in pairs(TOAST_FILES) do
-        writeToasts(file, f)
-        end
-        f:write('\n--script options\n')
+        local f = io.open(LANG_DIR .. 'template.lua', 'a')
+        f:write('lang.set_translate(\'\') --insert lang code here e.x. fr en or de\n\nlocal find = lang.find\nlocal trans = lang.translate\n\n')
         f:close()
     end
+
+    menu.action(menu.my_root(), 'write strings to translation template', {}, '', function()
+        local f = io.open(LANG_DIR .. 'template.lua', 'a')
+        f:write('\n--toasts\n')
+
+        for _, file in pairs(TOAST_FILES) do
+            writeToasts(file, f)
+        end
+
+        f:write('\n--other strings\n')
+        for _, file in pairs(TOAST_FILES) do
+            writeStrings(file, f)
+        end
+        f:close()
+    end)
 
     function JSlang.trans(txt)
         if txt == nil or #txt < 1 then return '' end
