@@ -14,6 +14,9 @@ require 'JSlangLib'
 require 'JSfuncsNtables'
 local JSkey = require 'JSkeyLib'
 
+local scaleForm = require("ScaleformLib")
+local SF = scaleForm("instructional_buttons")
+
 local script_store_dir = filesystem.store_dir() .. 'JerryScript\\'
 if not filesystem.is_dir(script_store_dir) then
     filesystem.mkdirs(script_store_dir)
@@ -447,6 +450,15 @@ local whitelistedName = false
         GRAPHICS.BEGIN_SCALEFORM_MOVIE_METHOD(scope_scaleform, 'REMOTE_SNIPER_HUD')
         GRAPHICS.DRAW_SCALEFORM_MOVIE_FULLSCREEN(scope_scaleform, 255, 255, 255, 255, 0)
         GRAPHICS.END_SCALEFORM_MOVIE_METHOD()
+
+        memory.write_int(memory.script_global(1645739+1121), 1)
+        SF.CLEAR_ALL()
+        SF.TOGGLE_MOUSE_BUTTONS(false)
+        SF.SET_DATA_SLOT(2, JSkey.get_control_instructional_button(0, 'INPUT_ATTACK'), 'Explode')
+        SF.SET_DATA_SLOT(1, JSkey.get_control_instructional_button(0, 'INPUT_AIM'), 'Beam')
+        SF.SET_DATA_SLOT(0, JSkey.get_control_instructional_button(0, 'INPUT_PICKUP'), 'Barrage')
+        SF.DRAW_INSTRUCTIONAL_BUTTONS()
+        SF:draw_fullscreen()
 
         PLAYER.DISABLE_PLAYER_FIRING(PLAYER.PLAYER_PED_ID(), true)
 
