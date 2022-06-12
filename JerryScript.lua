@@ -368,7 +368,7 @@ local whitelistedName = false
         local blamesTogglesTable = {}
         players.on_join(function(pid)
             local playerName = players.get_name(pid)
-            blamesTogglesTable[pid] = menu.action(blame_list_root, playerName, {'JSblame'.. playerName}, JSlang.str_trans('Blame') ..' '.. playerName .. JSlang.str_trans(' for your explosions.'), function()
+            blamesTogglesTable[pid] = menu.action(blame_list_root, playerName, {'JSblame'.. playerName}, JSlang.str_trans('Blames your explosions on them.'), function()
                 expSettings.blamedPlayer = pid
                 if menu.get_value(exp_blame_toggle) == 0 then
                     menu.trigger_command(exp_blame_toggle)
