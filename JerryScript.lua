@@ -458,7 +458,6 @@ local whitelistedName = false
         SF.SET_DATA_SLOT(1, JSkey.get_control_instructional_button(0, 'INPUT_AIM'), JSlang.str_trans('Beam'))
         SF.SET_DATA_SLOT(0, JSkey.get_control_instructional_button(0, 'INPUT_PICKUP'), JSlang.str_trans('Barrage'))
         SF.DRAW_INSTRUCTIONAL_BUTTONS()
-        SF:draw_fullscreen()
 
         PLAYER.DISABLE_PLAYER_FIRING(PLAYER.PLAYER_PED_ID(), true)
 
@@ -467,7 +466,7 @@ local whitelistedName = false
         JSkey.disable_control_action(2, 'INPUT_VEH_SUB_MOUSE_CONTROL_OVERRIDE')
 
         if not (JSkey.is_key_down('VK_LBUTTON') or JSkey.is_key_down('VK_RBUTTON') or JSkey.is_key_down('VK_E')) then return end
-        
+
         local a = ENTITY.GET_ENTITY_COORDS(PLAYER.PLAYER_PED_ID())
         local b = getOffsetFromCam(80)
 
