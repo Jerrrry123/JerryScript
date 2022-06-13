@@ -40,7 +40,7 @@ local JSlang = {}
 function JSlang.trans(txt)
     if txt == nil or #txt < 1 then return '' end
 
-    local label = lang.find(txt, lang.get_current())
+    local label = lang.find(txt, 'en')
     if label == 0 then
         label = lang.register(txt)
     end
@@ -114,7 +114,7 @@ if GENERATE_TEMPLATE then
     function JSlang.trans(txt)
         if txt == nil or #txt < 1 then return '' end
 
-        local label = lang.find(txt, lang.get_current())
+        local label = lang.find(txt, 'en')
         if label == 0 then
             local f = io.open(LANG_DIR .. 'template.lua', 'a')
             local fileTxt = string.gsub(txt, '\'', '\\\'')
