@@ -10,6 +10,9 @@ local STRING_FILES = {
     filesystem.scripts_dir() ..'lib//JSfuncsNtables.lua',
 }
 
+--if you have a template file and a translated file with just plaintext of your translation, this will help you merge those files into translations
+local FILE_MERGE = false
+
 --require translations
 if not filesystem.is_dir(LANG_DIR) then
     filesystem.mkdirs(LANG_DIR)
@@ -22,8 +25,11 @@ end
 util.create_thread(function()
     util.yield()
     for _, profilePath in pairs(filesystem.list_files(LANG_DIR)) do
-        if string.find(profilePath, 'template') == nil then
-            require(getPathPart(profilePath, filesystem.scripts_dir()))
+        if string.find(profilePath, 'template') == nil and string.find(profilePath, 'translated') == nil and string.find(profilePath, 'result') == nil then
+            util.create_thread(function()
+                util.yield()
+                require(getPathPart(profilePath, filesystem.scripts_dir()))
+            end)
         end
     end
 end)
@@ -59,7 +65,7 @@ if GENERATE_TEMPLATE then
             text = string.gsub(text, '\n', '\\n')
             text = string.gsub(text, '\\\\', '\\')
             if loggedStrings[text] == nil and lang.find(text, 'en') == 0 then
-                f:write('trans(find(\''.. text ..'\'), \'\')' ..'\n')
+                f:write('t(f(\''.. text ..'\'), \'\')' ..'\n')
                 loggedStrings[text] = true
             end
         end
@@ -74,7 +80,7 @@ if GENERATE_TEMPLATE then
             text = string.gsub(text, '\n', '\\n')
             text = string.gsub(text, '\\\\', '\\')
             if loggedStrings[text] == nil and lang.find(text, 'en') == 0 then
-                f:write('trans(find(\''.. text ..'\'), \'\')' ..'\n')
+                f:write('t(f(\''.. text ..'\'), \'\')' ..'\n')
                 loggedStrings[text] = true
             end
         end
@@ -82,7 +88,7 @@ if GENERATE_TEMPLATE then
 
     if not filesystem.exists(LANG_DIR .. 'template.lua') then
         local f = io.open(LANG_DIR .. 'template.lua', 'a')
-        f:write('lang.set_translate(\'\') --insert lang code here e.x. fr en or de\n\nlocal find = lang.find\nlocal trans = lang.translate\n\n')
+        f:write('lang.set_translate(\'\') --insert lang code here e.x. fr en or de\n\nlocal f = lang.find\nlocal t = lang.translate\n\n')
         f:close()
     end
 
@@ -121,6 +127,31 @@ if GENERATE_TEMPLATE then
         end
         return label
     end
+end
+
+if FILE_MERGE then
+    local mergeTable = {}
+    menu.action(menu.my_root(), 'merge template', {}, '', function()
+        local res = io.open(LANG_DIR .. 'result.lua', 'a')
+
+        local i = 1
+        for line in io.lines(LANG_DIR .."template.lua") do
+            mergeTable[i][1] = line
+            i += 1
+        end
+        local j = 1
+        for line in io.lines(LANG_DIR .."translated.lua") do
+            mergeTable[i][2] = line
+            j += 1
+        end
+        for i = 1, #mergeTable do
+            local fileTxt = string.gsub(mergeTable[i][2], '\'', '\\\'')
+            fileTxt = string.gsub(fileTxt, '\\\\', '\\')
+            res:write(string.gsub(mergeTable[i][1], "''", "'"..fileTxt .."'") .. "\n")
+        end
+
+        res:close()
+    end)
 end
 
 function JSlang.str_trans(string)
