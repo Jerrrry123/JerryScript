@@ -19,12 +19,14 @@ local function getPathPart(fullPath, remove)
     local path = string.sub(fullPath, #remove + 1)
     return string.gsub(path, '.lua', '')
 end
-
-for _, profilePath in pairs(filesystem.list_files(LANG_DIR)) do
-    if string.find(profilePath, 'template') == nil then
-        require(getPathPart(profilePath, filesystem.scripts_dir()))
+util.create_thread(function()
+    util.yield()
+    for _, profilePath in pairs(filesystem.list_files(LANG_DIR)) do
+        if string.find(profilePath, 'template') == nil then
+            require(getPathPart(profilePath, filesystem.scripts_dir()))
+        end
     end
-end
+end)
 
 --add lang functions
 local JSlang = {}
