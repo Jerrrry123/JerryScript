@@ -5,7 +5,7 @@
     WiriScript by Nowiry#2663
     KeramisScript by scriptCat#6566
     Heist control by IceDoomfist#0001
-    LAZScript
+    Meteor by RulyPancake the 5th#1157
 
     thx to Sai, ren, aaron, Nowry, JayMontana, IceDoomfist and scriptCat and everyone else that helped me in #programming :)
 ]]
@@ -2404,7 +2404,7 @@ local creditText = {
     [6]  = {line = 'WiriScript '.. JSlang.str_trans('by') ..' Nowiry#2663', bold = false, wait = 25},
     [7]  = {line = 'KeramisScript '.. JSlang.str_trans('by') ..' scriptCat#6566', bold = false, wait = 25},
     [8]  = {line = 'Heist control '.. JSlang.str_trans('by') ..' IceDoomfist#0001', bold = false, wait = 25},
-    [9]  = {line = 'Meteor '.. JSlang.str_trans('by') ..' RulyPancake the 4th#1157', bold = false, wait = 100},
+    [9]  = {line = 'Meteor '.. JSlang.str_trans('by') ..' RulyPancake the 5th#1157', bold = false, wait = 100},
 
     [10] = {line = JSlang.str_trans('Thanks to'), bold = false, wait = 25},
     [11] = {line = 'Ren#5219 and JayMontana36#9565', bold = true, wait = 35},
