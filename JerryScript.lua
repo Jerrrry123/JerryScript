@@ -1177,7 +1177,6 @@ local whitelistedName = false
                 if weaponType == 3 or (weaponType == 5 and WEAPON.GET_WEAPONTYPE_GROUP(weaponHash) != 1548507267) then --weapons that shoot bullets or explosions and isn't in the throwables category (grenades, proximity mines etc...)
                     disable_firing = true
                     disableFiringLoop()
-                    util.toast('hiu')
                     if JSkey.is_disabled_control_pressed(2, 'INPUT_ATTACK') and PLAYER.IS_PLAYER_FREE_AIMING(players.user_ped()) then
                         util.create_thread(function()
                             local hash = util.joaat(exp_animal)
