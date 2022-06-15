@@ -451,27 +451,30 @@ local whitelistedName = false
         GRAPHICS.DRAW_SCALEFORM_MOVIE_FULLSCREEN(scope_scaleform, 255, 255, 255, 255, 0)
         GRAPHICS.END_SCALEFORM_MOVIE_METHOD()
 
+        local barrageInput = 'INPUT_PICKUP'
+        if not PAD._IS_USING_KEYBOARD(0) then
+            barrageInput = 'INPUT_COVER'
+        end
+
         memory.write_int(memory.script_global(1645739+1121), 1)
         SF.CLEAR_ALL()
         SF.TOGGLE_MOUSE_BUTTONS(false)
         SF.SET_DATA_SLOT(2, JSkey.get_control_instructional_button(0, 'INPUT_ATTACK'), JSlang.str_trans('Explode'))
         SF.SET_DATA_SLOT(1, JSkey.get_control_instructional_button(0, 'INPUT_AIM'), JSlang.str_trans('Beam'))
-        SF.SET_DATA_SLOT(0, JSkey.get_control_instructional_button(0, 'INPUT_PICKUP'), JSlang.str_trans('Barrage'))
+        SF.SET_DATA_SLOT(0, JSkey.get_control_instructional_button(0, barrageInput), JSlang.str_trans('Barrage'))
         SF.DRAW_INSTRUCTIONAL_BUTTONS()
-
-        PLAYER.DISABLE_PLAYER_FIRING(PLAYER.PLAYER_PED_ID(), true)
 
         JSkey.disable_control_action(2, 'INPUT_VEH_MOUSE_CONTROL_OVERRIDE')
         JSkey.disable_control_action(2, 'INPUT_VEH_FLY_MOUSE_CONTROL_OVERRIDE')
         JSkey.disable_control_action(2, 'INPUT_VEH_SUB_MOUSE_CONTROL_OVERRIDE')
 
-        if not (JSkey.is_key_down('VK_LBUTTON') or JSkey.is_key_down('VK_RBUTTON') or JSkey.is_key_down('VK_E')) then return end
+        if not (JSkey.is_control_pressed(0, 'INPUT_ATTACK') or JSkey.is_control_pressed(0, 'INPUT_AIM') or JSkey.is_control_pressed(0, barrageInput)) then return end
 
         local a = ENTITY.GET_ENTITY_COORDS(PLAYER.PLAYER_PED_ID())
         local b = getOffsetFromCam(80)
 
         local hash
-        if JSkey.is_key_down('VK_LBUTTON') then
+        if JSkey.is_control_pressed(0, 'INPUT_ATTACK') then
             hash = util.joaat('VEHICLE_WEAPON_PLAYER_LAZER')
             if not WEAPON.HAS_WEAPON_ASSET_LOADED(hash) then
                 WEAPON.REQUEST_WEAPON_ASSET(hash, 31, 26)
@@ -479,7 +482,7 @@ local whitelistedName = false
                     util.yield()
                 end
             end
-        elseif JSkey.is_key_down('VK_RBUTTON') then
+        elseif JSkey.is_control_pressed(0, 'INPUT_AIM') then
             hash = util.joaat('WEAPON_RAYPISTOL')
             if not WEAPON.HAS_PED_GOT_WEAPON(players.user_ped(), hash, false) then
                 WEAPON.GIVE_WEAPON_TO_PED(players.user_ped(), hash, 9999, false, false)
@@ -509,6 +512,7 @@ local whitelistedName = false
             PED.REMOVE_PED_HELMET(players.user_ped(), true)
             gaveHelmet = false
         end
+        HUD._HUD_WEAPON_WHEEL_IGNORE_CONTROL_INPUT(false)
         local pScaleform = memory.alloc_int()
         memory.write_int(pScaleform, scope_scaleform)
         GRAPHICS.SET_SCALEFORM_MOVIE_AS_NO_LONGER_NEEDED(pScaleform)
@@ -1173,7 +1177,8 @@ local whitelistedName = false
                 if weaponType == 3 or (weaponType == 5 and WEAPON.GET_WEAPONTYPE_GROUP(weaponHash) != 1548507267) then --weapons that shoot bullets or explosions and isn't in the throwables category (grenades, proximity mines etc...)
                     disable_firing = true
                     disableFiringLoop()
-                    if JSkey.is_key_down('VK_LBUTTON') and PLAYER.IS_PLAYER_FREE_AIMING(players.user_ped()) then
+                    util.toast('hiu')
+                    if JSkey.is_disabled_control_pressed(2, 'INPUT_ATTACK') and PLAYER.IS_PLAYER_FREE_AIMING(players.user_ped()) then
                         util.create_thread(function()
                             local hash = util.joaat(exp_animal)
                             loadModel(hash)
