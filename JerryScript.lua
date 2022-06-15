@@ -1885,16 +1885,21 @@ local whitelistedName = false
             {root = block_lsc_root, name = 'paleto bay', coordinates = {{115.59574, 6621.5693, 31.646144}, {110.460236, 6615.827, 31.660228}}, blocked = false},
             {root = block_lsc_root, name = 'benny\'s', coordinates = {{-205.6571, -1309.4313, 31.093222}}, blocked = false},
             -- Casino blocks
-            {root = block_casino_root, name = 'casino entrance', coordinates = {{923.7327, 47.40581, 81.10634}}, blocked = false},
+            {root = block_casino_root, name = 'casino entrance', coordinates = {{924.3438, 49.19933, 81.10636}, {922.5348, 45.917263, 81.10635}}, blocked = false},
             {root = block_casino_root, name = 'casino garage', coordinates = {{935.29553, -0.5328601, 78.56404}}, blocked = false},
             {root = block_casino_root, name = 'lucky wheel', coordinates = {{1110.1014, 228.71582, -49.935845}}, blocked = false},
             --Maze bank block
             {root = block_maze_root, name = 'maze bank entrance', coordinates = {{-81.18775, -795.82874, 44.227295}}, blocked = false},
-            {root = block_maze_root, name = 'maze bank garage', coordinates = {{-81.538155, -783.13257, 38.43969}}, blocked = false},
+            {root = block_maze_root, name = 'maze bank garage', coordinates = {{-77.96956, -780.9376, 38.473335}, {-82.82901, -781.81635, 38.50093}}, blocked = false},
             --Mc block
             {root = block_root, name = 'hawick clubhouse', coordinates = {{-17.48541, -195.7588, 52.370953}, {-23.452509, -193.01324, 52.36245}}, blocked = false},
             --Arena war garages
-            {root = block_root, name = 'arena war garages', coordinates = {{-365.07288, -1872.5387, 20.32783}, {-377.01108, -1876.4001, 20.327832}, {-388.02557, -1882.2357, 20.327838}}, blocked = false},
+            {root = block_root, name = 'arena war garages', coordinates = {
+                {-362.912, -1870.2249, 20.527836}, {-367.41855, -1872.5348, 20.527836},
+                {-375.58344, -1874.6719, 20.527828},  {-379.9853, -1876.0894, 20.527828},
+                {-386.49762, -1880.2793, 20.527842},  {-390.3558, -1883.0833, 20.527842},
+                {-396.9259, -1883.9537, 21.542086}
+            }, blocked = false},
         }
 
         for i = 1, #blockAreasActions do
