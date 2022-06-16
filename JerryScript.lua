@@ -428,7 +428,7 @@ local whitelistedName = false
     local startViewMode
     local scope_scaleform
     local gaveHelmet = false
-    local levitationCommand = menu.ref_by_path('Self>Movement>Levitation>Levitation', 36)
+    local levitationCommand = menu.ref_by_path('Self>Movement>Levitation>Levitation', 37)
     JSlang.toggle_loop(self_root, 'Ironman mode', {'JSironman'}, 'Grants you the abilities of ironman :)', function()
         if not menu.get_value(levitationCommand) then
             menu.trigger_command(levitationCommand)
@@ -770,7 +770,7 @@ local whitelistedName = false
 -----------------------------------
     local weapons_root = JSlang.list(menu_root, 'Weapons', {'JSweapons'}, '')
 
-    local thermal_command = menu.ref_by_path('Game>Rendering>Thermal Vision', 34)
+    local thermal_command = menu.ref_by_path('Game>Rendering>Thermal Vision', 37)
     JSlang.toggle_loop(weapons_root, 'Thermal guns', {'JSthermalGuns'}, 'Makes it so when you aim any gun you can toggle thermal vision on "E".', function()
         if PLAYER.IS_PLAYER_FREE_AIMING(players.user_ped()) then
             if JSkey.is_key_just_down('VK_E') then
@@ -2213,7 +2213,7 @@ local whitelistedName = false
             end
         end)
 
-        local stand_player_aim_punish =  menu.ref_by_path('World>Inhabitants>Player Aim Punishments>Anonymous Explosion', 34)
+        local stand_player_aim_punish =  menu.ref_by_path('World>Inhabitants>Player Aim Punishments>Anonymous Explosion', 37)
         JSlang.action(aim_karma_root, 'Stands player aim punishments', {}, 'Link to stands player aim punishments.', function()
             menu.focus(stand_player_aim_punish)
         end)
@@ -2223,8 +2223,8 @@ local whitelistedName = false
 -----------------------------------
     local world_root = JSlang.list(menu_root, 'World', {'JSworld'}, '')
 
-    local setClockCommand = menu.ref_by_path('World>Atmosphere>Clock>Time', 34)
-    local smoothTransitionCommand = menu.ref_by_path('World>Atmosphere>Clock>Smooth Transition', 34)
+    local setClockCommand = menu.ref_by_path('World>Atmosphere>Clock>Time', 37)
+    local smoothTransitionCommand = menu.ref_by_path('World>Atmosphere>Clock>Smooth Transition', 37)
     JSlang.toggle(world_root, 'irl time', {'JSirlTime'}, 'Makes the in game time match your irl time. Disables stands "Smooth Transition".', function(toggle)
         irlTime = toggle
         if menu.get_value(smoothTransitionCommand) then menu.trigger_command(smoothTransitionCommand) end
