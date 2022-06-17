@@ -746,8 +746,8 @@ local whitelistedName = false
     -- 159 -> 160
     -- 207 -> 208
     local alphaPoints = {0, 87, 159, 207, 255}
-    JSlang.slider(self_root, 'Ghost', {'JSghost'}, 'Makes your player different levels off see through.', 0, 4, 4, 1, function(value)
-        ENTITY.SET_ENTITY_ALPHA(players.user_ped(),alphaPoints[value + 1], false)
+    JSlang.slider(self_root, 'Ghost', {'JSghost'}, 'Makes your player different levels off see through.', 0, 100, 100, 25, function(value)
+        ENTITY.SET_ENTITY_ALPHA(players.user_ped(),alphaPoints[value / 25 + 1], false)
     end)
 
     JSlang.toggle_loop(self_root, 'Full regen', {'JSfullRegen'}, 'Makes your hp regenerate until you\'re at full health.', function()
@@ -1280,10 +1280,8 @@ local whitelistedName = false
             PHYSICS._SET_LAUNCH_CONTROL_ENABLED(toggle)
         end},
         ghostCar = {on = true, value = 4, setOption = function(toggle)
-            if carSettings.ghostCar.value != 4 then
-                local index = toggle and carSettings.ghostCar.value + 1 or 5
-                ENTITY.SET_ENTITY_ALPHA(my_cur_car, alphaPoints[index], true)
-            end
+            local index = toggle and carSettings.ghostCar.value + 1 or 5
+            ENTITY.SET_ENTITY_ALPHA(my_cur_car, alphaPoints[index], true)
         end},
         indestructibleDoors = {on = false, setOption = function(toggle)
             local vehicleDoorCount =  VEHICLE._GET_NUMBER_OF_VEHICLE_DOORS(my_cur_car)
@@ -1523,11 +1521,9 @@ local whitelistedName = false
         end)
     -----------------------------------
 
-    JSlang.slider(my_vehicle_root, 'Ghost vehicle', {'JSghostVeh'}, 'Makes your vehicle different levels off see through.', 0 , 4, 4, 1, function(value)
-        carSettings.ghostCar.value = value
-        if PED.IS_PED_IN_ANY_VEHICLE(players.user_ped(), true) then
-            ENTITY.SET_ENTITY_ALPHA(my_cur_car,alphaPoints[value + 1], true)
-        end
+    JSlang.slider(my_vehicle_root, 'Ghost vehicle', {'JSghostVeh'}, 'Makes your vehicle different levels off see through.', 0 , 100, 100, 25, function(value)
+        carSettings.ghostCar.value = value / 25
+        carSettings.ghostCar.setOption(value != 100)
     end)
 
     JSlang.toggle(my_vehicle_root, 'Disable exhaust pops', {'JSdisablePops'}, 'Disables those annoying exhaust pops that your car makes if it has a non-stock exhaust option.', function(toggle)
