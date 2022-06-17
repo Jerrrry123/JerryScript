@@ -39,6 +39,11 @@ end
         return version
     end
 
+    --returns weather or not the user is in the current vehicles drivers seat
+    function is_user_driving_vehicle()
+        return (PED.IS_PED_IN_ANY_VEHICLE(players.user_ped(), true) and VEHICLE.GET_PED_IN_VEHICLE_SEAT(entities.get_user_vehicle_as_handle(), -1, false) == players.user_ped())
+    end
+
     function loadModel(hash)
         STREAMING.REQUEST_MODEL(hash)
         while not STREAMING.HAS_MODEL_LOADED(hash) do util.yield() end

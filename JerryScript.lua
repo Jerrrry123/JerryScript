@@ -51,7 +51,7 @@ local whitelistedName = false
         notifications = true
         JSlang.toggle(script_settings_root, 'Disable JS notifications', {'JSnoNotify'}, 'Makes the script not notify when stuff happens. These can be pretty useful so I don\'t recommend turning them off.', function(toggle)
             notifications = not toggle
-            if not toggle then
+            if notifications then
                 JSlang.toast('Notifications on')
             end
         end)
@@ -117,7 +117,7 @@ local whitelistedName = false
                     name = 'Disable ammo info', command = 'PIdisableAmmo', description = '', toggle = true,
                     displayText = function(pid, ped, weaponHash)
                         local damageType = WEAPON.GET_WEAPON_DAMAGE_TYPE(weaponHash)
-                        if not (damageType == 12 or damageType == 1 or damageType == 3 or damageType == 5 or damageType == 13) or util.joaat('weapon_raypistol') == weaponHash then return end
+                        if (damageType == 12 or damageType == 1 or damageType == 3 or damageType == 5 or damageType == 13) or util.joaat('weapon_raypistol') != weaponHash then return end
                         local ammoCount
                         local ammo_ptr = memory.alloc_int()
                         if WEAPON.GET_AMMO_IN_CLIP(ped, weaponHash, ammo_ptr) and WEAPON.GET_WEAPONTYPE_GROUP(weaponHash) != util.joaat('GROUP_THROWN') then
@@ -794,16 +794,19 @@ local whitelistedName = false
     ----------------------------------
         local weapon_settings_root = JSlang.list(weapons_root, 'Weapon settings', {}, '')
 
-        local function readWeaponAddress(storeTable, offset, stopIfModified, ignoreVehicleWeapons)
+        local function readWeaponAddress(storeTable, offset, stopIfModified)
             if util.is_session_transition_active() then return 0 end
+
             local userPed = players.user_ped()
             local weaponHash, vehicleWeapon = getWeaponHash(userPed)
-            if ignoreVehicleWeapons and vehicleWeapon then return end
+
             if stopIfModified and storeTable[weaponHash] then return 0 end
+
             local pointer = (vehicleWeapon and 0x70 or 0x20)
             local address = address_from_pointer_chain(entities.handle_to_pointer(userPed), {0x10D8, pointer, offset})
             if address == 0 then JSlang.toast('Failed to find memory address.') return 0 end
-            if not storeTable[weaponHash] then
+
+            if storeTable[weaponHash] == nil then
                 storeTable[weaponHash] = {
                     address = address,
                     original = memory.read_float(address)
@@ -952,8 +955,9 @@ local whitelistedName = false
         local proxyStickySettings = {players = true, npcs = false, radius = 2}
         local function autoExplodeStickys(ped)
             local pos = ENTITY.GET_ENTITY_COORDS(ped, true)
-            if not MISC.IS_PROJECTILE_TYPE_WITHIN_DISTANCE(pos.x, pos.y, pos.z, util.joaat('weapon_stickybomb'), proxyStickySettings.radius, true) then return end
-            WEAPON.EXPLODE_PROJECTILES(players.user_ped(), util.joaat('weapon_stickybomb'))
+            if MISC.IS_PROJECTILE_TYPE_WITHIN_DISTANCE(pos.x, pos.y, pos.z, util.joaat('weapon_stickybomb'), proxyStickySettings.radius, true) then
+                WEAPON.EXPLODE_PROJECTILES(players.user_ped(), util.joaat('weapon_stickybomb'))
+            end
         end
 
         JSlang.toggle_loop(proxy_sticky_root, 'Proxy stickys', {'JSproxyStickys'}, 'Makes your sticky bombs automatically detonate around players or npc\'s, works with the player whitelist.', function()
@@ -1055,7 +1059,9 @@ local whitelistedName = false
                             ENTITY.APPLY_FORCE_TO_ENTITY(bomb, 0, dir.x, dir.y, dir.z, 0.0, 0.0, 0.0, 0, true, false, true, false, true)
                             ENTITY.SET_ENTITY_ROTATION(bomb, cam_rot.x, cam_rot.y, cam_rot.z, 1, true)
 
-                            while not ENTITY.HAS_ENTITY_COLLIDED_WITH_ANYTHING(bomb) do util.yield() end
+                            while not ENTITY.HAS_ENTITY_COLLIDED_WITH_ANYTHING(bomb) do
+                                util.yield()
+                            end
                             local nukePos = ENTITY.GET_ENTITY_COORDS(bomb, true)
                             entities.delete(bomb)
                             executeNuke(nukePos)
@@ -1095,7 +1101,9 @@ local whitelistedName = false
             ENTITY.APPLY_FORCE_TO_ENTITY(bomb, 0, 0, 0, 0, 0.0, 0.0, 0.0, 0, true, false, true, false, true)
             STREAMING.SET_MODEL_AS_NO_LONGER_NEEDED(hash)
 
-            while not ENTITY.HAS_ENTITY_COLLIDED_WITH_ANYTHING(bomb) do util.yield() end
+            while not ENTITY.HAS_ENTITY_COLLIDED_WITH_ANYTHING(bomb) do
+                util.yield()
+            end
             entities.delete(bomb)
             executeNuke(waypointPos)
         end
@@ -1189,7 +1197,9 @@ local whitelistedName = false
                             ENTITY.APPLY_FORCE_TO_ENTITY(animal, 0, dir.x, dir.y, dir.z, 0.0, 0.0, 0.0, 0, true, false, true, false, true)
                             ENTITY.SET_ENTITY_ROTATION(animal, cam_rot.x, cam_rot.y, cam_rot.z, 1, true)
 
-                            while not ENTITY.HAS_ENTITY_COLLIDED_WITH_ANYTHING(animal) do util.yield() end
+                            while not ENTITY.HAS_ENTITY_COLLIDED_WITH_ANYTHING(animal) do
+                                util.yield()
+                            end
                             local animalPos = ENTITY.GET_ENTITY_COORDS(animal, true)
                             entities.delete(animal)
                             FIRE.ADD_EXPLOSION(animalPos.x, animalPos.y,animalPos.z, 1, 10, true, false, 1, false)
@@ -1343,13 +1353,13 @@ local whitelistedName = false
         end)
 
         JSlang.toggle_loop(boosts_root, 'Vehicle jump', {'JSVehJump'}, 'Lets you jump with your car if you double tap "W".', function()
-            if VEHICLE.GET_PED_IN_VEHICLE_SEAT(my_cur_car, -1, false) == players.user_ped() and PED.IS_PED_IN_VEHICLE(players.user_ped(), my_cur_car, true) then
-                local prevPress = JSkey.get_ms_since_control_last_press(2, 'INPUT_MOVE_UP_ONLY')
-                if JSkey.is_control_just_pressed(2, 'INPUT_MOVE_UP_ONLY') and prevPress != -1 and prevPress <= maxTimeBetweenPress then
-                    local mySpeed = ENTITY.GET_ENTITY_SPEED(my_cur_car)
-                    ENTITY.APPLY_FORCE_TO_ENTITY_CENTER_OF_MASS(my_cur_car, 1, 0, 2, (mySpeed / 10) + 14, 0, true, true, true)
-                    AUDIO.PLAY_SOUND_FROM_ENTITY(-1, 'Hydraulics_Down', players.user_ped(), 'Lowrider_Super_Mod_Garage_Sounds', true, 20)
-                end
+            if not is_user_driving_vehicle() then return end
+
+            local prevPress = JSkey.get_ms_since_control_last_press(2, 'INPUT_MOVE_UP_ONLY')
+            if JSkey.is_control_just_pressed(2, 'INPUT_MOVE_UP_ONLY') and prevPress != -1 and prevPress <= maxTimeBetweenPress then
+                local mySpeed = ENTITY.GET_ENTITY_SPEED(my_cur_car)
+                ENTITY.APPLY_FORCE_TO_ENTITY_CENTER_OF_MASS(my_cur_car, 1, 0, 2, (mySpeed / 10) + 14, 0, true, true, true)
+                AUDIO.PLAY_SOUND_FROM_ENTITY(-1, 'Hydraulics_Down', players.user_ped(), 'Lowrider_Super_Mod_Garage_Sounds', true, 20)
             end
         end)
 
@@ -1363,10 +1373,15 @@ local whitelistedName = false
             local nitroBoostActive = false
             JSlang.toggle(boosts_root, 'Enable nitro', {'JSnitro'}, 'Enable nitro boost on any vehicle, use it by pressing "X".', function(toggle)
                 nitroBoostActive = toggle
+
+                --request the nitro ptfx because _SET_VEHICLE_NITRO_ENABLED does not load it
                 if not STREAMING.HAS_NAMED_PTFX_ASSET_LOADED('veh_xs_vehicle_mods') then
                     STREAMING.REQUEST_NAMED_PTFX_ASSET('veh_xs_vehicle_mods')
-                    while not STREAMING.HAS_NAMED_PTFX_ASSET_LOADED('veh_xs_vehicle_mods') do util.yield() end
+                    while not STREAMING.HAS_NAMED_PTFX_ASSET_LOADED('veh_xs_vehicle_mods') do
+                        util.yield()
+                    end
                 end
+
                 while nitroBoostActive do
                     if JSkey.is_control_just_pressed(2, 'INPUT_VEH_TRANSFORM') and PED.IS_PED_IN_ANY_VEHICLE(players.user_ped(), true) then --control is x
                         VEHICLE._SET_VEHICLE_NITRO_ENABLED(my_cur_car, true, getTotalDelay(nitroSettings.level) / 10, nitroSettings.power, 999999999999999999, false)
@@ -1414,14 +1429,20 @@ local whitelistedName = false
 
             JSlang.toggle_loop(boosts_root, 'Shunt boost', {'JSshuntBoost'}, 'Lets you shunt boost in any vehicle by double tapping "A" or "D".', function()
                 util.create_thread(function()
-                    if VEHICLE.GET_PED_IN_VEHICLE_SEAT(my_cur_car, -1, false) == players.user_ped() and PED.IS_PED_IN_VEHICLE(players.user_ped(), my_cur_car, true) then
-                        local prevDPress = JSkey.get_ms_since_last_press('VK_D')
-                        local prevAPress = JSkey.get_ms_since_last_press('VK_A')
-                        if JSkey.is_key_just_down('VK_D') and prevDPress != -1 and prevDPress <= maxTimeBetweenPress then
-                            shunt(1)
-                        elseif JSkey.is_key_just_down('VK_A') and prevAPress != -1 and prevAPress <= maxTimeBetweenPress then
-                            shunt(-1)
-                        end
+                    if not is_user_driving_vehicle() then return end
+
+                    local prevDPress = JSkey.get_ms_since_last_press('VK_D')
+                    local prevAPress = JSkey.get_ms_since_last_press('VK_A')
+
+                    if not PAD._IS_USING_KEYBOARD(0) then
+                        prevDPress = JSkey.get_ms_since_control_last_pressed(0, 'INPUT_COVER')
+                        prevAPress = JSkey.get_ms_since_control_last_pressed(0, 'INPUT_PICKUP')
+                    end
+
+                    if (JSkey.is_key_just_down('VK_D') or JSkey.is_control_just_pressed(0, 'INPUT_COVER')) and prevDPress != -1 and prevDPress <= maxTimeBetweenPress then
+                        shunt(1)
+                    elseif (JSkey.is_key_just_down('VK_A') or JSkey.is_control_just_pressed(0, 'INPUT_PICKUP')) and prevAPress != -1 and prevAPress <= maxTimeBetweenPress then
+                        shunt(-1)
                     end
                 end)
             end)
@@ -1447,25 +1468,30 @@ local whitelistedName = false
         end)
 
         JSlang.toggle_loop(veh_door_root, 'Shut doors when driving', {'JSautoClose'}, 'Closes all the vehicle doors when you start driving.', function()
-            if VEHICLE.GET_PED_IN_VEHICLE_SEAT(my_cur_car, -1, false) == players.user_ped() and ENTITY.GET_ENTITY_SPEED(my_cur_car) > 1 then --over a speed of 1 because car registers as moving then doors move
-                if ENTITY.GET_ENTITY_SPEED(my_cur_car) < 10 then util.yield(800) else util.yield(600) end
-                local closed = false
-                for i, door in ipairs(carDoors) do
-                    if VEHICLE.GET_VEHICLE_DOOR_ANGLE_RATIO(my_cur_car, (i-1)) > 0 and not VEHICLE.IS_VEHICLE_DOOR_DAMAGED(my_cur_car, (i-1)) then
-                        VEHICLE.SET_VEHICLE_DOOR_SHUT(my_cur_car, (i-1), false)
-                        closed = true
-                    end
+            if not (is_user_driving_vehicle() and ENTITY.GET_ENTITY_SPEED(my_cur_car) > 1) then return end  --over a speed of 1 because car registers as moving then doors move
+
+            if ENTITY.GET_ENTITY_SPEED(my_cur_car) < 10 then
+                util.yield(800)
+            else
+                util.yield(600)
+            end
+
+            local closed = false
+            for i, door in ipairs(carDoors) do
+                if VEHICLE.GET_VEHICLE_DOOR_ANGLE_RATIO(my_cur_car, i - 1) > 0 and not VEHICLE.IS_VEHICLE_DOOR_DAMAGED(my_cur_car, i - 1) then
+                    VEHICLE.SET_VEHICLE_DOOR_SHUT(my_cur_car, i - 1, false)
+                    closed = true
                 end
-                if notifications and closed then
-                    JSlang.toast('Closed your car doors.')
-                end
+            end
+            if notifications and closed then
+                JSlang.toast('Closed your car doors.')
             end
         end)
 
         --credit to Wiri, I couldn't get the trunk to close/open so I copied him
         JSlang.action(veh_door_root, 'Open all doors', {'JScarDoorsOpen'}, 'Made this to test door stuff.', function()
             for i, door in ipairs(carDoors) do
-                VEHICLE.SET_VEHICLE_DOOR_OPEN(my_cur_car, (i-1), false, false)
+                VEHICLE.SET_VEHICLE_DOOR_OPEN(my_cur_car, i - 1, false, false)
             end
         end)
 
@@ -2340,7 +2366,6 @@ local whitelistedName = false
             {name = 'Ragdoll peds', command = 'JSragdollPeds', description = 'Makes all nearby peds fall over lol.', action = function(ped)
                 if PED.IS_PED_A_PLAYER(ped) then return end
                 PED.SET_PED_TO_RAGDOLL(ped, 2000, 2000, 0, true, true, true)
-                -- PED.RESET_PED_RAGDOLL_TIMER(ped)
             end},
             {name = 'Death\'s touch', command = 'JSdeathTouch', description = 'Kills peds that touches you.', action = function(ped)
                 if PED.IS_PED_A_PLAYER(ped) or PED.IS_PED_IN_ANY_VEHICLE(ped, true) or not ENTITY.IS_ENTITY_TOUCHING_ENTITY(ped, players.user_ped()) then return end
