@@ -1277,6 +1277,9 @@ local whitelistedName = false
             AUDIO.ENABLE_VEHICLE_EXHAUST_POPS(my_cur_car, not toggle)
         end},
         launchControl = {on = false, setOption = function(toggle)
+            if PED.IS_PED_IN_ANY_PLANE(players.user_ped()) then
+                toggle = false
+            end
             PHYSICS._SET_LAUNCH_CONTROL_ENABLED(toggle)
         end},
         ghostCar = {on = true, value = 4, setOption = function(toggle)
