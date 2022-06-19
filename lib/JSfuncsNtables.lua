@@ -7,7 +7,8 @@ end
 -- Math
 ----------------------------------
     function roundDecimals(float, decimals)
-        return math.floor(float * 10 ^ decimals) / 10 ^ decimals
+        decimals = 10 ^ decimals
+        return math.floor(float * decimals) / decimals
     end
 
     function sliderToScreenPos(pos)
