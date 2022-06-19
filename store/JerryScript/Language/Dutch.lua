@@ -1,7 +1,7 @@
 lang.set_translate('nl')
 
-local find = lang.find
-local trans = lang.translate
+local f = lang.find
+local t = lang.translate
 
 t(f('Script settings'), 'Scriptinstellingen')
 t(f('Disable JS notifications'), 'JS-meldingen uitschakelen')
