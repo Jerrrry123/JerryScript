@@ -75,11 +75,12 @@ local whitelistedName = false
                 file:write(fileContent)
                 file:close()
 
-                local message = 'Successfully created file.'
                 if type(i) == 'number' and i >= 100 then
-                    message = 'Stop creating template files, you have way too many!'
+                    JSlang.toast('Stop creating template files, you have way too many!')
+                else
+                    JSlang.toast('Successfully created file.')
                 end
-                JSlang.toast(message)
+
             end, function()
                 JSlang.toast('Failed to create file.')
             end)
@@ -1712,23 +1713,23 @@ local whitelistedName = false
         -- warehouse = 473
         -- vehicle cargo = 524
         local propertyBlips = {
-            [1] = { name = 'Ceo office',   sprite = 475 },
-            [2] = { name = 'MC clubhouse', sprite = 492,
-                subProperties = {listName = 'MC businesses', properties = {
-                    [1] = { name = 'Weed farm',           sprite = 496 },
-                    [2] = { name = 'Cocaine lockup',      sprite = 497 },
-                    [3] = { name = 'Document forgery',    sprite = 498 },
-                    [4] = { name = 'Methamphetamine Lab', sprite = 499 },
-                    [5] = { name = 'Counterfeit cash',    sprite = 500 },
+            [1] = { name = JSlang.str_trans('Ceo office'),   sprite = 475 },
+            [2] = { name = JSlang.str_trans('MC clubhouse'), sprite = 492,
+                subProperties = {listName = JSlang.str_trans('MC businesses'), properties = {
+                    [1] = { name = JSlang.str_trans('Weed farm'),           sprite = 496 },
+                    [2] = { name = JSlang.str_trans('Cocaine lockup'),      sprite = 497 },
+                    [3] = { name = JSlang.str_trans('Document forgery'),    sprite = 498 },
+                    [4] = { name = JSlang.str_trans('Methamphetamine Lab'), sprite = 499 },
+                    [5] = { name = JSlang.str_trans('Counterfeit cash'),    sprite = 500 },
                 }}
             },
-            [3] = { name = 'Bunker',     sprite = 557 },
-            [4] = { name = 'Hangar',     sprite = 569 },
-            [5] = { name = 'Facility',   sprite = 590 },
-            [6] = { name = 'Night club', sprite = 614 },
-            [7] = { name = 'Arcade',     sprite = 740 },
-            [8] = { name = 'Auto shop',  sprite = 779 },
-            [9] = { name = 'Agency',     sprite = 826 },
+            [3] = { name = JSlang.str_trans('Bunker'),     sprite = 557 },
+            [4] = { name = JSlang.str_trans('Hangar'),     sprite = 569 },
+            [5] = { name = JSlang.str_trans('Facility'),   sprite = 590 },
+            [6] = { name = JSlang.str_trans('Night club'), sprite = 614 },
+            [7] = { name = JSlang.str_trans('Arcade'),     sprite = 740 },
+            [8] = { name = JSlang.str_trans('Auto shop'),  sprite = 779 },
+            [9] = { name = JSlang.str_trans('Agency'),     sprite = 826 },
         }
 
         local function getUserPropertyBlip(sprite)
@@ -1755,7 +1756,7 @@ local whitelistedName = false
             for i = 1, #propertyBlips do
                 local propertyBlip = getUserPropertyBlip(propertyBlips[i].sprite)
                 if propertyBlip ~= nil then
-                    propertyTpRefs[propertyBlips[i].name] = JSlang.action(root, propertyBlips[i].name, {}, '', function()
+                    propertyTpRefs[propertyBlips[i].name] = menu.action(root, propertyBlips[i].name, {}, '', function()
                         if not HUD.DOES_BLIP_EXIST(propertyBlip) then
                             JSlang.toast('Couldn\'t find property.')
                             return
@@ -1769,7 +1770,7 @@ local whitelistedName = false
                         for j = 1, #subProperties.properties do
                             local propertyBlip = getUserPropertyBlip(subProperties.properties[j].sprite)
                             if propertyBlip ~= nil then
-                                JSlang.action(propertyTpRefs[listName], subProperties.properties[j].name, {}, '', function() --no need to have refs to these because they get deleted with the sublist
+                                menu.action(propertyTpRefs[listName], subProperties.properties[j].name, {}, '', function() --no need to have refs to these because they get deleted with the sublist
                                     if not HUD.DOES_BLIP_EXIST(propertyBlip) then
                                         JSlang.toast('Couldn\'t find property.')
                                         return
@@ -2432,24 +2433,27 @@ local creditText = {
     [2]  = {line = JSlang.str_trans('Some contributions made by'), bold = false, wait = 25},
     [3]  = {line = 'scriptcat#6566', bold = true, wait = 120},
 
-    [4]  = {line = JSlang.str_trans('Skids from:'), bold = true, wait = 35},
-    [5]  = {line = 'LanceScript '.. JSlang.str_trans('by') ..' lance#8213', bold = false, wait = 25},
-    [6]  = {line = 'WiriScript '.. JSlang.str_trans('by') ..' Nowiry#2663', bold = false, wait = 25},
-    [7]  = {line = 'KeramisScript '.. JSlang.str_trans('by') ..' scriptCat#6566', bold = false, wait = 25},
-    [8]  = {line = 'Heist control '.. JSlang.str_trans('by') ..' IceDoomfist#0001', bold = false, wait = 25},
-    [9]  = {line = 'Meteor '.. JSlang.str_trans('by') ..' RulyPancake the 5th#1157', bold = false, wait = 100},
+    [4] = {line = JSlang.str_trans('Translations made possible with help from:'), bold = true, wait = 35},
+    [5] = {line = 'zzzz#5116', bold = false, wait = 100},
 
-    [10] = {line = JSlang.str_trans('Thanks to'), bold = false, wait = 25},
-    [11] = {line = 'Ren#5219 and JayMontana36#9565', bold = true, wait = 35},
-    [12] = {line = JSlang.str_trans('for reviewing my code'), bold = false, wait = 100},
+    [6]  = {line = JSlang.str_trans('Skids from:'), bold = true, wait = 35},
+    [7]  = {line = 'LanceScript '.. JSlang.str_trans('by') ..' lance#8213', bold = false, wait = 25},
+    [8]  = {line = 'WiriScript '.. JSlang.str_trans('by') ..' Nowiry#2663', bold = false, wait = 25},
+    [9]  = {line = 'KeramisScript '.. JSlang.str_trans('by') ..' scriptCat#6566', bold = false, wait = 25},
+    [10]  = {line = 'Heist control '.. JSlang.str_trans('by') ..' IceDoomfist#0001', bold = false, wait = 25},
+    [11]  = {line = 'Meteor '.. JSlang.str_trans('by') ..' RulyPancake the 5th#1157', bold = false, wait = 100},
 
-    [13] = {line = JSlang.str_trans('Big thanks to all the cool people who helped me in #programming in the stand discord'), bold = false, wait = 25},
-    [14] = {line = 'Sapphire#1053', bold = false, wait = 25},
-    [15] = {line = 'aaronlink127#0127', bold = false, wait = 25},
-    [16] = {line = 'Fwishky#4980', bold = false, wait = 100},
+    [12] = {line = JSlang.str_trans('Thanks to'), bold = false, wait = 25},
+    [13] = {line = 'Ren#5219 and JayMontana36#9565', bold = true, wait = 35},
+    [14] = {line = JSlang.str_trans('for reviewing my code'), bold = false, wait = 100},
 
-    [17] = {line = 'Goddess Sainan#0001', bold = true, wait = 25},
-    [18] = {line = JSlang.str_trans('For making stand and providing such a great api and documentation'), bold = false, wait = 25},
+    [15] = {line = JSlang.str_trans('Big thanks to all the cool people who helped me in #programming in the stand discord'), bold = false, wait = 25},
+    [16] = {line = 'Sapphire#1053', bold = false, wait = 25},
+    [17] = {line = 'aaronlink127#0127', bold = false, wait = 25},
+    [18] = {line = 'Fwishky#4980', bold = false, wait = 100},
+
+    [19] = {line = 'Goddess Sainan#0001', bold = true, wait = 25},
+    [20] = {line = JSlang.str_trans('For making stand and providing such a great api and documentation'), bold = false, wait = 25},
 }
 local playingCredits = false
 local creditsSpeed = 1

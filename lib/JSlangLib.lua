@@ -120,7 +120,7 @@ if GENERATE_TEMPLATE then
             local fileTxt = string.gsub(txt, '\'', '\\\'')
             fileTxt = string.gsub(fileTxt, '\n', '\\n')
             fileTxt = string.gsub(fileTxt, '\\\\', '\\')
-            f:write('trans(find(\''.. fileTxt ..'\'), \'\')' ..'\n')
+            f:write('t(f(\''.. fileTxt ..'\'), \'\')' ..'\n')
             f:close()
 
             label = lang.register(txt)
