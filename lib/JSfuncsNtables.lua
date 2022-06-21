@@ -1,8 +1,3 @@
-util.require_natives(1651208000)
-if not filesystem.exists(filesystem.scripts_dir() .. 'lib/natives-1651208000.lua') then
-    util.stop_script()
-end
-
 ----------------------------------
 -- Math
 ----------------------------------
@@ -460,26 +455,29 @@ end
         end
     end
 
+    local weaponTypes = {
+        [0] = 'Unknown',
+        [1] = 'No damage',
+        [2] = 'Melee',
+        [3] = function(ped, weaponHash)
+                return getMk2Rounds(ped, weaponHash) or 'Bullets'
+            end,
+        [4] = 'Force ragdoll fall',
+        [5] = 'Explosive',
+        [6] = 'Fire',
+        [8] = 'Fall',
+        [10] = 'Electric',
+        [11] = 'Barbed wire',
+        [12] = 'Extinguisher',
+        [13] = 'Gas',
+        [14] = 'Water',
+    }
+
     function getDamageType(ped, weaponHash)
         local damageType = WEAPON.GET_WEAPON_DAMAGE_TYPE(weaponHash)
-        if damageType == 0 then return 'Unknown'
-        elseif damageType == 1 then return 'No damage'
-        elseif damageType == 2 then return 'Melee'
-        elseif damageType == 3 then
-            local rounds = getMk2Rounds(ped, weaponHash)
-            if rounds then return rounds
-            else return 'Bullets'
-        end
-        elseif damageType == 4 then return 'Force ragdoll fall'
-        elseif damageType == 5 then return 'Explosive'
-        elseif damageType == 6 then return 'Fire'
-        elseif damageType == 8 then return 'Fall'
-        elseif damageType == 10 then return 'Electric'
-        elseif damageType == 11 then return 'Barbed wire'
-        elseif damageType == 12 then return 'Extinguisher'
-        elseif damageType == 13 then return 'Gas'
-        elseif damageType == 14 then return 'Water'
-        end
+
+        local final = weaponTypes[damageType]
+        return type(final) == 'string' and final or final(ped, weaponHash)
     end
 
     function getWeaponHash(ped)
@@ -520,7 +518,7 @@ end
         if ENTITY.GET_ENTITY_SPEED(PED.GET_VEHICLE_PED_IS_IN(ped, false)) > 1 then return true end
     end
 
-    taskTable = {
+    local taskTable = {
         [1] = {1, 'climbing Ladder'},
         [2] = {2, 'exiting vehicle'},
         [3] = {160, 'entering vehicle'},

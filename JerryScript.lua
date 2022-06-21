@@ -10,6 +10,8 @@
     thx to Sai, ren, aaron, Nowry, JayMontana, IceDoomfist and scriptCat and everyone else that helped me in #programming :)
 ]]
 
+util.require_natives(1651208000)
+
 JSlang = require 'JSlangLib'
 require 'JSfuncsNtables'
 local JSkey = require 'JSkeyLib'
@@ -2117,7 +2119,7 @@ local whitelistedName = false
         end)
 
         JSlang.toggle_loop(coloured_otr_root, 'Otr rgb reveal', {'JSortRgbReveal'}, '', function()
-            menu.trigger_command(otr_colour_slider, (otrBlipColour == 84 and 1 or otrBlipColour + 1))
+            menu.set_value(otr_colour_slider, (otrBlipColour == 84 and 1 or otrBlipColour + 1))
             util.yield(250)
         end)
 
