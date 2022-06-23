@@ -1359,7 +1359,7 @@ local whitelistedName = false
         JSlang.toggle_loop(boosts_root, 'Vehicle jump', {'JSVehJump'}, 'Lets you jump with your car if you double tap "W".', function()
             if not is_user_driving_vehicle() then return end
 
-            local prevPress = JSkey.get_ms_since_control_last_press(2, 'INPUT_MOVE_UP_ONLY')
+            local prevPress = JSkey.get_ms_since_control_last_pressed(2, 'INPUT_MOVE_UP_ONLY')
             if JSkey.is_control_just_pressed(2, 'INPUT_MOVE_UP_ONLY') and prevPress != -1 and prevPress <= maxTimeBetweenPress then
                 local mySpeed = ENTITY.GET_ENTITY_SPEED(my_cur_car)
                 ENTITY.APPLY_FORCE_TO_ENTITY_CENTER_OF_MASS(my_cur_car, 1, 0, 2, (mySpeed / 10) + 14, 0, true, true, true)

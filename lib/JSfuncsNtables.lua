@@ -20,7 +20,7 @@
     function getLatestRelease()
         local version
         async_http.init('api.github.com', '/repos/Jerrrry123/JerryScript/tags', function(res)
-            for match in string.gmatch(res, '"(.-)"') do 
+            for match in string.gmatch(res, '"(.-)"') do
                 local firstCharcter = string.sub(match, 0, 1)
                 if isInteger(firstCharcter) then
                     version = match
@@ -29,6 +29,7 @@
             end
         end, function()
             JSlang.toast('Failed to get latest release.')
+            version = ''
         end)
         async_http.dispatch()
         while version == nil do util.yield() end
