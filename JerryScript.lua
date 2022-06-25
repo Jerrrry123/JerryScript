@@ -1527,10 +1527,12 @@ local whitelistedName = false
         end)
     -----------------------------------
 
-    JSlang.slider(my_vehicle_root, 'Ghost vehicle', {'JSghostVeh'}, 'Makes your vehicle different levels off see through.', 0 , 100, 100, 25, function(value)
+    local ghost_vehicle_option = JSlang.slider(my_vehicle_root, 'Ghost vehicle', {'JSghostVeh'}, 'Makes your vehicle different levels off see through.', 0 , 100, 100, 25, function(value)
+        carSettings.ghostCar.on = value != 100
         carSettings.ghostCar.value = value / 25
         carSettings.ghostCar.setOption(value != 100)
     end)
+    carSettings.ghostCar.on = menu.get_value(ghost_vehicle_option) != 100
 
     JSlang.toggle(my_vehicle_root, 'Disable exhaust pops', {'JSdisablePops'}, 'Disables those annoying exhaust pops that your car makes if it has a non-stock exhaust option.', function(toggle)
         carSettings.disableExhaustPops.on = toggle
