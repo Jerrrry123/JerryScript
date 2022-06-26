@@ -10,6 +10,7 @@
     thx to Sai, ren, aaron, Nowry, JayMontana, IceDoomfist and scriptCat and everyone else that helped me in #programming :)
 ]]
 
+util.ensure_package_is_installed("lua/ScaleformLib")
 util.require_natives(1651208000)
 
 JSlang = require 'JSlangLib'
