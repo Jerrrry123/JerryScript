@@ -5,8 +5,11 @@ There is an easy and a hard way to Install my script. The Easy way is by install
 # installing from the Lua repository
 
 Press `u`
+
 Type `search repository`
-Check the toggle to download the script from stands repo
+
+Check the toggle to download the script from stands repo.
+
 This will also make the script automatically update whenever new updates are released.
 
 
