@@ -176,7 +176,7 @@ t(f('Choose what throwable the grenade launcher has.'), '유탄 발사기가 무
 t(f('Explosive animal gun'), '폭발성 동물 총')
 t(f('Inspired by impulses explosive whale gun, but can fire other animals too.'), '충동 폭발 고래 총에서 영감을 얻었지만 다른 것을 발사할 수 있습니다동물도.')
 t(f('Current animal'), '현재 동물')
-t(f('Choose wat animal the explosive animal gun has.'), '폭발성 동물 총이 가지고 있는 와트 동물을 선택하십시오.')
+t(f('Choose what animal the explosive animal gun has.'), '폭발성 동물 총이 가지고 있는 와트 동물을 선택하십시오.')
 t(f('Minecraft gun'), '마인크래프트 총')
 t(f('Spawns blocks where you shoot.'), '당신이 쏘는 곳에서 블록을 생성합니다.')
 t(f('Delete last block'), '마지막 블록 삭제')
