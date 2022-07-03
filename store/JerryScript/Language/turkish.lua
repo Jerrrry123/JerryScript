@@ -176,7 +176,7 @@ t(f('Choose what throwable the grenade launcher has.'), 'El bombası fırlatıc�
 t(f('Explosive animal gun'), 'Patlayıcı hayvan silahı')
 t(f('Inspired by impulses explosive whale gun, but can fire other animals too.'), 'Patlayıcı balina tabancasının dürtülerinden esinlenilmiştir, ancak diğerlerini ateşleyebilirhayvanlar da.')
 t(f('Current animal'), 'Mevcut hayvan')
-t(f('Choose wat animal the explosive animal gun has.'), 'Patlayıcı hayvan silahının sahip olduğu hayvanı seçin.')
+t(f('Choose what animal the explosive animal gun has.'), 'Patlayıcı hayvan silahının sahip olduğu hayvanı seçin.')
 t(f('Minecraft gun'), 'Minecraft silahı')
 t(f('Spawns blocks where you shoot.'), 'Ateş ettiğiniz yerde bloklar oluşturur.')
 t(f('Delete last block'), 'Son bloğu sil')
