@@ -176,7 +176,7 @@ t(f('Choose what throwable the grenade launcher has.'), 'Escolha o que o lançad
 t(f('Explosive animal gun'), 'Arma explosiva de animais')
 t(f('Inspired by impulses explosive whale gun, but can fire other animals too.'), 'Inspirado por impulsos explosivos de arma de baleia, mas pode disparar outrosanimais também.')
 t(f('Current animal'), 'Animal atual')
-t(f('Choose wat animal the explosive animal gun has.'), 'Escolha o animal que a arma animal explosiva tem.')
+t(f('Choose what animal the explosive animal gun has.'), 'Escolha o animal que a arma animal explosiva tem.')
 t(f('Minecraft gun'), 'arma de minecraft')
 t(f('Spawns blocks where you shoot.'), 'Gera blocos onde você atira.')
 t(f('Delete last block'), 'Excluir último bloco')
