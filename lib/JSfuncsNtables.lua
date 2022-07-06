@@ -10,10 +10,6 @@
         return pos / 200
     end
 
-    local function isInteger(str)
-        return not (str == '' or str:find('%D'))
-    end
-
 ----------------------------------
 -- Misc
 ----------------------------------
@@ -21,8 +17,8 @@
         local version
         async_http.init('api.github.com', '/repos/Jerrrry123/JerryScript/tags', function(res)
             for match in string.gmatch(res, '"(.-)"') do
-                local firstCharcter = string.sub(match, 0, 1)
-                if isInteger(firstCharcter) then
+                local firstCharacter = string.sub(match, 0, 1)
+                if tonumber(firstCharacter) then
                     version = match
                     break
                 end
