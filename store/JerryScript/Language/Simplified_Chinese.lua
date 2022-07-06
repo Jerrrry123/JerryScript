@@ -177,7 +177,7 @@ t(f('Choose what throwable the grenade launcher has.'), '选择榴弹发射器�
 t(f('Explosive animal gun'), '爆炸动物枪')
 t(f('Inspired by impulses explosive whale gun, but can fire other animals too.'), '灵感来自爆炸鲸鱼枪,但您也可以将子弹变成其他动物.')
 t(f('Current animal'), '当前动物')
-t(f('Choose wat animal the explosive animal gun has.'), '选择爆炸动物枪发射时使用的动物.')
+t(f('Choose what animal the explosive animal gun has.'), '选择爆炸动物枪发射时使用的动物.')
 t(f('Minecraft gun'), '我的世界枪')
 t(f('Spawns blocks where you shoot.'), '当您射击时生成阻挡物.')
 t(f('Delete last block'), '删除最后一个阻挡物')

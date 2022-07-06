@@ -176,7 +176,7 @@ t(f('Choose what throwable the grenade launcher has.'), 'Pasirinkite, ką turi g
 t(f('Explosive animal gun'), 'Sprogstamasis gyvūnų ginklas')
 t(f('Inspired by impulses explosive whale gun, but can fire other animals too.'), 'Impulsų įkvėptas sprogstamasis banginio ginklas, bet gali šaudyti ir kitugyvūnai taip pat.')
 t(f('Current animal'), 'Dabartinis gyvūnas')
-t(f('Choose wat animal the explosive animal gun has.'), 'Pasirinkite gyvūną, kurį turi sprogstamasis gyvūno ginklas.')
+t(f('Choose what animal the explosive animal gun has.'), 'Pasirinkite gyvūną, kurį turi sprogstamasis gyvūno ginklas.')
 t(f('Minecraft gun'), 'Minecraft ginklas')
 t(f('Spawns blocks where you shoot.'), 'Neršia blokus ten, kur šaudo.')
 t(f('Delete last block'), 'Ištrinti paskutinį bloką')
