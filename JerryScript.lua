@@ -2348,7 +2348,7 @@ local whitelistedName = false
             for i = 0, #vehHandles do
                 if VEHICLE.GET_VEHICLE_CLASS(vehHandles[i]) == 21 then
                     for j = 0, #markedTrains do
-                        if vehHandles[i] == markedTrains[j] then goto continue end
+                        if vehHandles[i] == markedTrains[j] then pluto_continue end
                     end
                     if notifications then
                         JSlang.toast('Marked train')
@@ -2357,7 +2357,6 @@ local whitelistedName = false
                     local blip = HUD.ADD_BLIP_FOR_ENTITY(vehHandles[i])
                     HUD.SET_BLIP_COLOUR(blip, 58)
                 end
-                ::continue::
             end
             util.yield(100)
         end)
@@ -2626,14 +2625,14 @@ local runningTogglingOff = false
                                 if not ENTITY.IS_ENTITY_A_PED(entityHandle) then
                                     for _, pid in pairs(playerList) do
                                         local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
-                                        if PED.GET_VEHICLE_PED_IS_IN(ped, false) == entityHandle then goto continue end --if the entity is a players car ignore it
+                                        if PED.GET_VEHICLE_PED_IS_IN(ped, false) == entityHandle then goto skip end --if the entity is a players car ignore it
                                     end
                                 end
                                 local localTargetPos = players.get_position(pid)
                                 NETWORK.NETWORK_REQUEST_CONTROL_OF_ENTITY(entityHandle)
                                 v3.sub(localTargetPos, entityPos) --subtract here, for launch.
                                 ENTITY.APPLY_FORCE_TO_ENTITY_CENTER_OF_MASS(entityHandle, 1, v3.getX(localTargetPos) * yeetMultiplier, v3.getY(localTargetPos) * yeetMultiplier, v3.getZ(localTargetPos) * yeetMultiplier, true, false, true, true)
-                                ::continue::
+                                ::skip::
                             end
                         end
                     end
