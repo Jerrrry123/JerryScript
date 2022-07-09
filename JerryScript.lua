@@ -1549,12 +1549,12 @@ local whitelistedName = false
         VEHICLE._SET_VEHICLE_SILENT(my_cur_car, toggle)
     end)
 
-    JSlang.toggle_loop(my_vehicle_root, 'To the moon', {'JStoMoon'}, 'Forces you info the sky if you\'re in a vehicle.', function(toggle)
+    JSlang.toggle_loop(my_vehicle_root, 'To the moon', {'JStoMoon'}, 'Forces you into the sky if you\'re in a vehicle.', function(toggle)
         NETWORK.NETWORK_REQUEST_CONTROL_OF_ENTITY(my_cur_car)
         ENTITY.APPLY_FORCE_TO_ENTITY(my_cur_car, 1, 0, 0, 100, 0, 0, 0.5, 0, false, false, true)
     end)
 
-    JSlang.toggle_loop(my_vehicle_root, 'Anchor', {'JSanchor'}, 'Forces you info the ground if you\'re in a air born vehicle.', function(toggle)
+    JSlang.toggle_loop(my_vehicle_root, 'Anchor', {'JSanchor'}, 'Forces you into the ground if you\'re in a air born vehicle.', function(toggle)
         if ENTITY.IS_ENTITY_IN_AIR(my_cur_car) then
             NETWORK.NETWORK_REQUEST_CONTROL_OF_ENTITY(my_cur_car)
             ENTITY.APPLY_FORCE_TO_ENTITY(my_cur_car, 1, 0, 0, -100, 0, 0, 0.5, 0, false, false, true)
