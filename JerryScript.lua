@@ -2338,7 +2338,7 @@ local whitelistedName = false
             end
         end)
 
-        JSlang.action(trains_root, 'Delete trains', {'JSdeleteTrain'}, 'Just becurse every script has train options, I gotta have an anti train option.', function()
+        JSlang.action(trains_root, 'Delete trains', {'JSdeleteTrain'}, 'Just because every script has train options, I gotta have an anti train option.', function()
             VEHICLE.DELETE_ALL_TRAINS()
         end)
 
