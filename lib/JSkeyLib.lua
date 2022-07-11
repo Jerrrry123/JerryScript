@@ -617,31 +617,31 @@ local controls = {
 }
 
 function JSkey.is_control_enabled(controlType, control)
-    return PAD.IS_CONTROL_ENABLED(controlTypes[controlType] or controltype, controls[control] or control)
+    return PAD.IS_CONTROL_ENABLED(controlTypes[controlType] or controlType, controls[control] or control)
 end
 
 function JSkey.is_control_pressed(controlType, control)
-    return PAD.IS_CONTROL_PRESSED(controlTypes[controlType] or controltype, controls[control] or control)
+    return PAD.IS_CONTROL_PRESSED(controlTypes[controlType] or controlType, controls[control] or control)
 end
 
 function JSkey.is_control_released(controlType, control)
-    return PAD.IS_CONTROL_RELEASED(controlTypes[controlType] or controltype, controls[control] or control)
+    return PAD.IS_CONTROL_RELEASED(controlTypes[controlType] or controlType, controls[control] or control)
 end
 
 function JSkey.is_control_just_pressed(controlType, control)
-    return PAD.IS_CONTROL_JUST_PRESSED(controlTypes[controlType] or controltype, controls[control] or control)
+    return PAD.IS_CONTROL_JUST_PRESSED(controlTypes[controlType] or controlType, controls[control] or control)
 end
 
 function JSkey.is_control_just_released(controlType, control)
-    return PAD.IS_CONTROL_JUST_RELEASED(controlTypes[controlType] or controltype, controls[control] or control)
+    return PAD.IS_CONTROL_JUST_RELEASED(controlTypes[controlType] or controlType, controls[control] or control)
 end
 
 function JSkey.get_control_value(controlType, control, amount)
-    return PAD.GET_CONTROL_VALUE(controlTypes[controlType] or controltype, controls[control] or control, amount)
+    return PAD.GET_CONTROL_VALUE(controlTypes[controlType] or controlType, controls[control] or control, amount)
 end
 
 function JSkey.get_control_normal(controlType, control, amount)
-    return PAD.GET_CONTROL_NORMAL(controlTypes[controlType] or controltype, controls[control] or control, amount)
+    return PAD.GET_CONTROL_NORMAL(controlTypes[controlType] or controlType, controls[control] or control, amount)
 end
 
 function JSkey.get_control_unbound_normal(controlType, control)
@@ -708,7 +708,7 @@ local lastControlPressMS = {}
 
 --the same as get_ms_since_last_press but for controls
 function JSkey.get_ms_since_control_last_pressed(controlType, control)
-    local isDown = PAD.IS_CONTROL_PRESSED(controlTypes[controlType] or controltype, controls[control] or control)
+    local isDown = PAD.IS_CONTROL_PRESSED(controlTypes[controlType] or controlType, controls[control] or control)
     if not lastControlPressMS[controlType] then
         lastControlPressMS[controlType] = {}
     end

@@ -74,9 +74,9 @@ local whitelistedName = false
                     end
                 end
 
-                local file = io.open(lang_dir .. 'template'.. i ..'.lua', 'w')
-                file:write(fileContent)
-                file:close()
+                local f = assert(io.open(lang_dir .. 'template'.. i ..'.lua', 'w'))
+                f:write(fileContent)
+                f:close()
 
                 if type(i) == 'number' and i >= 100 then
                     JSlang.toast('Stop creating template files, you have way too many!')
@@ -208,7 +208,6 @@ local whitelistedName = false
             local exp_fx_type_root
 
             local exp_type_root exp_type_root = menu.list_action(epx_settings_root, JSlang.str_trans('Explosion type') ..': Grenade', {}, '', {
-                ----------------------------------------------
                 {'Grenade'},
                 {'Grenadelauncher'},
                 {'Stickybomb'},
@@ -315,12 +314,12 @@ local whitelistedName = false
                 end
                 return labelTable
             end
+
             exp_fx_type_root = menu.list_action(exp_fx_root, JSlang.str_trans('FX type') ..': '.. JSlang.str_trans('none'), {'JSfxExpType'}, JSlang.str_trans('Choose a fx explosion type.'), getEffectLabelTableFromKeys(effects), function(index, name)
                 expSettings.currentFx = effects[name]
                 menu.set_menu_name(exp_type_root, JSlang.str_trans('Explosion type') ..': '.. JSlang.str_trans('Fx active'))
                 menu.set_menu_name(exp_fx_type_root, JSlang.str_trans('FX type') ..': '.. name)
             end)
-
 
             menu.rainbow(JSlang.colour(exp_fx_root, 'FX colour', {'JSPfxColour'}, 'Only works on some pfx\'s.',  new.colour(1, 0, 1, 1), false, function(colour)
                 expSettings.colour = colour
@@ -384,6 +383,7 @@ local whitelistedName = false
                 menu.focus(blame_list_root)
             end)
         end)
+
         players.on_leave(function(pid)
             menu.delete(blamesTogglesTable[pid])
             if expSettings.blamedPlayer == pid then
@@ -437,6 +437,7 @@ local whitelistedName = false
         if not menu.get_value(levitationCommand) then
             menu.trigger_command(levitationCommand)
         end
+
         if not PED.IS_PED_WEARING_HELMET(players.user_ped()) then
             PED.GIVE_PED_HELMET(players.user_ped(), true, 4096, -1)
             gaveHelmet = true
@@ -446,6 +447,7 @@ local whitelistedName = false
         if startViewMode == nil then
             startViewMode = CAM.GET_CAM_VIEW_MODE_FOR_CONTEXT(context)
         end
+
         if CAM.GET_CAM_VIEW_MODE_FOR_CONTEXT(context) != 4 then
             CAM.SET_CAM_VIEW_MODE_FOR_CONTEXT(context, 4)
         end
@@ -530,6 +532,7 @@ local whitelistedName = false
     -- Fire wings
     -----------------------------------
         local fire_wings_list = JSlang.list(self_root, 'Fire wings', {}, '')
+
         local fireWings = {
             [1] = {pos = {[1] = 120, [2] =  75}},
             [2] = {pos = {[1] = 120, [2] = -75}},
@@ -540,11 +543,13 @@ local whitelistedName = false
             [7] = {pos = {[1] = 195, [2] =  75}},
             [8] = {pos = {[1] = 195, [2] = -75}},
         }
+
         local fireWingsSettings = {
             scale = 0.3,
             fireColour = new.colour(255 / 255, 127 / 255, 80 / 255, 1),
             on = false
         }
+
         local ptfxEgg
         local firewingPtfx = 'muz_xs_turret_flamethrower_looping'
         JSlang.toggle(fire_wings_list, 'Fire wings', {'JSfireWings'}, 'Puts wings made of fire on your back.', function (toggle)
@@ -565,6 +570,7 @@ local whitelistedName = false
                     end
                     GRAPHICS.USE_PARTICLE_FX_ASSET('weap_xs_vehicle_weapons')
                     fireWings[i].ptfx = GRAPHICS.START_NETWORKED_PARTICLE_FX_LOOPED_ON_ENTITY(firewingPtfx, ptfxEgg, 0, 0, 0.1, fireWings[i].pos[1], 0, fireWings[i].pos[2], fireWingsSettings.scale, false, false, false)
+
                     util.create_tick_handler(function()
                         local rot = ENTITY.GET_ENTITY_ROTATION(players.user_ped(), 2)
                         ENTITY.ATTACH_ENTITY_TO_ENTITY(ptfxEgg, players.user_ped(), -1, 0, 0, 0, rot.x, rot.y, rot.z, false, false, false, false, 0, false)
@@ -636,12 +642,14 @@ local whitelistedName = false
                 PED._SET_PED_MICRO_MORPH_VALUE(players.user_ped(), i, value / 100)
             end)
         end
+
         menu.divider(face_profiles_list, '', {}, '')
 
         local function getProfileName(fullPath, removePath)
             local path = string.sub(fullPath, #removePath + 1)
             return string.gsub(path, '.txt', '')
         end
+
         local profileReferences = {}
         local function loadProfiles(root)
             local faceProfiles = filesystem.list_files(face_profiles_dir)
@@ -657,6 +665,7 @@ local whitelistedName = false
                 end)
             end
         end
+
         local function reloadProfiles(root)
             for i = 1, #profileReferences do
                 menu.delete(profileReferences[i])
@@ -664,14 +673,15 @@ local whitelistedName = false
             end
             loadProfiles(root)
         end
+
         JSlang.action(face_profiles_list, 'Create face feature profile', {"JSsaveFaceFeatures"}, 'Saves your customized face in a file so you can load it.', function()
             menu.show_command_box("JSsaveFaceFeatures ")
         end, function(fileName)
-            local file = io.open(face_profiles_dir .. fileName ..'.txt', 'w')
+            local f = assert(io.open(face_profiles_dir .. fileName ..'.txt', 'w'))
             for i = 0, #faceFeatures do
-                file:write(faceFeatures[i] ..': '.. menu.get_value(face_sliders[faceFeatures[i]]) ..'\n')
+                f:write(faceFeatures[i] ..': '.. menu.get_value(face_sliders[faceFeatures[i]]) ..'\n')
             end
-            file:close()
+            f:close()
             reloadProfiles(face_profiles_list)
         end)
 
@@ -679,7 +689,7 @@ local whitelistedName = false
             reloadProfiles(face_profiles_list)
         end)
 
-        JSlang.divider(face_profiles_list, 'Profiles', {}, '')
+        JSlang.divider(face_profiles_list, 'Profiles')
 
         if filesystem.is_dir(face_profiles_dir) then
             loadProfiles(face_profiles_list)
@@ -767,7 +777,7 @@ local whitelistedName = false
 
     JSlang.toggle(self_root, 'Quiet footsteps', {'JSquietSteps'}, 'Disables the sound of your footsteps.', function(toggle)
         AUDIO._SET_PED_AUDIO_FOOTSTEP_LOUD(players.user_ped(), not toggle)
-     end)
+    end)
 
 -----------------------------------
 -- Weapons
@@ -1112,6 +1122,7 @@ local whitelistedName = false
             executeNuke(waypointPos)
         end
     end)
+
     JSlang.slider(nuke_gun_root, 'Nuke height', {'JSnukeHeight'}, 'The height of the nukes you drop.', 10, 100, nuke_height, 10, function(value)
         nuke_height = value
     end)
@@ -1247,12 +1258,14 @@ local whitelistedName = false
             blocks[#blocks + 1] = entities.create_object(hash, impactCords)
         end
     end)
+
     JSlang.action(minecraft_gun_root, 'Delete last block', {'JSdeleteLastBlock'}, '', function()
         if blocks[#blocks] != nil then
             entities.delete_by_handle(blocks[#blocks])
             blocks[#blocks] = nil
         end
     end)
+
     JSlang.action(minecraft_gun_root, 'Delete all blocks', {'JSdeleteBlocks'}, '', function()
         for i = 1, #blocks do
             entities.delete_by_handle(blocks[i])
@@ -1413,6 +1426,7 @@ local whitelistedName = false
             local shuntSettings = {
                 maxForce = 30, force = 30, disableRecharge = false,
             }
+
             local function forceRecharge()
                 util.create_thread(function()
                     shuntSettings.force = 0
@@ -1426,6 +1440,7 @@ local whitelistedName = false
                     end
                 end)
             end
+
             local function shunt(dir)
                 ENTITY.APPLY_FORCE_TO_ENTITY_CENTER_OF_MASS(my_cur_car, 1, shuntSettings.force * dir, 0, 0, 0, true, true, true)
                 AUDIO.PLAY_SOUND_FROM_ENTITY(-1, 'Hydraulics_Down', players.user_ped(), 'Lowrider_Super_Mod_Garage_Sounds', true, 20)
@@ -1773,14 +1788,14 @@ local whitelistedName = false
                         local listName = subProperties.listName
                         propertyTpRefs[listName] = menu.list(root, listName, {}, '', function()end)
                         for j = 1, #subProperties.properties do
-                            local propertyBlip = getUserPropertyBlip(subProperties.properties[j].sprite)
+                            local subPropertyBlip = getUserPropertyBlip(subProperties.properties[j].sprite)
                             if propertyBlip ~= nil then
                                 menu.action(propertyTpRefs[listName], subProperties.properties[j].name, {}, '', function() --no need to have refs to these because they get deleted with the sublist
                                     if not HUD.DOES_BLIP_EXIST(propertyBlip) then
                                         JSlang.toast('Couldn\'t find property.')
                                         return
                                     end
-                                    tpToBlip(propertyBlip)
+                                    tpToBlip(subPropertyBlip)
                                 end)
                             end
                         end
@@ -2044,7 +2059,7 @@ local whitelistedName = false
     -----------------------------------
     -- Explosions
     -----------------------------------
-    JSlang.action(players_root, 'Explode all', {'JSexplodeAll'}, 'Makes everyone explode.', function()
+        JSlang.action(players_root, 'Explode all', {'JSexplodeAll'}, 'Makes everyone explode.', function()
             local playerList = getNonWhitelistedPlayers(whitelistListTable, whitelistGroups, whitelistedName)
             for _, pid in pairs(playerList) do
                 local playerPed = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
@@ -2254,6 +2269,7 @@ local whitelistedName = false
 -----------------------------------
     local world_root = JSlang.list(menu_root, 'World', {'JSworld'}, '')
 
+    local irlTime = false
     local setClockCommand = menu.ref_by_path('World>Atmosphere>Clock>Time', 37)
     local smoothTransitionCommand = menu.ref_by_path('World>Atmosphere>Clock>Smooth Transition', 37)
     JSlang.toggle(world_root, 'irl time', {'JSirlTime'}, 'Makes the in game time match your irl time. Disables stands "Smooth Transition".', function(toggle)
@@ -2326,6 +2342,7 @@ local whitelistedName = false
                 VEHICLE.SET_RENDER_TRAIN_AS_DERAILED(train, false)
             end)
         end
+
         JSlang.toggle(trains_root, 'Derail trains', {'JSderail'}, 'Derails and stops all trains.', function(toggle)
             local vehHandles = entities.get_all_vehicles_as_handles()
             trainsStopped = toggle
@@ -2459,6 +2476,7 @@ local creditText = {
     [19] = {line = 'Goddess Sainan#0001', bold = true, wait = 25},
     [20] = {line = JSlang.str_trans('For making stand and providing such a great api and documentation'), bold = false, wait = 25},
 }
+
 local playingCredits = false
 local creditsSpeed = 1
 local play_credits_toggle
@@ -2481,6 +2499,7 @@ local function creditsPlaying(toggle)
     AUDIO.SET_RADIO_TO_STATION_NAME('RADIO_16_SILVERLAKE')
     AUDIO._FORCE_RADIO_TRACK_LIST_POSITION("RADIO_16_SILVERLAKE", "MIRRORPARK_LOCKED", 3 * 61000)
 end
+
 local function scrollCreditsLine(textTable, index)
     local i = 0
     while i <= 1000 do
@@ -2498,6 +2517,7 @@ local function scrollCreditsLine(textTable, index)
         menu.trigger_command(play_credits_toggle, 'off')
     end
 end
+
 play_credits_toggle = JSlang.toggle(menu_root, 'Play credits', {}, '', function(toggle)
     creditsPlaying(toggle)
     if not toggle then return end
@@ -2814,12 +2834,14 @@ local runningTogglingOff = false
             end)
         -----------------------------------
     end)
+
     players.on_leave(function(pid)
         playerInfoTogglesTable[pid] = nil
         if pid == playerInfoPid then
             playerInfoPid = nil
         end
     end)
+
 players.dispatch_on_join()
 
 -----------------------------------

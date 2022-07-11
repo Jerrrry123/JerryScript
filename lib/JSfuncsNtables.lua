@@ -348,6 +348,7 @@
             false, false, false, false
         )
     end
+
     local function explosion(pos, expSettings)
         if expSettings.currentFx then
             if expSettings.currentFx.exp then
@@ -363,6 +364,7 @@
             FIRE.ADD_EXPLOSION(pos.x, pos.y, pos.z, expSettings.expType, 10, expSettings.audible, expSettings.invisible, expSettings.camShake, expSettings.noDamage)
         end
     end
+
     local function ownedExplosion(ped, pos, expSettings)
         if expSettings.currentFx then
             if expSettings.currentFx.exp then
@@ -378,6 +380,7 @@
             FIRE.ADD_OWNED_EXPLOSION(ped, pos.x, pos.y, pos.z, expSettings.expType, 10, expSettings.audible, expSettings.invisible, expSettings.camShake)
         end
     end
+
     function explodePlayer(ped, loop, expSettings)
         local pos = ENTITY.GET_ENTITY_COORDS(ped)
         --if any blame is enabled this decides who should be blamed
@@ -419,6 +422,7 @@
         end
         STREAMING.SET_MODEL_AS_NO_LONGER_NEEDED(hash)
     end
+
     --skidded from keramisScript
     function netItAll(entity)
         local netID = NETWORK.NETWORK_GET_NETWORK_ID_FROM_ENTITY(entity)

@@ -87,7 +87,7 @@ if GENERATE_TEMPLATE then
     end
 
     if not filesystem.exists(LANG_DIR .. 'template.lua') then
-        local f = io.open(LANG_DIR .. 'template.lua', 'a')
+        local f = assert(io.open(LANG_DIR .. 'template.lua', 'a'))
         f:write('lang.set_translate(\'\') --insert lang code here e.x. fr en or de\n\nlocal f = lang.find\nlocal t = lang.translate\n\n')
         f:close()
     end
@@ -97,7 +97,7 @@ if GENERATE_TEMPLATE then
         --wait for main script to load
         util.yield()
 
-        local f = io.open(LANG_DIR .. 'template.lua', 'a')
+        local f = assert(io.open(LANG_DIR .. 'template.lua', 'a'))
         f:write('\n--toasts\n')
 
         for _, file in pairs(STRING_FILES) do
@@ -116,7 +116,7 @@ if GENERATE_TEMPLATE then
 
         local label = lang.find(txt, 'en')
         if label == 0 then
-            local f = io.open(LANG_DIR .. 'template.lua', 'a')
+            local f = assert(io.open(LANG_DIR .. 'template.lua', 'a'))
             local fileTxt = string.gsub(txt, '\'', '\\\'')
             fileTxt = string.gsub(fileTxt, '\n', '\\n')
             fileTxt = string.gsub(fileTxt, '\\\\', '\\')
@@ -132,7 +132,7 @@ end
 if FILE_MERGE then
     local mergeTable = {}
     menu.action(menu.my_root(), 'merge template', {}, '', function()
-        local res = io.open(LANG_DIR .. 'result.lua', 'a')
+        local res = assert(io.open(LANG_DIR .. 'result.lua', 'a'))
 
         local i = 1
         for line in io.lines(LANG_DIR .."template.lua") do
