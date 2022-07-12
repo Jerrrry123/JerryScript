@@ -24,9 +24,12 @@ local function getPathPart(fullPath, remove)
 end
 util.create_thread(function()
     util.yield()
-    for _, profilePath in pairs(filesystem.list_files(LANG_DIR)) do
+    for i, profilePath in pairs(filesystem.list_files(LANG_DIR)) do
         if string.find(profilePath, 'template') == nil and string.find(profilePath, 'translated') == nil and string.find(profilePath, 'result') == nil then
-            require(getPathPart(profilePath, filesystem.scripts_dir()))
+            util.create_thread(function()
+                util.yield(10 * i)
+                require(getPathPart(profilePath, filesystem.scripts_dir()))
+            end)
         end
     end
 end)
