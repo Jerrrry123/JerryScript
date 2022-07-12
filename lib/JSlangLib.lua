@@ -26,10 +26,7 @@ util.create_thread(function()
     util.yield()
     for _, profilePath in pairs(filesystem.list_files(LANG_DIR)) do
         if string.find(profilePath, 'template') == nil and string.find(profilePath, 'translated') == nil and string.find(profilePath, 'result') == nil then
-            util.create_thread(function()
-                util.yield()
-                require(getPathPart(profilePath, filesystem.scripts_dir()))
-            end)
+            require(getPathPart(profilePath, filesystem.scripts_dir()))
         end
     end
 end)
