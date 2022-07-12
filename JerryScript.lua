@@ -76,7 +76,7 @@ local white = new.colour(1, 1, 1, 1)
         end
     end
 
-    function directx.draw_rect_withRounded_courner(x, y, width, height, colour)
+    function directx.draw_rect_with_rounded_corner(x, y, width, height, colour)
         directx.draw_circle({ x = x + width, y = y + height / 2 }, (height / 2.35), colour)
         directx.draw_rect(x, y, width, height, colour)
     end
@@ -94,7 +94,7 @@ local white = new.colour(1, 1, 1, 1)
 
             l = 1
             while l < 50 do
-                directx.draw_rect_withRounded_courner(0.5 - l / 500, 0.8, l / 250, 0.06, darkBlue)
+                directx.draw_rect_with_rounded_corner(0.5 - l / 500, 0.8, l / 250, 0.06, darkBlue)
                 directx.draw_texture(JS_logo, js_size, js_size, 0.5, 0.5, 0.5 - l / 500, 0.83, 0, white)
                 util.yield()
                 l += 5 - math.abs(math.floor(l / 10))
@@ -103,7 +103,7 @@ local white = new.colour(1, 1, 1, 1)
             AUDIO.PLAY_SOUND_FROM_ENTITY(-1, 'Hack_Success', players.user_ped(), 'DLC_HEIST_BIOLAB_PREP_HACKING_SOUNDS', true, true)
 
             for i = 1, 360 do
-                directx.draw_rect_withRounded_courner(0.4, 0.8, 0.2, 0.06, darkBlue)
+                directx.draw_rect_with_rounded_corner(0.4, 0.8, 0.2, 0.06, darkBlue)
                 directx.draw_texture(JS_logo, js_size, js_size, 0.5, 0.5, 0.4, 0.83, i / 360, white)
                 if i < 150 then
                     directx.draw_text(0.48, 0.81 + (i / 25000), 'Achivement Unlocked', ALIGN_TOP_CENTRE, 0.6, white, false)
@@ -115,7 +115,7 @@ local white = new.colour(1, 1, 1, 1)
 
             l = 50
             while l >= 0 do
-                directx.draw_rect_withRounded_courner(0.5 - l / 500, 0.8, l / 250, 0.06, darkBlue)
+                directx.draw_rect_with_rounded_corner(0.5 - l / 500, 0.8, l / 250, 0.06, darkBlue)
                 directx.draw_texture(JS_logo, js_size, js_size, 0.5, 0.5, 0.5 - l / 500, 0.83, 0, white)
                 util.yield()
                 l -= 6 - math.abs(math.floor(l / 10))
