@@ -106,7 +106,7 @@ local white = new.colour(1, 1, 1, 1)
                 directx.draw_rect_with_rounded_corner(0.4, 0.8, 0.2, 0.06, darkBlue)
                 directx.draw_texture(JS_logo, js_size, js_size, 0.5, 0.5, 0.4, 0.83, i / 360, white)
                 if i < 150 then
-                    directx.draw_text(0.48, 0.81 + (i / 25000), 'Achivement Unlocked', ALIGN_TOP_CENTRE, 0.6, white, false)
+                    directx.draw_text(0.48, 0.81 + (i / 25000), 'Achievement Unlocked', ALIGN_TOP_CENTRE, 0.6, white, false)
                 elseif i > 170 then
                     directx.draw_text(0.48, 0.81 + ((i - 150) / 25000), 'Load JerryScript', ALIGN_TOP_CENTRE, 0.6, white, false)
                 end
