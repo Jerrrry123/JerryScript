@@ -20,20 +20,119 @@ local JSkey = require 'JSkeyLib'
 local scaleForm = require("ScaleformLib")
 local SF = scaleForm("instructional_buttons")
 
-local script_store_dir = filesystem.store_dir() .. 'JerryScript\\'
+local script_store_dir = filesystem.store_dir() ..'JerryScript\\'
 if not filesystem.is_dir(script_store_dir) then
     filesystem.mkdirs(script_store_dir)
 end
 
-local face_profiles_dir = script_store_dir .. 'Face Feature Profiles\\'
+local face_profiles_dir = script_store_dir ..'Face Feature Profiles\\'
 if not filesystem.is_dir(face_profiles_dir) then
     filesystem.mkdirs(face_profiles_dir)
 end
 
-local lang_dir = script_store_dir .. 'Language\\'
+local lang_dir = script_store_dir ..'Language\\'
 if not filesystem.is_dir(lang_dir) then
     filesystem.mkdirs(lang_dir)
 end
+
+local JS_logo = directx.create_texture(filesystem.resources_dir() ..'JS.png')
+
+local darkBlue = new.colour(0, 0, 12 / 255, 1)
+local black = new.colour(0, 0, 1 / 255, 1)
+local white = new.colour(1, 1, 1, 1)
+
+----------------------------------
+-- Start message
+----------------------------------
+    local function getDisplayRatio()
+        local x, y = directx.get_client_size()
+        return x / y
+    end
+
+    function rotatePoint(x, y, center, degrees)
+
+        local radians = math.rad(degrees)
+
+        local new_x = (x - center.x) * math.cos(radians) - (y - center.y) * math.sin(radians)
+        local new_y = (x - center.x) * math.sin(radians) + (y - center.y) * math.cos(radians)
+
+        return center.x + new_x, center.y + new_y * getDisplayRatio()
+    end
+
+    function directx.draw_triangle_from_center_point(center, base, rotDegrees, colour)
+        local halfHeight = (base * 0.866) / 2
+        local halfBase = base / 2
+
+        local tx, ty = rotatePoint(center.x, center.y - halfBase, center, rotDegrees)
+        local lx, ly = rotatePoint(center.x - halfBase, center.y + halfHeight, center, rotDegrees)
+        local rx, ry = rotatePoint(center.x + halfBase, center.y + halfHeight, center, rotDegrees)
+
+        directx.draw_triangle(tx, ty --[[top]], lx, ly --[[left]], rx, ry --[[right]], colour)
+    end
+
+    function directx.draw_circle(center, diameter, colour)
+        for i = 0, 260 do
+            directx.draw_triangle_from_center_point(center, diameter, i, colour)
+        end
+    end
+
+    function directx.draw_rect_withRounded_courner(x, y, width, height, colour)
+        directx.draw_circle({ x = x + width, y = y + height / 2 }, (height / 2.35), colour)
+        directx.draw_rect(x, y, width, height, colour)
+    end
+
+    if not SCRIPT_SILENT_START then
+        util.create_thread(function()
+            local js_size = 0.017
+
+            local l = 1
+            while l < 50 do
+                directx.draw_texture(JS_logo, js_size, js_size, 0.5, 0.5, 0.5, (1 - l / 250) + 0.03, 0, {r = 1, g = 1, b = 1, a = l / 50})
+                util.yield()
+                l += 5 - math.abs(math.floor(l / 10))
+            end
+
+            l = 1
+            while l < 50 do
+                directx.draw_rect_withRounded_courner(0.5 - l / 500, 0.8, l / 250, 0.06, darkBlue)
+                directx.draw_texture(JS_logo, js_size, js_size, 0.5, 0.5, 0.5 - l / 500, 0.83, 0, white)
+                util.yield()
+                l += 5 - math.abs(math.floor(l / 10))
+            end
+
+            AUDIO.PLAY_SOUND_FROM_ENTITY(-1, 'Hack_Success', players.user_ped(), 'DLC_HEIST_BIOLAB_PREP_HACKING_SOUNDS', true, true)
+
+            for i = 1, 360 do
+                directx.draw_rect_withRounded_courner(0.4, 0.8, 0.2, 0.06, darkBlue)
+                directx.draw_texture(JS_logo, js_size, js_size, 0.5, 0.5, 0.4, 0.83, i / 360, white)
+                if i < 150 then
+                    directx.draw_text(0.48, 0.81 + (i / 25000), 'Achivement Unlocked', ALIGN_TOP_CENTRE, 0.6, white, false)
+                elseif i > 170 then
+                    directx.draw_text(0.48, 0.81 + ((i - 150) / 25000), 'Load JerryScript', ALIGN_TOP_CENTRE, 0.6, white, false)
+                end
+                util.yield()
+            end
+
+            l = 50
+            while l >= 0 do
+                directx.draw_rect_withRounded_courner(0.5 - l / 500, 0.8, l / 250, 0.06, darkBlue)
+                directx.draw_texture(JS_logo, js_size, js_size, 0.5, 0.5, 0.5 - l / 500, 0.83, 0, white)
+                util.yield()
+                l -= 6 - math.abs(math.floor(l / 10))
+            end
+
+            l = 50
+            while l >= 0 do
+                directx.draw_texture(JS_logo, js_size, js_size, 0.5, 0.5, 0.5, (1 - l / 250) + 0.03, 0, {r = 1, g = 1, b = 1, a = l / 50})
+                util.yield()
+                l -= 6 - math.abs(math.floor(l / 10))
+            end
+            for i = 1, 250 do
+                util.yield()
+            end
+        end)
+    end
+----------------------------------
 
 
 local menu_root = menu.my_root()
@@ -67,14 +166,14 @@ local whitelistedName = false
         JSlang.action(script_settings_root, 'Create translation template', {'JStranslationTemplate'}, 'Creates a template file for translation in store/JerryScript/Language.', function()
             async_http.init('raw.githubusercontent.com', '/Jerrrry123/JerryScript/'.. getLatestRelease() ..'/store/JerryScript/Language/template.lua', function(fileContent)
                 local i = ''
-                if filesystem.exists(lang_dir .. 'template.lua') then
+                if filesystem.exists(lang_dir ..'template.lua') then
                     i = 1
-                    while filesystem.exists(lang_dir .. 'template'.. i ..'.lua') do
+                    while filesystem.exists(lang_dir ..'template'.. i ..'.lua') do
                         i += 1
                     end
                 end
 
-                local f = assert(io.open(lang_dir .. 'template'.. i ..'.lua', 'w'))
+                local f = assert(io.open(lang_dir ..'template'.. i ..'.lua', 'w'))
                 f:write(fileContent)
                 f:close()
 
@@ -304,11 +403,11 @@ local whitelistedName = false
                 for k, v in pairsByKeys(keyTable) do
                     local helpText = ''
                     if keyTable[k].colour and not effects[k].exp then
-                        helpText = helpText .. JSlang.str_trans('Colour can be changed.')..'\n'.. JSlang.str_trans('Can\'t be silenced.')
+                        helpText ..= JSlang.str_trans('Colour can be changed.') ..'\n'.. JSlang.str_trans('Can\'t be silenced.')
                     elseif keyTable[k].colour then
-                        helpText = helpText ..JSlang.str_trans('Colour can be changed.')
+                        helpText ..=  JSlang.str_trans('Colour can be changed.')
                     elseif not keyTable[k].exp then
-                        helpText = helpText ..JSlang.str_trans('Can\'t be silenced.')
+                        helpText ..= JSlang.str_trans('Can\'t be silenced.')
                     end
                     table.insert(labelTable, {k, {}, helpText})
                 end
@@ -2445,10 +2544,6 @@ local whitelistedName = false
 
 JSlang.hyperlink(menu_root, 'Join the discord server', 'https://discord.gg/QzqBdHQC9S', 'Join the JerryScript discord server to suggest features, report bugs and test upcoming features.')
 
-local JS_logo = directx.create_texture(filesystem.resources_dir() ..'JS.png')
-
-local black = new.colour(0, 0, 1 / 255, 1)
-local white = new.colour(1, 1, 1, 1)
 local creditText = {
     [1]  = {line = JSlang.str_trans('Coded by') ..' Jerry123#4508', bold = true, wait = 85},
     [2]  = {line = JSlang.str_trans('Some contributions made by'), bold = false, wait = 25},
@@ -2480,9 +2575,10 @@ local creditText = {
 local playingCredits = false
 local creditsSpeed = 1
 local play_credits_toggle
+local anticrashcam_command = menu.ref_by_path('Game>Camera>Anti-Crash Camera', 37)
 local function creditsPlaying(toggle)
     playingCredits = toggle
-    menu.trigger_commands('anticrashcam '.. (toggle and 'on' or 'off'))
+    menu.trigger_command(anticrashcam_command, if toggle then 'on' else 'off')
     util.create_tick_handler(function()
         directx.draw_rect(0, 0, 1, 1, black)
         directx.draw_texture(JS_logo, 0.25, 0.25, 0.5, 0.5, 0.14, 0.5, 0 , white)
