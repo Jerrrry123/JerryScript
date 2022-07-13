@@ -1806,13 +1806,15 @@ local whitelistedName = false
             listWarning(SM_earnings_root, first_open_SM_earnings)
         end)
 
+        local nightclubpopularity_command = menu.ref_by_path('Online>Quick Progress>Set Nightclub Popularity', 37)
         JSlang.toggle_loop(SM_earnings_root, 'Auto nightclub popularity', {'SMautoClubPop'}, 'Automatically sets the nightclubs popularity to 100 if it results in less than max daily income.', function(toggle)
             if getNightclubDailyEarnings() < 50000 then
-                menu.trigger_commands('clubPopularity 100')
+                menu.trigger_command(nightclubpopularity_command, 100)
             end
         end)
 
         local fixer_count_cooldown = false
+        local soloPublic_command = menu.ref_by_path('Online>New Session>Create Public Session', 37)
         menu.action(SM_earnings_root, 'Increment security contracts completed', {'SMsecurityComplete'}, 'Will put you in a new lobby to make the increase stick.\nI added a cooldown to this button so you cant spam it.\nAlso doesn\'t work past 200', function()
             if fixer_count_cooldown then JSlang.toast('Cooldown active') return end
             if util.is_session_transition_active() then JSlang.toast('You can only use this while in a session.') return end
@@ -1821,7 +1823,7 @@ local whitelistedName = false
             fixer_count_cooldown = true
             STAT_SET_INCREMENT('FIXER_COUNT', 1)
             util.yield(10)
-            menu.trigger_commands('go soloPublic')
+            menu.trigger_command(soloPublic_command)
             util.yield(7000)
             fixer_count_cooldown = false
         end)
