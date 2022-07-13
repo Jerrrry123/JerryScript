@@ -100,7 +100,7 @@ local white = new.colour(1, 1, 1, 1)
                 l += 5 - math.abs(math.floor(l / 10))
             end
 
-            AUDIO.PLAY_SOUND_FROM_ENTITY(-1, 'Hack_Success', players.user_ped(), 'DLC_HEIST_BIOLAB_PREP_HACKING_SOUNDS', true, true)
+            AUDIO.PLAY_SOUND(-1, "signal_on", "DLC_GR_Ambushed_Sounds", 0, 0, 1)
 
             for i = 1, 360 do
                 directx.draw_rect_with_rounded_corner(0.4, 0.8, 0.2, 0.06, darkBlue)
