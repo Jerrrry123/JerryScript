@@ -162,59 +162,52 @@ function JSlang.toast(string)
     util.toast(JSlang.str_trans(string))
 end
 
-function JSlang.list(root, name, tableCommands, description, on_click, on_back)
-    local tableCommands = tableCommands and tableCommands or {}
-    if not on_click and not on_back then
-        return menu.list(root, JSlang.trans(name), tableCommands, JSlang.trans(description))
-    end
-    if not on_back then
-        return menu.list(root, JSlang.trans(name), tableCommands, JSlang.trans(description), on_click)
-    end
-    return menu.list(root, JSlang.trans(name), tableCommands, JSlang.trans(description), on_click, on_back)
+function JSlang.list(root, name, tableCommands, description, ...)
+    return menu.list(root, JSlang.trans(name), if tableCommands then tableCommands else {}, JSlang.trans(description), ...)
 end
 
-function JSlang.action(root, name, tableCommands, description, on_click, on_command)
-    return menu.action(root, JSlang.trans(name), tableCommands, JSlang.trans(description), on_click, on_command)
+function JSlang.action(root, name, tableCommands, description, ...)
+    return menu.action(root, JSlang.trans(name), tableCommands, JSlang.trans(description), ...)
 end
 
-function JSlang.toggle(root, name, tableCommands, description, func, on)
-    return menu.toggle(root, JSlang.trans(name), tableCommands, JSlang.trans(description), func, on)
+function JSlang.toggle(root, name, tableCommands, description, ...)
+    return menu.toggle(root, JSlang.trans(name), tableCommands, JSlang.trans(description), ...)
 end
 
-function JSlang.toggle_loop(root, name, tableCommands, description, tickFunc, on_stop)
-    return menu.toggle_loop(root, JSlang.trans(name), tableCommands, JSlang.trans(description), tickFunc, on_stop)
+function JSlang.toggle_loop(root, name, tableCommands, description, ...)
+    return menu.toggle_loop(root, JSlang.trans(name), tableCommands, JSlang.trans(description), ...)
 end
 
-function JSlang.slider(root, name, tableCommands, description, min, max, default_value, increment, func)
-    return menu.slider(root, JSlang.trans(name), tableCommands, JSlang.trans(description), min, max, default_value, increment, func)
+function JSlang.slider(root, name, tableCommands, description, ...)
+    return menu.slider(root, JSlang.trans(name), tableCommands, JSlang.trans(description), ...)
 end
 
-function JSlang.slider_float(root, name, tableCommands, description, min, max, default_value, increment, func)
-    return menu.slider_float(root, JSlang.trans(name), tableCommands, JSlang.trans(description), min, max, default_value, increment, func)
+function JSlang.slider_float(root, name, tableCommands, description, ...)
+    return menu.slider_float(root, JSlang.trans(name), tableCommands, JSlang.trans(description), ...)
 end
 
-function JSlang.click_slider(root, name, tableCommands, description, min, max, default_value, increment, func)
-    return menu.click_slider(root, JSlang.trans(name), tableCommands, JSlang.trans(description), min, max, default_value, increment, func)
+function JSlang.click_slider(root, name, tableCommands, description, ...)
+    return menu.click_slider(root, JSlang.trans(name), tableCommands, JSlang.trans(description), ...)
 end
 
-function JSlang.click_slider_float(root, name, tableCommands, description, min, max, default_value, increment, func)
-    return menu.click_slider_float(root, JSlang.trans(name), tableCommands, JSlang.trans(description), min, max, default_value, increment, func)
+function JSlang.click_slider_float(root, name, tableCommands, description, ...)
+    return menu.click_slider_float(root, JSlang.trans(name), tableCommands, JSlang.trans(description), ...)
 end
 
-function JSlang.list_select(root, name, tableCommands, description, tableOptions, default_value, func)
-    return menu.list_select(root, JSlang.trans(name), tableCommands, JSlang.trans(description), tableOptions, default_value, func)
+function JSlang.list_select(root, name, tableCommands, description, ...)
+    return menu.list_select(root, JSlang.trans(name), tableCommands, JSlang.trans(description), ...)
 end
 
-function JSlang.list_action(root, name, tableCommands, description, tableOptions, func)
-    return menu.list_action(root, JSlang.trans(name), tableCommands, JSlang.trans(description), tableOptions, func)
+function JSlang.list_action(root, name, tableCommands, description, ...)
+    return menu.list_action(root, JSlang.trans(name), tableCommands, JSlang.trans(description), ...)
 end
 
-function JSlang.text_input(root, name, tableCommands, description, func, default_value)
-    return menu.text_input(root, JSlang.trans(name), tableCommands, JSlang.trans(description), func, default_value)
+function JSlang.text_input(root, name, tableCommands, description, ...)
+    return menu.text_input(root, JSlang.trans(name), tableCommands, JSlang.trans(description), ...)
 end
 
-function JSlang.colour(root, name, tableCommands, description, colour, transparency, func)
-    return menu.colour(root, JSlang.trans(name), tableCommands, JSlang.trans(description), colour, transparency, func)
+function JSlang.colour(root, name, tableCommands, description, ...)
+    return menu.colour(root, JSlang.trans(name), tableCommands, JSlang.trans(description), ...)
 end
 
 -- menu.rainbow(int colour_command)
@@ -227,8 +220,8 @@ function JSlang.hyperlink(root, name, link, description)
     return menu.hyperlink(root, JSlang.trans(name), link, JSlang.trans(description))
 end
 
-function JSlang.action_slider(root, name, link, description, optionsTable, func)
-    return menu.action_slider(root, JSlang.trans(name), link, JSlang.trans(description), optionsTable, func)
+function JSlang.action_slider(root, name, link, description, ...)
+    return menu.action_slider(root, JSlang.trans(name), link, JSlang.trans(description), ...)
 end
 
 return JSlang
