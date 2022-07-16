@@ -1982,13 +1982,13 @@ local whitelistedName = false
         local block_root = JSlang.list(online_root, 'Block areas', {'JSblock'}, 'Block areas in online with invisible walls, but if you over use it it will crash you lol.')
 
         local blockInProgress = false
-        function blockAvailable(areaBlocked, areaName)
+        local function blockAvailable(areaBlocked, areaName)
             if blockInProgress then JSlang.toast('A block is already being run.') return false end
             if areaBlocked then util.toast(JSlang.str_trans(areaName) ..' '.. JSlang.str_trans('is already blocked.')) return false end
             return true
         end
 
-        function setBlockStatus(on, areaName)
+        local function setBlockStatus(on, areaName)
             if on then
                 blockInProgress = true
                 startBusySpinner(JSlang.str_trans('Blocking'))
@@ -2959,7 +2959,7 @@ util.create_tick_handler(function()
             local text = playerInfoTogglesOptions[i].displayText(playerInfoPid, playerInfoPed, weaponHash) --not all the functions uses all params but i don't wanna check what params i need to pass
             if playerInfoTogglesOptions[i].toggle and text then
                 ct += spacing
-                directx.draw_text(1 + sliderToScreenPos(piSettings.xOffset), ct + sliderToScreenPos(piSettings.yOffset), text, piSettings.alignment, piSettings.scale, piSettings.textColour, false)
+                directx.draw_text(1 + piSettings.xOffset / 200, ct + piSettings.yOffset / 200, text, piSettings.alignment, piSettings.scale, piSettings.textColour, false)
             end
         end
     end
@@ -2971,7 +2971,7 @@ util.create_tick_handler(function()
         for i = 1, #safeManagerToggles do
             if safeManagerToggles[i].toggle then
                 ct += spacing
-                directx.draw_text(1 + sliderToScreenPos(smSettings.xOffset), ct + sliderToScreenPos(smSettings.yOffset), safeManagerToggles[i].displayText(), smSettings.alignment, smSettings.scale, smSettings.textColour, false)
+                directx.draw_text(1 + smSettings.xOffset / 200, ct + smSettings.yOffset / 200, safeManagerToggles[i].displayText(), smSettings.alignment, smSettings.scale, smSettings.textColour, false)
             end
         end
     end

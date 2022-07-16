@@ -6,10 +6,6 @@
         return math.floor(float * decimals) / decimals
     end
 
-    function sliderToScreenPos(pos)
-        return pos / 200
-    end
-
 ----------------------------------
 -- Misc
 ----------------------------------
@@ -160,7 +156,7 @@
 ----------------------------------
 -- Generating menu options
 ----------------------------------
-    function  getLabelTableFromKeys(keyTable)
+    function getLabelTableFromKeys(keyTable)
         local labelTable = {}
         for k, v in pairsByKeys(keyTable) do
             table.insert(labelTable, {k})
@@ -410,21 +406,9 @@
 
 ----------------------------------
 -- Functions for blocking areas
-----------------------------------
-    function block(cord)
-        local hash = 309416120
-        loadModel(hash)
-        for i = 0, 180, 8 do
-            local wall = OBJECT.CREATE_OBJECT_NO_OFFSET(hash, cord[1], cord[2], cord[3], true, true, true)
-            ENTITY.SET_ENTITY_HEADING(wall, i)
-            netItAll(wall)
-            util.yield(10)
-        end
-        STREAMING.SET_MODEL_AS_NO_LONGER_NEEDED(hash)
-    end
-
+----------------------------------¨
     --skidded from keramisScript
-    function netItAll(entity)
+    local function netItAll(entity)
         local netID = NETWORK.NETWORK_GET_NETWORK_ID_FROM_ENTITY(entity)
         while not NETWORK.NETWORK_HAS_CONTROL_OF_ENTITY(entity) do
             NETWORK.NETWORK_REQUEST_CONTROL_OF_ENTITY(entity)
@@ -444,6 +428,18 @@
             NETWORK.OBJ_TO_NET(entity)
         end
         ENTITY.SET_ENTITY_VISIBLE(entity, false, 0)
+    end
+
+    function block(cord)
+        local hash = 309416120
+        loadModel(hash)
+        for i = 0, 180, 8 do
+            local wall = OBJECT.CREATE_OBJECT_NO_OFFSET(hash, cord[1], cord[2], cord[3], true, true, true)
+            ENTITY.SET_ENTITY_HEADING(wall, i)
+            netItAll(wall)
+            util.yield(10)
+        end
+        STREAMING.SET_MODEL_AS_NO_LONGER_NEEDED(hash)
     end
 
 ----------------------------------
