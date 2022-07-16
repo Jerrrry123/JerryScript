@@ -885,20 +885,13 @@ local whitelistedName = false
 
     local thermal_command = menu.ref_by_path('Game>Rendering>Thermal Vision', 37)
     JSlang.toggle_loop(weapons_root, 'Thermal guns', {'JSthermalGuns'}, 'Makes it so when you aim any gun you can toggle thermal vision on "E".', function()
-        if PLAYER.IS_PLAYER_FREE_AIMING(players.user_ped()) then
-            if JSkey.is_key_just_down('VK_E') then
-                if not GRAPHICS.GET_USINGSEETHROUGH() then
-                    menu.trigger_command(thermal_command, 'on')
-                    GRAPHICS._SEETHROUGH_SET_MAX_THICKNESS(50)
-                else
-                    menu.trigger_command(thermal_command, 'off')
-                    GRAPHICS.SET_SEETHROUGH(false)
-                    GRAPHICS._SEETHROUGH_SET_MAX_THICKNESS(1) --default value is 1
-                end
-            end
-        elseif GRAPHICS.GET_USINGSEETHROUGH() then
+        if GRAPHICS.GET_USINGSEETHROUGH() and not PLAYER.IS_PLAYER_FREE_AIMING(players.user_ped()) then
             menu.trigger_command(thermal_command, 'off')
-            GRAPHICS._SEETHROUGH_SET_MAX_THICKNESS(1)
+            GRAPHICS._SEETHROUGH_SET_MAX_THICKNESS(1) --default value is 1
+        elseif JSkey.is_key_just_down('VK_E') then
+            local state = menu.get_value(thermal_command)
+            menu.trigger_command(thermal_command, if state then 'off' else 'on')
+            GRAPHICS._SEETHROUGH_SET_MAX_THICKNESS(if state then 1 else 50)
         end
     end)
 
