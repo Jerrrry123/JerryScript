@@ -47,13 +47,14 @@ function JSlang.trans(txt)
     return label
 end
 
+local function readAll(file)
+    local f = assert(io.open(file, 'rb'))
+    local content = f:read('*all')
+    f:close()
+    return content
+end
+
 if GENERATE_TEMPLATE then
-    local function readAll(file)
-        local f = assert(io.open(file, 'rb'))
-        local content = f:read('*all')
-        f:close()
-        return content
-    end
 
     local loggedStrings = {}
     local function writeToasts(path, f)
@@ -152,6 +153,36 @@ if FILE_MERGE then
 
         res:close()
     end)
+end
+
+-- register strings that aren't in menu options
+local registeredStrings = {}
+for _, filePath in pairs(STRING_FILES) do
+    local script_file = readAll(filePath)
+
+    for text in string.gmatch(script_file, 'JSlang.toast%(\'.-\'%)') do
+        text = string.gsub(text, 'JSlang.toast%(\'', '')
+        text = string.gsub(text, '\'%)', '')
+        text = string.gsub(text, '\\\'', '\'')
+        text = string.gsub(text, '\\\n', '\n')
+        text = string.gsub(text, '\\', '\\')
+        if registeredStrings[text] == nil then
+            registeredStrings[text] = true
+            JSlang.trans(text)
+        end
+    end
+
+    for text in string.gmatch(script_file, 'JSlang.str_trans%(\'.-\'%)') do
+        text = string.gsub(text, 'JSlang.str_trans%(\'', '')
+        text = string.gsub(text, '\'%)', '')
+        text = string.gsub(text, '\\\'', '\'')
+        text = string.gsub(text, '\\\n', '\n')
+        text = string.gsub(text, '\\', '\\\\')
+        if registeredStrings[text] == nil then
+            registeredStrings[text] = true
+            JSlang.trans(text)
+        end
+    end
 end
 
 function JSlang.str_trans(string)

@@ -504,6 +504,8 @@ t(f('Marked train'), '')
 t(f('Failed to get latest release.'), '')
 
 --other strings
+t(f('Achievement Unlocked'), '')
+t(f('Load JerryScript'), '')
 t(f('Weapon'), '')
 t(f('Clip'), '')
 t(f('Damage type'), '')

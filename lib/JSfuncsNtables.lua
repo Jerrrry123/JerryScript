@@ -516,20 +516,20 @@
     end
 
     local taskTable = {
-        [1] = {1, 'climbing Ladder'},
-        [2] = {2, 'exiting vehicle'},
-        [3] = {160, 'entering vehicle'},
-        [4] = {335, 'parachuting'},
-        [5] = {422, 'jumping'},
-        [6] = {423, 'falling'},
+        [1] = {1,  JSlang.str_trans('climbing Ladder')},
+        [2] = {2,  JSlang.str_trans('exiting vehicle')},
+        [3] = {160,  JSlang.str_trans('entering vehicle')},
+        [4] = {335, JSlang.str_trans('parachuting')},
+        [5] = {422,  JSlang.str_trans('jumping')},
+        [6] = {423,  JSlang.str_trans('falling')},
     }
     function getMovementType(ped)
         if PED.IS_PED_RAGDOLL(ped) then
-            return 'ragdolling'
+            return  JSlang.str_trans('ragdolling')
         elseif PED.IS_PED_CLIMBING(ped) then
-            return 'climbing'
+            return  JSlang.str_trans('climbing')
         elseif PED.IS_PED_VAULTING(ped) then
-            return 'vaulting'
+            return  JSlang.str_trans('vaulting')
         end
         for i = 1, #taskTable do
             if TASK.GET_IS_TASK_ACTIVE(ped, taskTable[i][1]) then return taskTable[i][2] end
@@ -537,33 +537,33 @@
         if not isPlayerMoving(ped) then return end
         if PED.IS_PED_IN_ANY_VEHICLE(ped, true) then
             if PED.IS_PED_IN_ANY_PLANE(ped) then
-                return 'flying a plane'
+                return  JSlang.str_trans('flying a plane')
             elseif PED.IS_PED_IN_ANY_HELI(ped) then
-                return 'flying a helicopter'
+                return  JSlang.str_trans('flying a helicopter')
             elseif PED.IS_PED_IN_ANY_BOAT(ped) then
-                return 'driving a boat'
+                return  JSlang.str_trans('driving a boat')
             elseif PED.IS_PED_IN_ANY_SUB(ped) then
-                return 'driving a submarine'
+                return  JSlang.str_trans('driving a submarine')
             elseif PED.IS_PED_ON_ANY_BIKE(ped) then
-                return 'biking'
+                return  JSlang.str_trans('biking')
             end
-            return 'driving'
+            return  JSlang.str_trans('driving')
         elseif PED.IS_PED_SWIMMING(ped) then
-            return 'swimming'
+            return  JSlang.str_trans('swimming')
         elseif TASK.IS_PED_STRAFING(ped) then
-            return 'strafing'
+            return  JSlang.str_trans('strafing')
         elseif TASK.IS_PED_SPRINTING(ped) then
-            return 'sprinting'
+            return  JSlang.str_trans('sprinting')
         elseif PED.GET_PED_STEALTH_MOVEMENT(ped) then
-            return 'sneaking'
+            return  JSlang.str_trans('sneaking')
         elseif TASK.IS_PED_GETTING_UP(ped) then
-            return 'getting up'
+            return  JSlang.str_trans('getting up')
         elseif PED.IS_PED_GOING_INTO_COVER(ped) then
-            return 'going into cover'
+            return  JSlang.str_trans('going into cover')
         elseif PED.IS_PED_IN_COVER(ped) then
-            return 'moving in cover'
+            return  JSlang.str_trans('moving in cover')
         else
-            return 'moving'
+            return  JSlang.str_trans('moving')
         end
     end
 
