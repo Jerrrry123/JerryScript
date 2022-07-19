@@ -1,3 +1,7 @@
+# Features
+
+A feature/command list for JerryScript can be found at [this page](https://raw.githubusercontent.com/Jerrrry123/JerryScript/main/commandList.txt)
+
 # Installation guide
 
 There is an easy and a hard way to Install my script. The Easy way is by installing from the Lua repository inside Stand, and the hard way is to install it manually from my Github. I strongly recommend installing it from stands repo. Unless, for some reason it isn't available.
@@ -15,7 +19,7 @@ This will also make the script automatically update whenever new updates are rel
 
 # Installing from Github
 
-Go to https://github.com/Jerrrry123/JerryScript and download the latest release.
+Go to [releases](https://github.com/Jerrrry123/JerryScript/releases) and download the latest release.
 
 Once it's downloaded, decompress the files and open the folder.
 
