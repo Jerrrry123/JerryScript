@@ -1,6 +1,6 @@
 # Features
 
-A feature/command list for Jerry script can be found at [this page](https://raw.githubusercontent.com/Jerrrry123/JerryScript/main/commandList.txt)
+A feature/command list for JerryScript can be found at [this page](https://raw.githubusercontent.com/Jerrrry123/JerryScript/main/commandList.txt)
 
 # Installation guide
 
