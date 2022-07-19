@@ -1,0 +1,295 @@
+Settings
+	Script settings — Command: JSsettings
+		Disable JS notifications — Makes the script not notify when stuff happens. These can be pretty useful so I don't recommend turning them off. — Command: JSnoNotify [on/off]
+		Double tap interval (1 to 1000) — Lets you set the maximum time between double taps in ms. — Command: JSdoubleTapInterval  [1 to 1000]
+		Create translation template — Creates a template file for translation in store/JerryScript/Language. — Command: JStranslationTemplate
+	Player info settings — Command: JSplayerInfoSettings
+		X position (-200 to 0) — Command: PIXPos  [-200 to 0]
+		Y position (-5 to 195) — Command: PIYPos  [-5 to 195]
+		Scale (200 to 1500) — The size of the text. — Command: PIscale  [200 to 1500]
+		Text alignment (1 to 3) — 1 is center, 2 is left and 3 is right. — Command: PIalignment  [1 to 3]
+		Text colour — Sets the colour of the text overlay. — Command: PIcolour
+		Display options — Command: PIDisplay
+			Disable name — Command: PIdisableName [on/off]
+			Disable weapon — Command: PIdisableWeapon [on/off]
+			Disable ammo info — Command: PIdisableAmmo [on/off]
+			Disable damage type — Displays the type of damage the players weapon does, like melee / fire / bullets / mk2 ammo. — Command: PIdisableDamage [on/off]
+			Disable vehicle — Command: PIdisableVehicle [on/off]
+			Disable score — Only shows when you or they have kills. — Command: PIdisableScore [on/off]
+			Disable moving indicator — Command: PIdisableMovement [on/off]
+			Disable aiming indicator — Command: PIdisableAiming [on/off]
+			Disable reload indicator — Command: PIdisableReload [on/off]
+	Safe monitor settings — Settings for the on screen text — Command: SMsettings
+		X position (-200 to 0) — Command: SMXPos  [-200 to 0]
+		Y position (-5 to 195) — Command: SMYPos  [-5 to 195]
+		Scale (200 to 1500) — The size of the text. — Command: SMscale  [200 to 1500]
+		Text alignment (1 to 3) — 1 is center, 2 is left and 3 is right. — Command: SMalignment  [1 to 3]
+		Text colour — Sets the colour of the text overlay. — Command: SMcolour
+	Explosion settings — Settings for the different options that explode players in this script. — Command: JSexpSettings
+		Loop delay: 250ms — Lets you set a custom delay between looped explosions. — Command: JSexpDelay
+			Ms (1 to 999) — The delay is the added total of ms, sec and min values. — Command: JSLoop delayDelayMs  [1 to 999]
+			Seconds (0 to 59) — The delay is the added total of ms, sec and min values. — Command: JSLoop delayDelaySec  [0 to 59]
+			Minutes (0 to 60) — The delay is the added total of ms, sec and min values. — Command: JSLoop delayDelayMin  [0 to 60]
+		FX explosions — Lets you choose effects instead of explosion type. — Command: JSfxExp
+		Explosion type: Grenade
+			FX type: none — Choose a fx explosion type. — Command: JSfxExpType
+			FX colour — Only works on some pfx's. — Command: JSPfxColour
+		Camera shake (0 to 1000) — How much explosions shake the camera. — Command: JSexpCamShake  [0 to 1000]
+		Invisible explosions — Command: JSexpInvis [on/off]
+		Silent explosions — Command: JSexpSilent [on/off]
+		Disable explosion damage — Command: JSnoExpDamage [on/off]
+		Blame settings — Lets you blame yourself or other players for your explosions, go to the player list to chose a specific player to blame. — Command: JSblameSettings
+			Owned explosions — Will overwrite "Disable explosion damage". — Command: JSownExp [on/off]
+			Blame player list — Custom player list for selecting blames. — Command: JSblameList
+			Random blames — Switches blamed explosions back to random if you already chose a player to blame. — Command: JSblameRandomExp
+	Horn boost multiplier (-100000 to 100000) — Set the force applied to the car when you or another player uses horn boost. — Command: JShornBoostMultiplier  [-100000 to 100000]
+Self — Command: JSself
+	Ironman mode — Grants you the abilities of ironman :) — Command: JSironman [on/off]
+	Fire wings
+		Fire wings — Puts wings made of fire on your back. — Command: JSfireWings [on/off]
+		Fire wings scale (1 to 100) — Command: JSfireWingsScale  [1 to 100]
+		Fire wings colour — Command: JSfireWingsColour
+	Face features
+		Customize face features — Customizations reset after restarting the game.
+			Nose Width (-1000 to 1000) — Command: JSsetNoseWidth  [-1000 to 1000]
+			Nose Peak Hight (-1000 to 1000) — Command: JSsetNosePeakHight  [-1000 to 1000]
+			Nose Peak Length (-1000 to 1000) — Command: JSsetNosePeakLength  [-1000 to 1000]
+			Nose Bone Hight (-1000 to 1000) — Command: JSsetNoseBoneHight  [-1000 to 1000]
+			Nose Peak Lowering (-1000 to 1000) — Command: JSsetNosePeakLowering  [-1000 to 1000]
+			Nose Bone Twist (-1000 to 1000) — Command: JSsetNoseBoneTwist  [-1000 to 1000]
+			Eyebrow Hight (-1000 to 1000) — Command: JSsetEyebrowHight  [-1000 to 1000]
+			Eyebrow Forward (-1000 to 1000) — Command: JSsetEyebrowForward  [-1000 to 1000]
+			Cheeks Bone Hight (-1000 to 1000) — Command: JSsetCheeksBoneHight  [-1000 to 1000]
+			Cheeks Bone Width (-1000 to 1000) — Command: JSsetCheeksBoneWidth  [-1000 to 1000]
+			Cheeks Width (-1000 to 1000) — Command: JSsetCheeksWidth  [-1000 to 1000]
+			Eyes Opening (-1000 to 1000) — Command: JSsetEyesOpening  [-1000 to 1000]
+			Lips Thickness (-1000 to 1000) — Command: JSsetLipsThickness  [-1000 to 1000]
+			Jaw Bone Width (-1000 to 1000) — Command: JSsetJawBoneWidth  [-1000 to 1000]
+			Jaw Bone Back Length (-1000 to 1000) — Command: JSsetJawBoneBackLength  [-1000 to 1000]
+			Chin Bone Lowering (-1000 to 1000) — Command: JSsetChinBoneLowering  [-1000 to 1000]
+			Chin Bone Length (-1000 to 1000) — Command: JSsetChinBoneLength  [-1000 to 1000]
+			Chin Bone Width (-1000 to 1000) — Command: JSsetChinBoneWidth  [-1000 to 1000]
+			Chin Hole (-1000 to 1000) — Command: JSsetChinHole  [-1000 to 1000]
+			Neck Width (-1000 to 1000) — Command: JSsetNeckWidth  [-1000 to 1000]
+		Create face feature profile — Saves your customized face in a file so you can load it. — Command: JSsaveFaceFeatures
+		Reload profiles — Refreshes your profiles without having to restart the script. — Command: JSreLoadFaceFeatureProfiles
+	Customize face overlays — Customizations reset after restarting the game.
+		Blemishes (-1 to 23)
+		Facial Hair (-1 to 28)
+		Eyebrows (-1 to 33)
+		Ageing (-1 to 14)
+		Makeup (-1 to 74)
+		Blush (-1 to 6)
+		Complexion (-1 to 11)
+		Sun Damage (-1 to 10)
+		Lipstick (-1 to 9)
+		Moles/Freckles (-1 to 17)
+		Chest Hair (-1 to 16)
+		Body Blemishes (-1 to 11)
+		Add Body Blemishes (-1 to 1)
+	Ragdoll options — Different options for making yourself ragdoll. — Command: JSragdollOptions
+		Better clumsiness — Like stands clumsiness, but you can get up after you fall. — Command: JSclumsy [on/off]
+		Stumble — Makes you stumble with a good chance of falling over. — Command: JSstumble
+		Fall over — Makes you stumble, fall over and prevents you from getting back up. — Command: JSfallOver [on/off]
+		Ragdoll — Just makes you ragdoll. — Command: JSragdoll [on/off]
+	Ghost (0 to 100) — Makes your player different levels off see through. — Command: JSghost  [0 to 100]
+	Full regen — Makes your hp regenerate until you're at full health. — Command: JSfullRegen [on/off]
+	Cold blooded — Removes your thermal signature. Other players still see it tho. — Command: JScoldBlooded [on/off]
+	Quiet footsteps — Disables the sound of your footsteps. — Command: JSquietSteps [on/off]
+Weapons — Command: JSweapons
+	Thermal guns — Makes it so when you aim any gun you can toggle thermal vision on "E". — Command: JSthermalGuns [on/off]
+	Weapon settings
+		Disable recoil — Disables the camera shake when shooting guns. — Command: JSnoRecoil [on/off]
+		Infinite range — Command: JSinfiniteRange [on/off]
+		Disable spread — Command: JSnoSpread [on/off]
+		Remove spin-up time — Removes the spin-up from both the minigun and the widowmaker. — Command: JSnoSpinUp [on/off]
+		Bullet force multiplier — Works best when shooting vehicles from the front. Displayed value is in percent. — Command: JSbulletForceMultiplier [on/off]
+		Enable aim fov — Lets you modify the fov you have while you're aiming. — Command: JSenableAimFov [on/off]
+		Aim fov (-40 to 100) — Command: JSaimFov  [-40 to 100]
+		Enable zoom fov — Lets you modify the fov you have while you're aiming and has zoomed in. — Command: JSenableZoomFov [on/off]
+		Zoom aim fov (1.00 to 99999999.99) — Command: JSzoomAimFov  [1.00 to 99999999.99]
+	Proxy stickys
+		Proxy stickys — Makes your sticky bombs automatically detonate around players or npc's, works with the player whitelist. — Command: JSproxyStickys [on/off]
+		Detonate near players — If your sticky bombs automatically detonate near players. — Command: JSProxyStickyPlayers [on/off]
+		Detonate near npc's — If your sticky bombs automatically detonate near npc's. — Command: JSProxyStickyNpcs [on/off]
+		Detonation radius (1 to 10) — How close the sticky bombs have to be to the target to detonate. — Command: JSstickyRadius  [1 to 10]
+		Remove all sticky bombs — Removes every single sticky bomb that exists (not only yours). — Command: JSremoveStickys
+	Friendly fire — Makes you able to shoot peds the game count as your friends. — Command: JSfriendlyFire [on/off]
+	Reload when rolling — Reloads your weapon when doing a roll. — Command: JSrollReload [on/off]
+	Nuke options
+		Nuke gun — Makes the rpg fire nukes — Command: JSnukeGun [on/off]
+		Nuke waypoint — Drops a nuke on your selected Waypoint. — Command: JSnukeWP
+		Nuke height (10 to 100) — The height of the nukes you drop. — Command: JSnukeHeight  [10 to 100]
+	Throwables launcher
+		Throwables launcher — Makes the grenade launcher able to shoot throwables, gives you the throwable if you don't have it so you can shoot it. — Command: JSgrenade [on/off]
+		Current throwable: Grenade — Choose what throwable the grenade launcher has.
+	Explosive animal gun
+		Explosive animal gun — Inspired by impulses explosive whale gun, but can fire other animals too. — Command: JSexpAnimalGun [on/off]
+		Current animal: Killerwhale — Choose what animal the explosive animal gun has.
+	Minecraft gun
+		Minecraft gun — Spawns blocks where you shoot. — Command: JSminecraftGun [on/off]
+		Delete last block — Command: JSdeleteLastBlock
+		Delete all blocks — Command: JSdeleteBlocks
+Vehicle — Command: JSVeh
+	Speed and handling — Command: JSspeedHandling
+		Low traction — Makes your vehicle have low traction, I recommend setting this to a hotkey. — Command: JSlowTraction [on/off]
+		Launch control — Limits how much force your car applies when accelerating so it doesn't burnout, very noticeable in a Emerus. — Command: JSlaunchControl [on/off]
+		Set torque (-10000.00 to 10000.00) — Modifies the speed of your vehicle. — Command: JSsetSelfTorque  [-10000.00 to 10000.00]
+		Quick brake — Slows down your speed more when pressing "S". — Command: JSquickBrake [on/off]
+		Quick brake force (1.00 to 9.99) — 1.00 is ordinary brakes. — Command: JSquickBrakeForce  [1.00 to 9.99]
+	Boosts — Command: JSboosts
+		Horn boost — Makes your car speed up when you honking your horn or activating your siren. — Command: JShornBoost [on/off]
+		Vehicle jump — Lets you jump with your car if you double tap "W". — Command: JSVehJump [on/off]
+		Enable nitro — Enable nitro boost on any vehicle, use it by pressing "X". — Command: JSnitro [on/off]
+		Duration: 2.5s — Lets you set a customize how long the nitro lasts. — Command: JSnitroDuration
+			Ms (1 to 999) — The delay is the added total of ms, sec and min values. — Command: JSDurationDelayMs  [1 to 999]
+			Seconds (0 to 59) — The delay is the added total of ms, sec and min values. — Command: JSDurationDelaySec  [0 to 59]
+			Minutes (0 to 60) — The delay is the added total of ms, sec and min values. — Command: JSDurationDelayMin  [0 to 60]
+		Recharge time: 1.2s — Lets you set a custom delay of how long it takes for nitro to recharge. — Command: JSnitroRecharge
+			Ms (1 to 999) — The delay is the added total of ms, sec and min values. — Command: JSRecharge timeDelayMs  [1 to 999]
+			Seconds (0 to 59) — The delay is the added total of ms, sec and min values. — Command: JSRecharge timeDelaySec  [0 to 59]
+			Minutes (0 to 60) — The delay is the added total of ms, sec and min values. — Command: JSRecharge timeDelayMin  [0 to 60]
+		Shunt boost — Lets you shunt boost in any vehicle by double tapping "A" or "D". — Command: JSshuntBoost [on/off]
+		Disable recharge — Removes the force build-up of the shunt boost. — Command: JSnoShutRecharge [on/off]
+		Force (0 to 1000) — How much force is applied to your car. — Command: JSshuntForce  [0 to 1000]
+	Vehicle doors — Command: JSvehDoors
+		Indestructible doors — Makes it so your vehicle doors can't break off. — Command: JSinvincibleDoors [on/off]
+		Shut doors when driving — Closes all the vehicle doors when you start driving. — Command: JSautoClose [on/off]
+		Open all doors — Made this to test door stuff. — Command: JScarDoorsOpen
+		Close all doors — Made this to test door stuff. — Command: JScarDoorsClosed
+	Plane options — Command: JSplane
+		Toggle plane afterburner — Makes you able to toggle afterburner on planes by pressing "left shift". — Command: JSafterburner [on/off]
+		Lock vtol — Locks the angle of planes vtol propellers. — Command: JSlockVtol [on/off]
+	Ghost vehicle (0 to 100) — Makes your vehicle different levels off see through. — Command: JSghostVeh  [0 to 100]
+	Disable exhaust pops — Disables those annoying exhaust pops that your car makes if it has a non-stock exhaust option. — Command: JSdisablePops [on/off]
+	Stance — Activates stance on vehicles that support it. — Command: JSstance [on/off]
+	Npc horn — Makes you horn like a npc. Also makes your car doors silent. — Command: JSnpcHorn [on/off]
+	To the moon — Forces you into the sky if you're in a vehicle. — Command: JStoMoon [on/off]
+	Anchor — Forces you into the ground if you're in a air born vehicle. — Command: JSanchor [on/off]
+Online — Command: JSonline
+	Fake money — Adds fake money, it is only a visual thing and you can't spend it. — Command: JSfakeMoney
+		Add fake money — Adds money once. — Command: JSaddFakeMoney
+		Loop fake money — Adds loops money with your chosen delay. — Command: JSloopFakeMoney [on/off]
+		Show transaction pending — Adds a loading transaction pending message when adding fake money. — Command: JSfakeTransaction [on/off]
+		Fake money loop delay: 250ms — Lets you set a custom delay to the fake money loop. — Command: JSexpDelay
+			Ms (1 to 999) — The delay is the added total of ms, sec and min values. — Command: JSFake money loop delayDelayMs  [1 to 999]
+			Seconds (0 to 59) — The delay is the added total of ms, sec and min values. — Command: JSFake money loop delayDelaySec  [0 to 59]
+			Minutes (0 to 60) — The delay is the added total of ms, sec and min values. — Command: JSFake money loop delayDelayMin  [0 to 60]
+		Bank fake money (-2000000000 to 2000000000) — How much fake money that gets added into your bank. — Command: JSbankFakeMoney  [-2000000000 to 2000000000]
+		Cash fake money (-2000000000 to 2000000000) — How much fake money that gets added in cash. — Command: JScashFakeMoney  [-2000000000 to 2000000000]
+	Safe monitor — Safe monitor allows you to monitor your safes. It does NOT affect the money being generated. — Command: JSsm
+		Toggle all selected — Toggles every option. — Command: SMtoggleAllSelected [on/off]
+		Nightclub Safe — Monitors nightclub safe cash, this does NOT affect income. — Command: SMclub [on/off]
+		Nightclub Popularity — Command: SMclubPopularity [on/off]
+		Nightclub Daily Earnings — Nightclub daily earnings. Maximum daily earnings is 10k. — Command: SMnightclubEarnings [on/off]
+		Arcade safe — Monitors arcade safe cash, this does NOT affect income. Maximum daily earnings is 5k if you have all the arcade games. — Command: SMarcade [on/off]
+		Agency safe — Monitors agency safe cash, this does NOT affect income. Maximum daily earnings is 20k. — Command: SMagency [on/off]
+		Security contracts — Displays the number of agency security missions you have completed. — Command: SMsecurity [on/off]
+		Agency daily Earnings — Agency daily earnings. Maximum daily earnings is 20k if you have completed 200 contracts. — Command: SMagencyEarnings [on/off]
+		Increase safe earnings — Might be risky. — Command: SMearnings
+			Auto nightclub popularity — Automatically sets the nightclubs popularity to 100 if it results in less than max daily income. — Command: SMautoClubPop [on/off]
+	Property tp's — Lets you teleport to the properties you own. — Command: JSpropertyTp
+	Casino — No theres no recoveries here. — Command: JScasino
+		Lucky wheel cooldown — Tells you if the lucky wheel is available or how much time is left until it is. — Command: JSlwCool [on/off]
+		Casino loss/profit — Tells you how much you made or lost in the casino. — Command: JScasinoLP
+	Time trials — Command: JStt
+		Best time trial time — Command: JSbestTT [on/off]
+		Teleport to time trial — Command: JStpToTT
+		Best rc time trial time — Command: JSbestRcTT [on/off]
+		Teleport to rc time trial — Command: JStpToRcTT
+	Block areas — Block areas in online with invisible walls, but if you over use it it will crash you lol. — Command: JSblock
+		Custom block — Makes you able to block an area in front of you by pressing "B".(On/Off)
+		Block LSC — Block lsc from being accessed. — Command: JSblockLSC
+		Block casino — Block casino from being accessed. — Command: JSblockCasino
+		Block maze bank — Block maze bank from being accessed. — Command: JSblockCasino
+Players — Command: JSplayers
+	Whitelist — Applies to most options in this section. — Command: JSwhitelist
+		Exclude self — Will make you not explode yourself. Pretty cool option if you ask me ;P — Command: JSWhitelistSelf [on/off]
+		Exclude friends — Will make you not explode your friends... if you have any. (;-;) — Command: JSWhitelistFriends [on/off]
+		Exclude strangers — If you only want to explode your friends I guess. — Command: JSWhitelistStrangers [on/off]
+		Whitelist player — Lets you whitelist a single player by name. — Command: JSWhitelistPlayer
+		Whitelist player list — Custom player list for selecting  players you wanna whitelist. — Command: JSwhitelistList
+	Anti chat spam
+		Anti chat spam — Kicks people if they spam chat. — Command: JSantiChatSpam [on/off]
+		Ignore team chat — Command: JSignoreTeamSpam [on/off]
+		Identical messages (2 to 9999) — How many identical chat messages a player can send before getting kicked. — Command: JSidenticalChatMessages  [2 to 9999]
+	Explode all — Makes everyone explode. — Command: JSexplodeAll
+	Explode all loop — Constantly explodes everyone. — Command: JSexplodeAllLoop [on/off]
+	Orbital cannon detection — Tells you when anyone starts using the orbital cannon — Command: JSorbDetection [on/off]
+	Coloured otr reveal
+		Coloured otr reveal — Marks otr players with coloured blips. — Command: JScolouredOtrReveal [on/off]
+		otr reveal colour (1 to 81) — Command: JSortRevealColour  [1 to 81]
+		Otr rgb reveal — Command: JSortRgbReveal [on/off]
+	Vehicles — Do stuff to all players vehicles. — Command: JSplayersVeh
+		Lock burnout — Locks all player cars in burnout. — Command: JSlockBurnout [on/off]
+		Set torque (-1000000 to 1000000) — Modifies the speed of all player vehicles. — Command: JSsetAllTorque  [-1000000 to 1000000]
+		Force surface all subs — Forces all Kosatkas to the surface. Not compatible with the whitelist. — Command: JSforceSurfaceAll [on/off]
+	No fly zone — Forces all players in air born vehicles into the ground. — Command: JSnoFly [on/off]
+	Shoot gods — Disables godmode for other players when aiming at them. Mostly works on trash menus. — Command: JSshootGods [on/off]
+	Aim karma — Do stuff to players that aim at you. — Command: JSaimKarma
+		Shoot — Shoots players that aim at you. — Command: JSbulletAimKarma [on/off]
+		Explode — Explodes the player with your custom explosion settings. — Command: JSexpAimKarma [on/off]
+		Disable godmode — If a god mode player aims at you this disables their god mode by pushing their camera forwards. — Command: JSgodAimKarma [on/off]
+		Stands player aim punishments — Link to stands player aim punishments.
+World — Command: JSworld
+	irl time — Makes the in game time match your irl time. Disables stands "Smooth Transition". — Command: JSirlTime [on/off]
+	Disable numpad — Disables numpad so you don't rotate your plane/submarine while navigating stand — Command: JSdisableNumpad [on/off]
+	Map zoom level (1 to 100) — Command: JSmapZoom  [1 to 100]
+	Enable footsteps — Enables foot prints on all surfaces. — Command: JSfootSteps [on/off]
+	Enable vehicle trails — Enables vehicle trails on all surfaces. — Command: JSvehicleTrails [on/off]
+	Disable all map notifications — Removes that constant spam. — Command: JSnoMapNotifications [on/off]
+	Trains — Command: JStrains
+		Derail trains — Derails and stops all trains. — Command: JSderail [on/off]
+		Delete trains — Just because every script has train options, I gotta have an anti train option. — Command: JSdeleteTrain
+		Mark nearby trains — Marks nearby trains with purple blips. — Command: JSnoMapNotifications [on/off]
+	Peds — Command: JSpeds
+		Ragdoll peds — Makes all nearby peds fall over lol. — Command: JSragdollPeds [on/off]
+		Death's touch — Kills peds that touches you. — Command: JSdeathTouch [on/off]
+		Cold peds — Removes the thermal signature from all peds. — Command: JScoldPeds [on/off]
+		Mute peds — Because I don't want to hear that dude talk about his gay dog any more. — Command: JSmutePeds [on/off]
+		Npc horn boost — Boosts npcs that horn. — Command: JSnpcHornBoost [on/off]
+		Npc siren boost — Boosts npcs cars with an active siren. — Command: JSnpcSirenBoost [on/off]
+		Auto kill enemies — Just instantly kills hostile peds. — Command: JSautokill [on/off]
+		Kill jacked peds — Automatically kills peds when stealing their car. — Command: JSkillJackedPeds [on/off]
+		Riot mode — Makes peds hostile. — Command: JSriot [on/off]
+Join the discord server — Link: https://discord.gg/QzqBdHQC9S
+Play credits(On/Off)
+JS player options
+	Player info — Display information about this player. — Command: JSplayerInfo [on/off]
+	Trolling — Command: JStrolling
+		Explode player — Explodes this player with your selected options. — Command: JSexplode
+		Explode loop player — Loops explosions on them with your selected options. — Command: JSexplodeLoop [on/off]
+		Blame explosions — Makes your explosions blamed on them. — Command: JSexpBlame
+		Damage
+			Primed grenade — Spawns a grenade on top of them. — Command: JSprimedGrenade
+			Sticky — Spawns a sticky bomb on them that might stick to their vehicle and you can detonate by pressing "G". — Command: JSsticky
+		Undetected money drop 2022 — Drops money bags that wont give any money. — Command: JSfakeMoneyDrop [on/off]
+		Entity YEET — Pushes all peds and vehicles near them.. into them ;) Requires you to be near them or spectating them. — Command: JSentityYeet
+		Entity Storm — Constantly pushes all peds and vehicles near them.. into them :p Requires you to be near them or spectating them. — Command: JSentityStorm [on/off]
+		Range for YEET/Storm (1 to 1000) — How close nearby entities have to be to get pushed the targeted player. — Command: JSpushRange  [1 to 1000]
+		Multiplier for YEET/Storm (1 to 1000) — Multiplier for how much force is applied to entities when they get pushed towards them. — Command: JSpushMultiplier  [1 to 1000]
+		Storm delay: 250ms — Lets you set the delay for how often entities are pushed in entity storm. — Command: JSentStormDelay
+			Ms (1 to 999) — The delay is the added total of ms, sec and min values. — Command: JSStorm delayDelayMs  [1 to 999]
+			Seconds (0 to 59) — The delay is the added total of ms, sec and min values. — Command: JSStorm delayDelaySec  [0 to 59]
+			Minutes (0 to 60) — The delay is the added total of ms, sec and min values. — Command: JSStorm delayDelayMin  [0 to 60]
+	Give shoot gods — Grants this player the ability to disable players god mode when shooting them. — Command: JSgiveShootGods [on/off]
+	Give horn boost — Gives them the ability to speed up their car by pressing honking their horn or activating the siren. — Command: JSgiveHornBoost [on/off]
+	Give aim karma — Allows you to to stuff to players who target this player. — Command: JSgiveAimKarma
+		Shoot — Shoots players that aim at them. — Command: JSgiveBulletAimKarma [on/off]
+		Explode — Explosions with your custom explosion settings. — Command: JSgiveExpAimKarma [on/off]
+		Disable godmode — If a god mode player aims at them this disables the aimers god mode by pushing their camera forwards. — Command: JSgiveGodAimKarma [on/off]
+	Vehicle
+		Lock burnout — Locks their car in a burnout. — Command: JSlockBurnout [on/off]
+		Set torque (-1000000 to 1000000) — Modifies the speed of their vehicle. — Command: JSsetTorque  [-1000000 to 1000000]
+		Surface submarine — Forces their submarine to the surface if they're driving it. — Command: JSforceSurface [on/off]
+		To the moon — Forces their vehicle into the sky. — Command: JStoMoon [on/off]
+		Anchor — Forces their vehicle info the ground if its in the air. — Command: JSanchor [on/off]
+	Entity rain — Command: JSrain
+		Meow rain — UWU — Command: JSMeow rain [on/off]
+		Sea rain — <º)))>< — Command: JSSea rain [on/off]
+		Dog rain — Wooof — Command: JSDog rain [on/off]
+		Chicken rain — *clucking* — Command: JSChicken rain [on/off]
+		Monkey rain — Idk what sound a monkey does — Command: JSMonkey rain [on/off]
+		Pig rain — (> (00) <) — Command: JSPig rain [on/off]
+		Rat rain — Puts a Remote access trojan in your pc. (JK) — Command: JSRat rain [on/off]
+		Clear rain — Deletes rained entities. — Command: JSclear
