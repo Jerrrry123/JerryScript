@@ -2539,33 +2539,34 @@ local whitelistedName = false
 
 JSlang.hyperlink(menu_root, 'Join the discord server', 'https://discord.gg/QzqBdHQC9S', 'Join the JerryScript discord server to suggest features, report bugs and test upcoming features.')
 
-local creditText = {
-    [1]  = {line = JSlang.str_trans('Coded by') ..' Jerry123#4508', bold = true, wait = 85},
-    [2]  = {line = JSlang.str_trans('Some contributions made by'), bold = false, wait = 25},
-    [3]  = {line = 'scriptcat#6566', bold = true, wait = 120},
+local credTxt = {}
 
-    [4] = {line = JSlang.str_trans('Translations made possible with help from:'), bold = true, wait = 35},
-    [5] = {line = 'zzzz#5116', bold = false, wait = 100},
+credTxt[#credTxt + 1]  = {line = JSlang.str_trans('Coded by') ..' Jerry123#4508', bold = true, wait = 85}
+credTxt[#credTxt + 1]  = {line = JSlang.str_trans('Some contributions made by'), bold = false, wait = 25}
+credTxt[#credTxt + 1]  = {line = 'scriptcat#6566', bold = true, wait = 110}
 
-    [6]  = {line = JSlang.str_trans('Skids from:'), bold = true, wait = 35},
-    [7]  = {line = 'LanceScript '.. JSlang.str_trans('by') ..' lance#8213', bold = false, wait = 25},
-    [8]  = {line = 'WiriScript '.. JSlang.str_trans('by') ..' Nowiry#2663', bold = false, wait = 25},
-    [9]  = {line = 'KeramisScript '.. JSlang.str_trans('by') ..' scriptCat#6566', bold = false, wait = 25},
-    [10]  = {line = 'Heist control '.. JSlang.str_trans('by') ..' IceDoomfist#0001', bold = false, wait = 25},
-    [11]  = {line = 'Meteor '.. JSlang.str_trans('by') ..' RulyPancake the 5th#1157', bold = false, wait = 100},
+credTxt[#credTxt + 1] = {line = JSlang.str_trans('Translations made possible with help from:'), bold = true, wait = 35}
+credTxt[#credTxt + 1] = {line = 'zzzz#5116', bold = false, wait = 25}
+credTxt[#credTxt + 1] = {line = 'DumbBird#9143', bold = false, wait = 100}
 
-    [12] = {line = JSlang.str_trans('Thanks to'), bold = false, wait = 25},
-    [13] = {line = 'Ren#5219 and JayMontana36#9565', bold = true, wait = 35},
-    [14] = {line = JSlang.str_trans('for reviewing my code'), bold = false, wait = 100},
+credTxt[#credTxt + 1]  = {line = JSlang.str_trans('Skids from:'), bold = true, wait = 35}
+credTxt[#credTxt + 1]  = {line = 'LanceScript '.. JSlang.str_trans('by') ..' lance#8213', bold = false, wait = 25}
+credTxt[#credTxt + 1]  = {line = 'WiriScript '.. JSlang.str_trans('by') ..' Nowiry#2663', bold = false, wait = 25}
+credTxt[#credTxt + 1]  = {line = 'KeramisScript '.. JSlang.str_trans('by') ..' scriptCat#6566', bold = false, wait = 25}
+credTxt[#credTxt + 1]  = {line = 'Heist control '.. JSlang.str_trans('by') ..' IceDoomfist#0001', bold = false, wait = 25}
+credTxt[#credTxt + 1]  = {line = 'Meteor '.. JSlang.str_trans('by') ..' RulyPancake the 5th#1157', bold = false, wait = 100}
 
-    [15] = {line = JSlang.str_trans('Big thanks to all the cool people who helped me in #programming in the stand discord'), bold = false, wait = 25},
-    [16] = {line = 'Sapphire#1053', bold = false, wait = 25},
-    [17] = {line = 'aaronlink127#0127', bold = false, wait = 25},
-    [18] = {line = 'Fwishky#4980', bold = false, wait = 100},
+credTxt[#credTxt + 1] = {line = JSlang.str_trans('Thanks to'), bold = false, wait = 25}
+credTxt[#credTxt + 1] = {line = 'Ren#5219 and JayMontana36#9565', bold = true, wait = 35}
+credTxt[#credTxt + 1] = {line = JSlang.str_trans('for reviewing my code'), bold = false, wait = 100}
 
-    [19] = {line = 'Goddess Sainan#0001', bold = true, wait = 25},
-    [20] = {line = JSlang.str_trans('For making stand and providing such a great api and documentation'), bold = false, wait = 25},
-}
+credTxt[#credTxt + 1] = {line = JSlang.str_trans('Big thanks to all the cool people who helped me in #programming in the stand discord'), bold = false, wait = 25}
+credTxt[#credTxt + 1] = {line = 'Sapphire#1053', bold = false, wait = 25}
+credTxt[#credTxt + 1] = {line = 'aaronlink127#0127', bold = false, wait = 25}
+credTxt[#credTxt + 1] = {line = 'Fwishky#4980', bold = false, wait = 100}
+
+credTxt[#credTxt + 1] = {line = 'Goddess Sainan#0001', bold = true, wait = 25}
+credTxt[#credTxt + 1] = {line = JSlang.str_trans('For making stand and providing such a great api and documentation'), bold = false, wait = 25}
 
 local playingCredits = false
 local creditsSpeed = 1
@@ -2599,7 +2600,7 @@ local function scrollCreditsLine(textTable, index)
         directx.draw_text(0.5, 1  - i / 1000, textTable.line, 1, textTable.bold and  0.7 or 0.5, white, false)
         util.yield()
     end
-    if index == #creditText then
+    if index == #credTxt then
         for i = 0, 500 do
             directx.draw_text(0.5, 0.5, JSlang.str_trans('And thank you') ..' '.. players.get_name(players.user()) ..' '.. JSlang.str_trans('for using JerryScript'), 1, 0.7, white, false)
             util.yield()
@@ -2612,13 +2613,13 @@ end
 play_credits_toggle = JSlang.toggle(menu_root, 'Play credits', {}, '', function(toggle)
     creditsPlaying(toggle)
     if not toggle then return end
-    for i = 1, #creditText do
+    for i = 1, #credTxt do
         if not playingCredits then return end
         util.create_thread(function()
-            scrollCreditsLine(creditText[i], i)
+            scrollCreditsLine(credTxt[i], i)
         end)
         local wait = 0
-        while wait < creditText[i].wait / creditsSpeed do -- i determine the line spacing is by this wait so i have to constantly check if credits are speed up to not fuck it up
+        while wait < credTxt[i].wait / creditsSpeed do -- i determine the line spacing is by this wait so i have to constantly check if credits are speed up to not fuck it up
             util.yield(1)
             wait += 1
         end
