@@ -451,7 +451,7 @@ t(f('Grants this player the ability to disable players god mode when shooting th
 t(f('Give horn boost'), 'Dê impulso de chifre')
 t(f('Gives them the ability to speed up their car by pressing honking their horn or activating the siren.'), 'Dá a eles a capacidade de acelerar o carro pressionando a buzina ou ativando a sirene.')
 t(f('Give aim karma'), 'Dê karma de mira')
-t(f('Allows you to to stuff to players who target this player.'), 'Permite que você envie itens para jogadores que visam este jogador.')
+t(f('Allows you to set punishments for targeting this player.'), 'Permite que você envie itens para jogadores que visam este jogador.')
 t(f('Shoots players that aim at them.'), 'Atira nos jogadores que miram neles.')
 t(f('Explosions with your custom explosion settings.'), 'Explosões com suas configurações de explosão personalizadas.')
 t(f('If a god mode player aims at them this disables the aimers god mode by pushing their camera forwards.'), 'Se um jogador do modo deus mirar neles, isso desativa o modo de deus dos mirantes, empurrando a câmera para a frente.')

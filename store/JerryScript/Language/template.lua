@@ -451,7 +451,7 @@ t(f('Grants this player the ability to disable players god mode when shooting th
 t(f('Give horn boost'), '')
 t(f('Gives them the ability to speed up their car by pressing honking their horn or activating the siren.'), '')
 t(f('Give aim karma'), '')
-t(f('Allows you to to stuff to players who target this player.'), '')
+t(f('Allows you to set punishments for targeting this player.'), '')
 t(f('Shoots players that aim at them.'), '')
 t(f('Explosions with your custom explosion settings.'), '')
 t(f('If a god mode player aims at them this disables the aimers god mode by pushing their camera forwards.'), '')

@@ -452,7 +452,7 @@ t(f('Grants this player the ability to disable players god mode when shooting th
 t(f('Give horn boost'), '给予 喇叭加速')
 t(f('Gives them the ability to speed up their car by pressing honking their horn or activating the siren.'), '使他能够通过按喇叭或激活警报器来加速载具.')
 t(f('Give aim karma'), '给予 瞄准惩罚')
-t(f('Allows you to to stuff to players who target this player.'), '当有人瞄准他时将受到的惩罚')
+t(f('Allows you to set punishments for targeting this player.'), '当有人瞄准他时将受到的惩罚')
 t(f('Shoots players that aim at them.'), '射击瞄准他的玩家.')
 t(f('Explosions with your custom explosion settings.'), '使用您的自定义爆炸设置进行爆炸.')
 t(f('If a god mode player aims at them this disables the aimers god mode by pushing their camera forwards.'), '如果有开着无敌的玩家瞄准了他,这将使瞄准者的无敌失效.')

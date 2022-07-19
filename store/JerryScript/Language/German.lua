@@ -451,7 +451,7 @@ t(f('Grants this player the ability to disable players god mode when shooting th
 t(f('Give horn boost'), 'Hupe geben')
 t(f('Gives them the ability to speed up their car by pressing honking their horn or activating the siren.'), 'Gibt ihnen die Möglichkeit, ihr Auto zu beschleunigen, indem sie drücken, hupen oder die Sirene aktivieren.')
 t(f('Give aim karma'), 'Gib Zielkarma')
-t(f('Allows you to to stuff to players who target this player.'), 'Ermöglicht es Ihnen, Spieler zu stopfen, die auf diesen Spieler abzielen.')
+t(f('Allows you to set punishments for targeting this player.'), 'Ermöglicht es Ihnen, Spieler zu stopfen, die auf diesen Spieler abzielen.')
 t(f('Shoots players that aim at them.'), 'Schießt auf Spieler, die auf sie zielen.')
 t(f('Explosions with your custom explosion settings.'), 'Explosionen mit Ihren benutzerdefinierten Explosionseinstellungen.')
 t(f('If a god mode player aims at them this disables the aimers god mode by pushing their camera forwards.'), 'Wenn ein Gottmodus-Spieler auf sie zielt, deaktiviert dies den Gottmodus des Zielers, indem er seine Kamera nach vorne drückt.')

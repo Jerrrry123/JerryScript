@@ -451,7 +451,7 @@ t(f('Grants this player the ability to disable players god mode when shooting th
 t(f('Give horn boost'), 'Suteikite ragui postūmį')
 t(f('Gives them the ability to speed up their car by pressing honking their horn or activating the siren.'), 'Suteikia jiems galimybę pagreitinti savo automobilį paspaudus garsinį signalą arba įjungiant sireną.')
 t(f('Give aim karma'), 'Suteik tikslo karmą')
-t(f('Allows you to to stuff to players who target this player.'), 'Leidžia papildyti žaidėjus, kurie taikosi į šį žaidėją.')
+t(f('Allows you to set punishments for targeting this player.'), 'Leidžia papildyti žaidėjus, kurie taikosi į šį žaidėją.')
 t(f('Shoots players that aim at them.'), 'Šaudo į juos besitaikančius žaidėjus.')
 t(f('Explosions with your custom explosion settings.'), 'Sprogimai su jūsų pasirinktiniais sprogimo nustatymais.')
 t(f('If a god mode player aims at them this disables the aimers god mode by pushing their camera forwards.'), 'Jei dievo režimo žaidėjas nusitaiko į juos, tai išjungia taiklių dievo režimą, pastumdamas savo kamerą į priekį.')

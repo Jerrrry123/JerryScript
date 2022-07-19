@@ -451,7 +451,7 @@ t(f('Grants this player the ability to disable players god mode when shooting th
 t(f('Give horn boost'), '경적 부스트 주기')
 t(f('Gives them the ability to speed up their car by pressing honking their horn or activating the siren.'), '경적을 울리거나 사이렌을 작동시켜 자동차 속도를 높일 수 있습니다.')
 t(f('Give aim karma'), '목표 카르마 부여')
-t(f('Allows you to to stuff to players who target this player.'), '이 플레이어를 대상으로 하는 플레이어에게 물건을 줄 수 있습니다.')
+t(f('Allows you to set punishments for targeting this player.'), '이 플레이어를 대상으로 하는 플레이어에게 물건을 줄 수 있습니다.')
 t(f('Shoots players that aim at them.'), '그들을 겨냥한 플레이어를 쏜다.')
 t(f('Explosions with your custom explosion settings.'), '사용자 정의 폭발 설정으로 폭발.')
 t(f('If a god mode player aims at them this disables the aimers god mode by pushing their camera forwards.'), '신 모드 플레이어가 조준하면 카메라를 앞으로 밀어 조준 신 모드를 비활성화합니다.')

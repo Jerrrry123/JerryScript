@@ -2797,7 +2797,7 @@ local runningTogglingOff = false
         -----------------------------------
         -- Give aim karma
         -----------------------------------
-            local give_karma_root = JSlang.list(player_root, 'Give aim karma', {'JSgiveAimKarma'}, 'Allows you to to stuff to players who target this player.')
+            local give_karma_root = JSlang.list(player_root, 'Give aim karma', {'JSgiveAimKarma'}, 'Allows you to set a punishments for targeting this player.')
 
             --dosnt work on yourself
             JSlang.toggle_loop(give_karma_root, 'Shoot', {'JSgiveBulletAimKarma'}, 'Shoots players that aim at them.', function()
