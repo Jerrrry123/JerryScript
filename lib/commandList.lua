@@ -190,14 +190,15 @@ function CL.action_slider(root, name, commands, help, ...)
     return action_slider
 end
 
-function CL.hyperlink(root, name, link, ...)
-    local hyperlink = menu.hyperlink(root, name, link, ...)
+function CL.hyperlink(root, name, link, help)
+    local hyperlink = menu.hyperlink(root, name, link, help)
 
     local line = ''
     for i = 1, tabs[root] do
         line ..= '	'
     end
     line ..= get_string(name)
+    line ..= ' — ' .. get_string(help)
     line ..= ' — Link: '.. link
     f:write(line .. '\n')
 

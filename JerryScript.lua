@@ -189,6 +189,8 @@ local whitelistedName = false
             async_http.dispatch()
         end)
 
+        JSlang.hyperlink(script_settings_root, 'Command list', 'https://raw.githubusercontent.com/Jerrrry123/JerryScript/main/commandList.txt', 'A list of all the scripts features and commands.')
+
     ----------------------------------
     -- Player info settings
     ----------------------------------
@@ -1808,7 +1810,7 @@ local whitelistedName = false
 
         local fixer_count_cooldown = false
         local soloPublic_command = menu.ref_by_path('Online>New Session>Create Public Session', 37)
-        menu.action(SM_earnings_root, 'Increment security contracts completed', {'SMsecurityComplete'}, 'Will put you in a new lobby to make the increase stick.\nI added a cooldown to this button so you cant spam it.\nAlso doesn\'t work past 200', function()
+        JSlang.action(SM_earnings_root, 'Increment security contracts completed', {'SMsecurityComplete'}, 'Will put you in a new lobby to make the increase stick.\nI added a cooldown to this button so you cant spam it.\nAlso doesn\'t work past 200', function()
             if fixer_count_cooldown then JSlang.toast('Cooldown active') return end
             if util.is_session_transition_active() then JSlang.toast('You can only use this while in a session.') return end
             if STAT_GET_INT('FIXER_COUNT') >= 200 then JSlang.toast('You already reached 200 completions.') return end
@@ -2797,7 +2799,7 @@ local runningTogglingOff = false
         -----------------------------------
         -- Give aim karma
         -----------------------------------
-            local give_karma_root = JSlang.list(player_root, 'Give aim karma', {'JSgiveAimKarma'}, 'Allows you to set a punishments for targeting this player.')
+            local give_karma_root = JSlang.list(player_root, 'Give aim karma', {'JSgiveAimKarma'}, 'Allows you to set punishments for targeting this player.')
 
             --dosnt work on yourself
             JSlang.toggle_loop(give_karma_root, 'Shoot', {'JSgiveBulletAimKarma'}, 'Shoots players that aim at them.', function()

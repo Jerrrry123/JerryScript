@@ -3,6 +3,7 @@ Settings
 		Disable JS notifications — Makes the script not notify when stuff happens. These can be pretty useful so I don't recommend turning them off. — Command: JSnoNotify [on/off]
 		Double tap interval (1 to 1000) — Lets you set the maximum time between double taps in ms. — Command: JSdoubleTapInterval  [1 to 1000]
 		Create translation template — Creates a template file for translation in store/JerryScript/Language. — Command: JStranslationTemplate
+		Command list — A list of all the scripts features and commands. — Link: https://raw.githubusercontent.com/Jerrrry123/JerryScript/main/commandList.txt
 	Player info settings — Command: JSplayerInfoSettings
 		X position (-200 to 0) — Command: PIXPos  [-200 to 0]
 		Y position (-5 to 195) — Command: PIYPos  [-5 to 195]
@@ -188,6 +189,7 @@ Online — Command: JSonline
 		Agency daily Earnings — Agency daily earnings. Maximum daily earnings is 20k if you have completed 200 contracts. — Command: SMagencyEarnings [on/off]
 		Increase safe earnings — Might be risky. — Command: SMearnings
 			Auto nightclub popularity — Automatically sets the nightclubs popularity to 100 if it results in less than max daily income. — Command: SMautoClubPop [on/off]
+			Increment security contracts completed — Will put you in a new lobby to make the increase stick. I added a cooldown to this button so you cant spam it. Also doesn't work past 200 — Command: SMsecurityComplete
 	Property tp's — Lets you teleport to the properties you own. — Command: JSpropertyTp
 	Casino — No theres no recoveries here. — Command: JScasino
 		Lucky wheel cooldown — Tells you if the lucky wheel is available or how much time is left until it is. — Command: JSlwCool [on/off]
@@ -252,7 +254,7 @@ World — Command: JSworld
 		Auto kill enemies — Just instantly kills hostile peds. — Command: JSautokill [on/off]
 		Kill jacked peds — Automatically kills peds when stealing their car. — Command: JSkillJackedPeds [on/off]
 		Riot mode — Makes peds hostile. — Command: JSriot [on/off]
-Join the discord server — Link: https://discord.gg/QzqBdHQC9S
+Join the discord server — Join the JerryScript discord server to suggest features, report bugs and test upcoming features. — Link: https://discord.gg/QzqBdHQC9S
 Play credits(On/Off)
 JS player options
 	Player info — Display information about this player. — Command: JSplayerInfo [on/off]
@@ -274,7 +276,7 @@ JS player options
 			Minutes (0 to 60) — The delay is the added total of ms, sec and min values. — Command: JSStorm delayDelayMin  [0 to 60]
 	Give shoot gods — Grants this player the ability to disable players god mode when shooting them. — Command: JSgiveShootGods [on/off]
 	Give horn boost — Gives them the ability to speed up their car by pressing honking their horn or activating the siren. — Command: JSgiveHornBoost [on/off]
-	Give aim karma — Allows you to set a punishments for targeting this player. — Command: JSgiveAimKarma
+	Give aim karma — Allows you to set punishments for targeting this player. — Command: JSgiveAimKarma
 		Shoot — Shoots players that aim at them. — Command: JSgiveBulletAimKarma [on/off]
 		Explode — Explosions with your custom explosion settings. — Command: JSgiveExpAimKarma [on/off]
 		Disable godmode — If a god mode player aims at them this disables the aimers god mode by pushing their camera forwards. — Command: JSgiveGodAimKarma [on/off]
