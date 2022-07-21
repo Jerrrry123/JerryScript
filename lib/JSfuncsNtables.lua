@@ -231,7 +231,7 @@
         if not firstOpening[1] then return end
         menu.show_warning(listRoot, CLICK_MENU, JSlang.str_trans('I can\'t guarantee that these options are 100% safe. I tested them on my main, but im stupid.'), function()
             firstOpening[1] = false
-            menu.trigger_command(listRoot, '')
+            menu.focus(listRoot, '')
         end)
     end
 
