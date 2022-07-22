@@ -3,9 +3,9 @@ JerryScript is a general purpose utility and trolling lua script made for the GT
 
 To make the script intuitive and easy to use it has been made to feel as close to the design of Stand as possible. Thus it features seamless translation when changing to any of the 10 languages in the menus settings, without the need of restarting the script. It also offers a command list, structured the same way as the one made for Stand.
 
-## Features
+## [Features](https://raw.githubusercontent.com/Jerrrry123/JerryScript/main/commandList.txt)
 
-A complete command list for all JerryScript options can be found [here](https://raw.githubusercontent.com/Jerrrry123/JerryScript/main/commandList.txt).
+A complete command list for all options found in JerryScript.
 
 
 # Installation guide
