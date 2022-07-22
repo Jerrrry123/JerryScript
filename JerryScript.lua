@@ -44,11 +44,6 @@ local white = new.colour(1, 1, 1, 1)
 ----------------------------------
 -- Start message
 ----------------------------------
-    local function getDisplayRatio()
-        local x, y = directx.get_client_size()
-        return x / y
-    end
-
     function rotatePoint(x, y, center, degrees)
 
         local radians = math.rad(degrees)
@@ -56,7 +51,7 @@ local white = new.colour(1, 1, 1, 1)
         local new_x = (x - center.x) * math.cos(radians) - (y - center.y) * math.sin(radians)
         local new_y = (x - center.x) * math.sin(radians) + (y - center.y) * math.cos(radians)
 
-        return center.x + new_x, center.y + new_y * getDisplayRatio()
+        return center.x + new_x, center.y + new_y * 1920 / 1080
     end
 
     function directx.draw_triangle_from_center_point(center, base, rotDegrees, colour)
