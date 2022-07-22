@@ -10,6 +10,8 @@
     thx to Sai, ren, aaron, Nowry, JayMontana, IceDoomfist and scriptCat and everyone else that helped me in #programming :)
 ]]
 
+LOADING_SCRIPT = true
+
 util.ensure_package_is_installed("lua/ScaleformLib")
 util.require_natives(1651208000)
 
@@ -2974,3 +2976,5 @@ util.create_tick_handler(function()
         end
     end
 end)
+
+LOADING_SCRIPT = false

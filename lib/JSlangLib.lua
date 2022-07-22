@@ -23,7 +23,12 @@ local function getPathPart(fullPath, remove)
     return string.gsub(path, '.lua', '')
 end
 util.create_thread(function()
-    util.yield()
+
+    --wait for all lang labels to get registered when loading the script to avoid errors when registering translations for those labels
+    while LOADING_SCRIPT do
+        util.yield(1)
+    end
+
     for i, profilePath in pairs(filesystem.list_files(LANG_DIR)) do
         if string.find(profilePath, 'template') == nil and string.find(profilePath, 'translated') == nil and string.find(profilePath, 'result') == nil then
             util.create_thread(function()
@@ -95,8 +100,9 @@ if GENERATE_TEMPLATE then
 
     --asynchronous code that runs after the main script has loaded
     util.create_thread(function()
-        --wait for main script to load
-        util.yield()
+        while LOADING_SCRIPT do
+            util.yield(1)
+        end
 
         local f = assert(io.open(LANG_DIR .. 'template.lua', 'a'))
         f:write('\n--toasts\n')
