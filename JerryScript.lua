@@ -1334,8 +1334,8 @@ local whitelistedName = false
         ['Retriever'] = 'a_c_retriever',
         ['Rottweiler'] = 'a_c_rottweiler',
     }
-    local throwables_launcher_list throwables_launcher_list = menu.list_action(exp_animal_gun_root, JSlang.str_trans('Current animal') ..': Killerwhale', {}, JSlang.trans('Choose what animal the explosive animal gun has.'), getLabelTableFromKeys(animalsTable), function(index, text)
-        menu.set_menu_name(throwables_launcher_list, JSlang.str_trans('Current animal') ..': '.. text)
+    local exp_animal_gun_list exp_animal_gun_list = menu.list_action(exp_animal_gun_root, JSlang.str_trans('Current animal') ..': Killerwhale', {}, JSlang.trans('Choose what animal the explosive animal gun has.'), getLabelTableFromKeys(animalsTable), function(index, text)
+        menu.set_menu_name(exp_animal_gun_list, JSlang.str_trans('Current animal') ..': '.. text)
         exp_animal = animalsTable[text]
     end)
 
