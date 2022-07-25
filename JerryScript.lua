@@ -42,6 +42,9 @@ local JS_logo = directx.create_texture(filesystem.resources_dir() ..'JS.png')
 local darkBlue = new.colour(0, 0, 12 / 255, 1)
 local black = new.colour(0, 0, 1 / 255, 1)
 local white = new.colour(1, 1, 1, 1)
+local mildOrangeFire = new.colour(255 / 255, 127 / 255, 80 / 255, 1)
+
+local levitationCommand = menu.ref_by_path('Self>Movement>Levitation>Levitation', 38)
 
 ----------------------------------
 -- Start message
@@ -530,7 +533,6 @@ local whitelistedName = false
     local startViewMode
     local scope_scaleform
     local gaveHelmet = false
-    local levitationCommand = menu.ref_by_path('Self>Movement>Levitation>Levitation', 37)
     JSlang.toggle_loop(self_root, 'Ironman mode', {'JSironman'}, 'Grants you the abilities of ironman :)', function()
         if not menu.get_value(levitationCommand) then
             menu.trigger_command(levitationCommand)
@@ -644,12 +646,11 @@ local whitelistedName = false
 
         local fireWingsSettings = {
             scale = 0.3,
-            fireColour = new.colour(255 / 255, 127 / 255, 80 / 255, 1),
+            colour = mildOrangeFire,
             on = false
         }
 
         local ptfxEgg
-        local firewingPtfx = 'muz_xs_turret_flamethrower_looping'
         JSlang.toggle(fire_wings_list, 'Fire wings', {'JSfireWings'}, 'Puts wings made of fire on your back.', function (toggle)
             fireWingsSettings.on = toggle
             if fireWingsSettings.on then
@@ -667,7 +668,7 @@ local whitelistedName = false
                         util.yield()
                     end
                     GRAPHICS.USE_PARTICLE_FX_ASSET('weap_xs_vehicle_weapons')
-                    fireWings[i].ptfx = GRAPHICS.START_NETWORKED_PARTICLE_FX_LOOPED_ON_ENTITY(firewingPtfx, ptfxEgg, 0, 0, 0.1, fireWings[i].pos[1], 0, fireWings[i].pos[2], fireWingsSettings.scale, false, false, false)
+                    fireWings[i].ptfx = GRAPHICS.START_NETWORKED_PARTICLE_FX_LOOPED_ON_ENTITY('muz_xs_turret_flamethrower_looping', ptfxEgg, 0, 0, 0.1, fireWings[i].pos[1], 0, fireWings[i].pos[2], fireWingsSettings.scale, false, false, false)
 
                     util.create_tick_handler(function()
                         local rot = ENTITY.GET_ENTITY_ROTATION(players.user_ped(), 2)
@@ -675,7 +676,7 @@ local whitelistedName = false
                         ENTITY.SET_ENTITY_ROTATION(ptfxEgg, rot.x, rot.y, rot.z, 2, true)
                         for i = 1, #fireWings do
                             GRAPHICS.SET_PARTICLE_FX_LOOPED_SCALE(fireWings[i].ptfx, fireWingsSettings.scale)
-                            GRAPHICS.SET_PARTICLE_FX_LOOPED_COLOUR(fireWings[i].ptfx, fireWingsSettings.fireColour.r, fireWingsSettings.fireColour.g, fireWingsSettings.fireColour.b)
+                            GRAPHICS.SET_PARTICLE_FX_LOOPED_COLOUR(fireWings[i].ptfx, fireWingsSettings.colour.r, fireWingsSettings.colour.g, fireWingsSettings.colour.b)
                         end
 
                         ENTITY.SET_ENTITY_VISIBLE(ptfxEgg, false)
@@ -701,8 +702,58 @@ local whitelistedName = false
             fireWingsSettings.scale = value / 10
         end)
 
-        menu.rainbow(JSlang.colour(fire_wings_list, 'Fire wings colour', {'JSfireWingsColour'}, '', fireWingsSettings.fireColour, false, function(colour)
-            fireWingsSettings.fireColour = colour
+        menu.rainbow(JSlang.colour(fire_wings_list, 'Fire wings colour', {'JSfireWingsColour'}, '', fireWingsSettings.colour, false, function(colour)
+            fireWingsSettings.colour = colour
+        end))
+
+    -----------------------------------
+    -- Fire breath
+    -----------------------------------
+
+        local fire_breath_root = JSlang.list(self_root, 'Fire breath', {}, '')
+
+        local fireBreathSettings = {
+            scale = 0.3,
+            colour = mildOrangeFire,
+            on = false,
+        }
+        JSlang.toggle(fire_breath_root, 'Fire breath', {'JSfireBreath'}, '', function(toggle)
+            fireBreathSettings.on = toggle
+            if toggle then
+                while not STREAMING.HAS_NAMED_PTFX_ASSET_LOADED('weap_xs_vehicle_weapons') do
+                    STREAMING.REQUEST_NAMED_PTFX_ASSET('weap_xs_vehicle_weapons')
+                    util.yield()
+                end
+                GRAPHICS.USE_PARTICLE_FX_ASSET('weap_xs_vehicle_weapons')
+                fireBreathSettings.ptfx = GRAPHICS.START_NETWORKED_PARTICLE_FX_LOOPED_ON_ENTITY_BONE('muz_xs_turret_flamethrower_looping', players.user_ped(), 0, 0.12, 0.58, 30, 0, 0, 0x8b93, fireBreathSettings.scale, false, false, false)
+                GRAPHICS.SET_PARTICLE_FX_LOOPED_COLOUR(fireBreathSettings.ptfx, fireBreathSettings.colour.r, fireBreathSettings.colour.g, fireBreathSettings.colour.b)
+            else
+                GRAPHICS.REMOVE_PARTICLE_FX(fireBreathSettings.ptfx, true)
+                fireBreathSettings.ptfx = nil
+                STREAMING.REMOVE_NAMED_PTFX_ASSET('weap_xs_vehicle_weapons')
+            end
+            util.create_tick_handler(function()
+                if PED.GET_PED_PARACHUTE_STATE(players.user_ped()) == 0 and ENTITY.IS_ENTITY_IN_AIR(players.user_ped()) then
+                    GRAPHICS.SET_PARTICLE_FX_LOOPED_OFFSETS(fireBreathSettings.ptfx, 0, 0.81, 0, -10, 0, 0)
+                elseif TASK.IS_PED_SPRINTING(players.user_ped()) then
+                    GRAPHICS.SET_PARTICLE_FX_LOOPED_OFFSETS(fireBreathSettings.ptfx, 0, 0.32, 0.38, 30, 0, 0)
+                elseif menu.get_value(levitationCommand) then
+                    GRAPHICS.SET_PARTICLE_FX_LOOPED_OFFSETS(fireBreathSettings.ptfx, 0, -0.12, 0.58, 150, 0, 0)
+                else
+                    GRAPHICS.SET_PARTICLE_FX_LOOPED_OFFSETS(fireBreathSettings.ptfx, 0, 0.12, 0.58, 30, 0, 0)
+                end
+                return fireBreathSettings.on
+            end)
+        end)
+    
+        JSlang.slider(fire_breath_root, 'Fire breath scale', {'JSfireBreathScale'}, '', 1, 100, fireBreathSettings.scale * 10, 1, function(value)
+            fireBreathSettings.scale = value / 10
+            GRAPHICS.SET_PARTICLE_FX_LOOPED_SCALE(fireBreathSettings.ptfx, fireBreathSettings.scale)
+        end)
+    
+        menu.rainbow(JSlang.colour(fire_breath_root, 'Fire breath colour', {'JSfireBreathColour'}, '', fireBreathSettings.colour, false, function(colour)
+            fireBreathSettings.colour = colour
+            GRAPHICS.SET_PARTICLE_FX_LOOPED_COLOUR(fireBreathSettings.ptfx, fireBreathSettings.colour.r, fireBreathSettings.colour.g, fireBreathSettings.colour.b)
         end))
 
     -----------------------------------
@@ -851,6 +902,40 @@ local whitelistedName = false
             PED.SET_PED_TO_RAGDOLL(players.user_ped(), 2000, 2000, 0, true, true, true)
         end)
     -----------------------------------
+
+    local custom_respawn_root = JSlang.list(self_root, 'Custom respawn', {}, '')
+
+    local wasDead = false
+    local respawnPos
+    local respawnRot
+    local custom_respawn_toggle = menu.toggle_loop(custom_respawn_root, JSlang.str_trans('Custom respawn') ..': '.. JSlang.str_trans('none'), {}, 'Set a location that you respawn at when you die.', function()
+        if respawnPos == nil then return end
+        local isDead = PLAYER.IS_PLAYER_DEAD(players.user())
+        if wasDead and not isDead then
+            while PLAYER.IS_PLAYER_DEAD(players.user()) do
+                util.yield()
+            end
+            for i = 0, 30 do
+                ENTITY.SET_ENTITY_COORDS_NO_OFFSET(players.user_ped(), respawnPos.x, respawnPos.y, respawnPos.z, false, false, false)
+                ENTITY.SET_ENTITY_ROTATION(players.user_ped(), respawnRot.x, respawnRot.y, respawnRot.z, 2, true)
+                util.yield()
+            end
+        end
+        wasDead = isDead
+    end)
+
+    local function getZoneName(pid)
+        return util.get_label_text(ZONE.GET_NAME_OF_ZONE(v3.get(players.get_position(pid))))
+    end
+
+    local custom_respawn_location custom_respawn_location = JSlang.action(custom_respawn_root, 'Save location', {}, 'No location set.', function()
+        respawnPos = players.get_position(players.user())
+        respawnRot = ENTITY.GET_ENTITY_ROTATION(players.user_ped(), 2)
+        menu.set_menu_name(custom_respawn_toggle, JSlang.str_trans('Custom respawn') ..': '.. getZoneName(players.user()))
+        local pos = 'X: '.. respawnPos.x ..'\nY: '.. respawnPos.y ..'\nZ: '.. respawnPos.z
+        menu.set_help_text(custom_respawn_toggle,  pos)
+        menu.set_help_text(custom_respawn_location,  JSlang.str_trans('Current location:') ..'\n'.. pos)
+    end)
 
     --Transition points
     -- 49  -> 50
@@ -1101,17 +1186,6 @@ local whitelistedName = false
         end)
     -----------------------------------
 
-    JSlang.toggle(weapons_root, 'Friendly fire', {'JSfriendlyFire'}, 'Makes you able to shoot peds the game count as your friends.', function(toggle)
-        PED.SET_CAN_ATTACK_FRIENDLY(players.user_ped(), toggle, false)
-    end)
-
-    JSlang.toggle_loop(weapons_root, 'Reload when rolling', {'JSrollReload'}, 'Reloads your weapon when doing a roll.', function()
-        if TASK.GET_IS_TASK_ACTIVE(players.user_ped(), 4) and JSkey.is_control_pressed(2, 'INPUT_JUMP') and not PED.IS_PED_SHOOTING(players.user_ped())  then --checking if player is rolling
-            util.yield(900)
-            WEAPON.REFILL_AMMO_INSTANTLY(players.user_ped())
-        end
-    end)
-
     local remove_projectiles = false
     local function disableProjectileLoop(projectile)
         util.create_thread(function()
@@ -1142,6 +1216,7 @@ local whitelistedName = false
 
     --credit to lance for the entity gun, but i edited it a bit
     local nuke_gun_root = JSlang.list(weapons_root, 'Nuke options', {}, '')
+
     local nuke_gun_toggle = JSlang.toggle(nuke_gun_root, 'Nuke gun', {'JSnukeGun'}, 'Makes the rpg fire nukes', function(toggle)
         nuke_running = toggle
         if nuke_running then
@@ -1221,6 +1296,7 @@ local whitelistedName = false
     --this is heavily skidded from wiriScript so credit to wiri
     local launcherThrowable = util.joaat('weapon_grenade')
     local throwables_launcher_root = JSlang.list(weapons_root, 'Throwables launcher', {}, '')
+
     local grenade_gun_toggle = JSlang.toggle(throwables_launcher_root, 'Throwables launcher', {'JSgrenade'}, 'Makes the grenade launcher able to shoot throwables, gives you the throwable if you don\'t have it so you can shoot it.', function(toggle)
         grenade_running = toggle
         if grenade_running then
@@ -1279,6 +1355,7 @@ local whitelistedName = false
     end
 
     local exp_animal_gun_root = JSlang.list(weapons_root, 'Explosive animal gun', {}, '')
+
     local exp_animal = 'a_c_killerwhale'
     exp_animal_toggle = JSlang.toggle(exp_animal_gun_root, 'Explosive animal gun', {'JSexpAnimalGun'}, 'Inspired by impulses explosive whale gun, but can fire other animals too.', function(toggle)
         animals_running = toggle
@@ -1361,6 +1438,44 @@ local whitelistedName = false
         for i = 1, #blocks do
             entities.delete_by_handle(blocks[i])
             blocks[i] = nil
+        end
+    end)
+
+    local flameThrower = {
+        colour = mildOrangeFire
+    }
+    JSlang.toggle(weapons_root, 'Flamethrower', {'JSflamethrower'}, 'Makes the minigun into a flamethrower.', function(toggle)
+        flameThrower.on = toggle
+        util.create_tick_handler(function()
+            if WEAPON.GET_SELECTED_PED_WEAPON(players.user_ped()) == 1119849093 and PLAYER.IS_PLAYER_FREE_AIMING(players.user()) then --if shooting minigun
+                PLAYER.DISABLE_PLAYER_FIRING(players.user_ped(), true)
+                while not STREAMING.HAS_NAMED_PTFX_ASSET_LOADED('weap_xs_vehicle_weapons') do
+                    STREAMING.REQUEST_NAMED_PTFX_ASSET('weap_xs_vehicle_weapons')
+                    util.yield()
+                end
+                GRAPHICS.USE_PARTICLE_FX_ASSET('weap_xs_vehicle_weapons')
+                if flameThrower.ptfx == nil then
+                    flameThrower.ptfx = GRAPHICS.START_NETWORKED_PARTICLE_FX_LOOPED_ON_ENTITY_BONE('muz_xs_turret_flamethrower_looping', WEAPON.GET_CURRENT_PED_WEAPON_ENTITY_INDEX(players.user_ped()), 0.8, 0, 0, 0, 0, 270, ENTITY.GET_ENTITY_BONE_INDEX_BY_NAME(WEAPON.GET_CURRENT_PED_WEAPON_ENTITY_INDEX(players.user_ped()), 'Gun_Nuzzle'), 0.5, false, false, false)
+                    GRAPHICS.SET_PARTICLE_FX_LOOPED_COLOUR(flameThrower.ptfx, flameThrower.colour.r, flameThrower.colour.g, flameThrower.colour.b)
+                end
+            else
+                GRAPHICS.REMOVE_PARTICLE_FX(flameThrower.ptfx, true)
+                STREAMING.REMOVE_NAMED_PTFX_ASSET('weap_xs_vehicle_weapons')
+                flameThrower.ptfx = nil
+                PLAYER.DISABLE_PLAYER_FIRING(players.user_ped(), false)
+            end
+            return flameThrower.on
+        end)
+    end)
+
+    JSlang.toggle(weapons_root, 'Friendly fire', {'JSfriendlyFire'}, 'Makes you able to shoot peds the game count as your friends.', function(toggle)
+        PED.SET_CAN_ATTACK_FRIENDLY(players.user_ped(), toggle, false)
+    end)
+
+    JSlang.toggle_loop(weapons_root, 'Reload when rolling', {'JSrollReload'}, 'Reloads your weapon when doing a roll.', function()
+        if TASK.GET_IS_TASK_ACTIVE(players.user_ped(), 4) and JSkey.is_control_pressed(2, 'INPUT_JUMP') and not PED.IS_PED_SHOOTING(players.user_ped())  then --checking if player is rolling
+            util.yield(900)
+            WEAPON.REFILL_AMMO_INSTANTLY(players.user_ped())
         end
     end)
 
@@ -1566,6 +1681,26 @@ local whitelistedName = false
             end)
 
     -----------------------------------
+    -- Shunt boost
+    -----------------------------------
+        JSlang.divider(boosts_root, 'Veh bounce')
+
+        local wasInAir
+        local bouncy = 50
+        JSlang.toggle_loop(boosts_root, 'Veh bounce', {'JSvehBounce'}, 'Adds some bounciness to your vehicle when it falls to the ground.', function()
+            local isInAir = ENTITY.IS_ENTITY_IN_AIR(entities.get_user_vehicle_as_handle())
+            if wasInAir and not isInAir then
+                local vec = ENTITY.GET_ENTITY_VELOCITY(entities.get_user_vehicle_as_handle())
+                ENTITY.SET_ENTITY_VELOCITY(entities.get_user_vehicle_as_handle(), vec.x, vec.y, (vec.z * -1 * bouncy / 100))
+            end
+            wasInAir = isInAir
+        end)
+
+        JSlang.slider_float(boosts_root, 'Bounciness multiplier', {'JSbounceMult'}, '', 1, 1000, bouncy, 1, function(value)
+            bouncy = value
+        end)
+
+    -----------------------------------
     -- Vehicle doors
     -----------------------------------
         local veh_door_root = JSlang.list(my_vehicle_root, 'Vehicle doors', {'JSvehDoors'}, '')
@@ -1641,18 +1776,42 @@ local whitelistedName = false
     end)
     carSettings.ghostCar.on = menu.get_value(ghost_vehicle_option) != 100
 
-    JSlang.toggle(my_vehicle_root, 'Disable exhaust pops', {'JSdisablePops'}, 'Disables those annoying exhaust pops that your car makes if it has a non-stock exhaust option.', function(toggle)
-        carSettings.disableExhaustPops.on = toggle
-        carSettings.disableExhaustPops.setOption(toggle)
-    end)
+    -----------------------------------
+    -- Vehicle sounds
+    -----------------------------------
+        local vehicle_sounds_root = JSlang.list(my_vehicle_root, 'Vehicle sounds', {'JSvehSounds'}, '')
+
+        JSlang.toggle(vehicle_sounds_root, 'Disable exhaust pops', {'JSdisablePops'}, 'Disables those annoying exhaust pops that your car makes if it has a non-stock exhaust option.', function(toggle)
+            carSettings.disableExhaustPops.on = toggle
+            carSettings.disableExhaustPops.setOption(toggle)
+        end)
+
+        local car_sounds = {
+            ['Default'] = function()
+                return VEHICLE.GET_DISPLAY_NAME_FROM_VEHICLE_MODEL(ENTITY.GET_ENTITY_MODEL(my_cur_car))
+            end,
+            ['Silent'] = 'MINITANK',
+            ['Electric'] = 'CYCLONE',
+        }
+        JSlang.slider_text(vehicle_sounds_root, 'Engine sound', {'JSengineSound'}, '', {'Default', 'Silent', 'Electric'}, function(index, value)
+            AUDIO._FORCE_VEHICLE_ENGINE_AUDIO(entities.get_user_vehicle_as_handle(), if type(car_sounds[value]) == 'string' then car_sounds[value] else car_sounds[value]())
+            util.toast(VEHICLE.GET_DISPLAY_NAME_FROM_VEHICLE_MODEL(ENTITY.GET_ENTITY_MODEL(my_cur_car)))
+        end)
+
+        JSlang.toggle_loop(vehicle_sounds_root, 'Emmersive radio', {'JSemersiveRadio'}, 'Lowers the radio when you\'re not in first person mode.', function()
+            AUDIO.SET_FRONTEND_RADIO_ACTIVE(CAM.GET_CAM_VIEW_MODE_FOR_CONTEXT(context) == 4)
+        end, function()
+            AUDIO.SET_FRONTEND_RADIO_ACTIVE(true)
+        end)
+
+        JSlang.toggle(vehicle_sounds_root, 'Npc horn', {'JSnpcHorn'}, 'Makes you horn like a npc. Also makes your car doors silent.', function(toggle)
+            carSettings.npcHorn.on = toggle
+            VEHICLE._SET_VEHICLE_SILENT(my_cur_car, toggle)
+        end)
+    -----------------------------------
 
     JSlang.toggle(my_vehicle_root, 'Stance', {'JSstance'}, 'Activates stance on vehicles that support it.', function(toggle)
         VEHICLE._SET_REDUCE_DRIFT_VEHICLE_SUSPENSION(my_cur_car, toggle)
-    end)
-
-    JSlang.toggle(my_vehicle_root, 'Npc horn', {'JSnpcHorn'}, 'Makes you horn like a npc. Also makes your car doors silent.', function(toggle)
-        carSettings.npcHorn.on = toggle
-        VEHICLE._SET_VEHICLE_SILENT(my_cur_car, toggle)
     end)
 
     JSlang.toggle_loop(my_vehicle_root, 'To the moon', {'JStoMoon'}, 'Forces you into the sky if you\'re in a vehicle.', function(toggle)
@@ -2418,6 +2577,19 @@ local whitelistedName = false
 
     JSlang.toggle_loop(world_root, 'Disable all map notifications', {'JSnoMapNotifications'}, 'Removes that constant spam.', function()
         HUD.THEFEED_HIDE_THIS_FRAME()
+    end)
+
+
+    local colour_overlay_root = JSlang.list(world_root, 'Colour overlay', {}, '')
+
+    local colourOverlay = new.colour(0, 0, 10 / 255, 0.1)
+
+    JSlang.toggle_loop(colour_overlay_root, 'Colour overlay', {'JScolourOverlay'}, 'Applies a colour filter on the game.', function()
+        directx.draw_rect(0, 0, 1, 1, colourOverlay)
+    end)
+
+    JSlang.colour(colour_overlay_root   , 'Set overlay colour', {'JSoverlayColour'}, '', colourOverlay, true, function(colour)
+        colourOverlay = colour
     end)
 
     -----------------------------------
