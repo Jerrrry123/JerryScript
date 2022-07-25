@@ -41,6 +41,7 @@ Settings
 		Disable explosion damage — Command: JSnoExpDamage [on/off]
 		Blame settings — Lets you blame yourself or other players for your explosions, go to the player list to chose a specific player to blame. — Command: JSblameSettings
 			Owned explosions — Will overwrite "Disable explosion damage". — Command: JSownExp [on/off]
+			Blame: Random — Will overwrite "Disable explosion damage" and if you haven't chosen a player random players will be blamed for each explosion. — Command: JSblameExp [on/off]
 			Blame player list — Custom player list for selecting blames. — Command: JSblameList
 			Random blames — Switches blamed explosions back to random if you already chose a player to blame. — Command: JSblameRandomExp
 	Horn boost multiplier (-100000 to 100000) — Set the force applied to the car when you or another player uses horn boost. — Command: JShornBoostMultiplier  [-100000 to 100000]
@@ -50,6 +51,10 @@ Self — Command: JSself
 		Fire wings — Puts wings made of fire on your back. — Command: JSfireWings [on/off]
 		Fire wings scale (1 to 100) — Command: JSfireWingsScale  [1 to 100]
 		Fire wings colour — Command: JSfireWingsColour
+	Fire breath
+		Fire breath — Command: JSfireBreath [on/off]
+		Fire breath scale (1 to 100) — Command: JSfireBreathScale  [1 to 100]
+		Fire breath colour — Command: JSfireBreathColour
 	Face features
 		Customize face features — Customizations reset after restarting the game.
 			Nose Width (-1000 to 1000) — Command: JSsetNoseWidth  [-1000 to 1000]
@@ -93,6 +98,9 @@ Self — Command: JSself
 		Stumble — Makes you stumble with a good chance of falling over. — Command: JSstumble
 		Fall over — Makes you stumble, fall over and prevents you from getting back up. — Command: JSfallOver [on/off]
 		Ragdoll — Just makes you ragdoll. — Command: JSragdoll [on/off]
+	Custom respawn
+		Custom respawn: none — Set a location that you respawn at when you die.(On/Off)
+		Save location — No location set.
 	Ghost (0 to 100) — Makes your player different levels off see through. — Command: JSghost  [0 to 100]
 	Full regen — Makes your hp regenerate until you're at full health. — Command: JSfullRegen [on/off]
 	Cold blooded — Removes your thermal signature. Other players still see it tho. — Command: JScoldBlooded [on/off]
@@ -115,8 +123,6 @@ Weapons — Command: JSweapons
 		Detonate near npc's — If your sticky bombs automatically detonate near npc's. — Command: JSProxyStickyNpcs [on/off]
 		Detonation radius (1 to 10) — How close the sticky bombs have to be to the target to detonate. — Command: JSstickyRadius  [1 to 10]
 		Remove all sticky bombs — Removes every single sticky bomb that exists (not only yours). — Command: JSremoveStickys
-	Friendly fire — Makes you able to shoot peds the game count as your friends. — Command: JSfriendlyFire [on/off]
-	Reload when rolling — Reloads your weapon when doing a roll. — Command: JSrollReload [on/off]
 	Nuke options
 		Nuke gun — Makes the rpg fire nukes — Command: JSnukeGun [on/off]
 		Nuke waypoint — Drops a nuke on your selected Waypoint. — Command: JSnukeWP
@@ -131,6 +137,9 @@ Weapons — Command: JSweapons
 		Minecraft gun — Spawns blocks where you shoot. — Command: JSminecraftGun [on/off]
 		Delete last block — Command: JSdeleteLastBlock
 		Delete all blocks — Command: JSdeleteBlocks
+	Flamethrower — Makes the minigun into a flamethrower. — Command: JSflamethrower [on/off]
+	Friendly fire — Makes you able to shoot peds the game count as your friends. — Command: JSfriendlyFire [on/off]
+	Reload when rolling — Reloads your weapon when doing a roll. — Command: JSrollReload [on/off]
 Vehicle — Command: JSVeh
 	Speed and handling — Command: JSspeedHandling
 		Low traction — Makes your vehicle have low traction, I recommend setting this to a hotkey. — Command: JSlowTraction [on/off]
@@ -153,6 +162,8 @@ Vehicle — Command: JSVeh
 		Shunt boost — Lets you shunt boost in any vehicle by double tapping "A" or "D". — Command: JSshuntBoost [on/off]
 		Disable recharge — Removes the force build-up of the shunt boost. — Command: JSnoShutRecharge [on/off]
 		Force (0 to 1000) — How much force is applied to your car. — Command: JSshuntForce  [0 to 1000]
+		Veh bounce — Adds some bounciness to your vehicle when it falls to the ground. — Command: JSvehBounce [on/off]
+		Bounciness multiplier (1.1 to 10.00) — Command: JSbounceMult  [1.1 to 10.00]
 	Vehicle doors — Command: JSvehDoors
 		Indestructible doors — Makes it so your vehicle doors can't break off. — Command: JSinvincibleDoors [on/off]
 		Shut doors when driving — Closes all the vehicle doors when you start driving. — Command: JSautoClose [on/off]
@@ -162,9 +173,12 @@ Vehicle — Command: JSVeh
 		Toggle plane afterburner — Makes you able to toggle afterburner on planes by pressing "left shift". — Command: JSafterburner [on/off]
 		Lock vtol — Locks the angle of planes vtol propellers. — Command: JSlockVtol [on/off]
 	Ghost vehicle (0 to 100) — Makes your vehicle different levels off see through. — Command: JSghostVeh  [0 to 100]
-	Disable exhaust pops — Disables those annoying exhaust pops that your car makes if it has a non-stock exhaust option. — Command: JSdisablePops [on/off]
+	Vehicle sounds — Command: JSvehSounds
+		Disable exhaust pops — Disables those annoying exhaust pops that your car makes if it has a non-stock exhaust option. — Command: JSdisablePops [on/off]
+		Engine sound — Command: JSengineSound
+		Emmersive radio — Lowers the radio when you're not in first person mode. — Command: JSemersiveRadio [on/off]
+		Npc horn — Makes you horn like a npc. Also makes your car doors silent. — Command: JSnpcHorn [on/off]
 	Stance — Activates stance on vehicles that support it. — Command: JSstance [on/off]
-	Npc horn — Makes you horn like a npc. Also makes your car doors silent. — Command: JSnpcHorn [on/off]
 	To the moon — Forces you into the sky if you're in a vehicle. — Command: JStoMoon [on/off]
 	Anchor — Forces you into the ground if you're in a air born vehicle. — Command: JSanchor [on/off]
 Online — Command: JSonline
@@ -204,6 +218,20 @@ Online — Command: JSonline
 		Block LSC — Block lsc from being accessed. — Command: JSblockLSC
 		Block casino — Block casino from being accessed. — Command: JSblockCasino
 		Block maze bank — Block maze bank from being accessed. — Command: JSblockCasino
+		Block orbital room
+			Block burton
+			Block LSIA
+			Block la meza
+			Block blaine county
+			Block paleto bay
+			Block benny's
+			Block casino entrance
+			Block casino garage
+			Block lucky wheel
+			Block maze bank entrance
+			Block maze bank garage
+		Block hawick clubhouse
+		Block arena war garages
 Players — Command: JSplayers
 	Whitelist — Applies to most options in this section. — Command: JSwhitelist
 		Exclude self — Will make you not explode yourself. Pretty cool option if you ask me ;P — Command: JSWhitelistSelf [on/off]
@@ -240,6 +268,9 @@ World — Command: JSworld
 	Enable footsteps — Enables foot prints on all surfaces. — Command: JSfootSteps [on/off]
 	Enable vehicle trails — Enables vehicle trails on all surfaces. — Command: JSvehicleTrails [on/off]
 	Disable all map notifications — Removes that constant spam. — Command: JSnoMapNotifications [on/off]
+	Colour overlay
+		Colour overlay — Applies a colour filter on the game. — Command: JScolourOverlay [on/off]
+		Set overlay colour — Command: JSoverlayColour
 	Trains — Command: JStrains
 		Derail trains — Derails and stops all trains. — Command: JSderail [on/off]
 		Delete trains — Just because every script has train options, I gotta have an anti train option. — Command: JSdeleteTrain
