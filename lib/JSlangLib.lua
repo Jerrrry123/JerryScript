@@ -247,10 +247,6 @@ function JSlang.colour(root, name, tableCommands, description, ...)
     return menu.colour(root, JSlang.trans(name), tableCommands, JSlang.trans(description), ...)
 end
 
-function JSlang.slider_text(root, name, tableCommands, description, ...)
-    return menu.slider_text(root, JSlang.trans(name), tableCommands, JSlang.trans(description), ...)
-end
-
 -- menu.rainbow(int colour_command)
 
 function JSlang.divider(root, name)
@@ -263,6 +259,10 @@ end
 
 function JSlang.action_slider(root, name, link, description, ...)
     return menu.action_slider(root, JSlang.trans(name), link, JSlang.trans(description), ...)
+end
+
+function JSlang.slider_text(root, name, tableCommands, description, ...)
+    return menu.slider_text(root, JSlang.trans(name), tableCommands, JSlang.trans(description), ...)
 end
 
 return JSlang

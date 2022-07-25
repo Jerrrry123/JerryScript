@@ -190,6 +190,14 @@ function CL.action_slider(root, name, commands, help, ...)
     return action_slider
 end
 
+function CL.slider_text(root, name, commands, help, ...)
+    local colour = menu.slider_text(root, name, commands, help, ...)
+
+    makeLine(root, name, commands, help)
+
+    return colour
+end
+
 function CL.hyperlink(root, name, link, help)
     local hyperlink = menu.hyperlink(root, name, link, help)
 
