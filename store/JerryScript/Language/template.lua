@@ -581,18 +581,3 @@ t(f('Rat rain'), '')
 t(f('Puts a Remote access trojan in your pc. (JK)'), '')
 t(f('Clear rain'), '')
 t(f('Deletes rained entities.'), '')
-
---toasts
-t(f('Explosions stopped because the player you\'re blaming left.'), '')
-t(f('Couldn\'t find property.'), '')
-t(f('You haven\'t made or lost any chips.'), '')
-t(f('Couldn\'t find time trial.'), '')
-t(f('Couldn\'t find rc time trial.'), '')
-
---other strings
-t(f('Can\'t be silenced.'), '')
-t(f('Will overwrite "Disable explosion damage" and if you haven\'t chosen a player random players will be blamed for each explosion.'), '')
-t(f('You\'ve made'), '')
-t(f('You\'ve lost'), '')
-t(f('\'s submarine to the surface.'), '')
-t(f('I can\'t guarantee that these options are 100% safe. I tested them on my main, but im stupid.'), '')

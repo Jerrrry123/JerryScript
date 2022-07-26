@@ -61,62 +61,11 @@ end
 
 if GENERATE_TEMPLATE then
 
-    local loggedStrings = {}
-    local function writeToasts(path, f)
-        local script_file = readAll(path)
-        for text in string.gmatch(script_file, 'JSlang.toast%(\'.-\'%)') do
-            text = string.gsub(text, 'JSlang.toast%(\'', '')
-            text = string.gsub(text, '\'%)', '')
-            text = string.gsub(text, '\'', '\\\'')
-            text = string.gsub(text, '\n', '\\n')
-            text = string.gsub(text, '\\\\', '\\')
-            if loggedStrings[text] == nil and lang.find(text, 'en') == 0 then
-                f:write('t(f(\''.. text ..'\'), \'\')' ..'\n')
-                loggedStrings[text] = true
-            end
-        end
-    end
-
-    local function writeStrings(path, f)
-        local script_file = readAll(path)
-        for text in string.gmatch(script_file, 'JSlang.str_trans%(\'.-\'%)') do
-            text = string.gsub(text, 'JSlang.str_trans%(\'', '')
-            text = string.gsub(text, '\'%)', '')
-            text = string.gsub(text, '\'', '\\\'')
-            text = string.gsub(text, '\n', '\\n')
-            text = string.gsub(text, '\\\\', '\\')
-            if loggedStrings[text] == nil and lang.find(text, 'en') == 0 then
-                f:write('t(f(\''.. text ..'\'), \'\')' ..'\n')
-                loggedStrings[text] = true
-            end
-        end
-    end
-
     if not filesystem.exists(LANG_DIR .. 'template.lua') then
         local f = assert(io.open(LANG_DIR .. 'template.lua', 'a'))
         f:write('lang.set_translate(\'\') --insert lang code here e.x. fr en or de\n\nlocal f = lang.find\nlocal t = lang.translate\n\n')
         f:close()
     end
-
-    --asynchronous code that runs after the main script has loaded
-    util.create_thread(function()
-        while LOADING_SCRIPT do
-            util.yield(1)
-        end
-
-        local f = assert(io.open(LANG_DIR .. 'template.lua', 'a'))
-        f:write('\n--toasts\n')
-
-        for _, file in pairs(STRING_FILES) do
-            writeToasts(file, f)
-        end
-
-        f:write('\n--other strings\n')
-        for _, file in pairs(STRING_FILES) do
-            writeStrings(file, f)
-        end
-        f:close()
-    end)
 
     function JSlang.trans(txt)
         if txt == nil or #txt < 1 then return '' end
