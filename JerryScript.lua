@@ -1219,42 +1219,45 @@ local whitelistedName = false
 
     local nuke_gun_toggle = JSlang.toggle(nuke_gun_root, 'Nuke gun', {'JSnukeGun'}, 'Makes the rpg fire nukes', function(toggle)
         nuke_running = toggle
-        if nuke_running then
-            if animals_running then menu.trigger_command(exp_animal_toggle, 'off') end
-            util.create_tick_handler(function()
-                if WEAPON.GET_SELECTED_PED_WEAPON(players.user_ped()) == -1312131151 then --if holding homing launcher
-                    if PED.IS_PED_SHOOTING(players.user_ped()) then
-                        if not remove_projectiles then
-                            remove_projectiles = true
-                            disableProjectileLoop(-1312131151)
-                        end
-                        util.create_thread(function()
-                            local hash = util.joaat('w_arena_airmissile_01a')
-                            loadModel(hash)
+        if not toggle then return end
 
-                            local cam_rot = CAM.GET_FINAL_RENDERED_CAM_ROT(2)
-                            local dir, pos = direction()
+        if animals_running then
+            menu.set_value(exp_animal_toggle, false)
+        end
 
-                            local bomb = entities.create_object(hash, pos)
-                            ENTITY.APPLY_FORCE_TO_ENTITY(bomb, 0, dir.x, dir.y, dir.z, 0.0, 0.0, 0.0, 0, true, false, true, false, true)
-                            ENTITY.SET_ENTITY_ROTATION(bomb, cam_rot.x, cam_rot.y, cam_rot.z, 1, true)
-
-                            while not ENTITY.HAS_ENTITY_COLLIDED_WITH_ANYTHING(bomb) do
-                                util.yield()
-                            end
-                            local nukePos = ENTITY.GET_ENTITY_COORDS(bomb, true)
-                            entities.delete(bomb)
-                            executeNuke(nukePos)
-                        end)
-                    else
-                        remove_projectiles = false
+        util.create_tick_handler(function()
+            if WEAPON.GET_SELECTED_PED_WEAPON(players.user_ped()) == -1312131151 then --if holding homing launcher
+                if PED.IS_PED_SHOOTING(players.user_ped()) then
+                    if not remove_projectiles then
+                        remove_projectiles = true
+                        disableProjectileLoop(-1312131151)
                     end
+                    util.create_thread(function()
+                        local hash = util.joaat('w_arena_airmissile_01a')
+                        loadModel(hash)
+
+                        local cam_rot = CAM.GET_FINAL_RENDERED_CAM_ROT(2)
+                        local dir, pos = direction()
+
+                        local bomb = entities.create_object(hash, pos)
+                        ENTITY.APPLY_FORCE_TO_ENTITY(bomb, 0, dir.x, dir.y, dir.z, 0.0, 0.0, 0.0, 0, true, false, true, false, true)
+                        ENTITY.SET_ENTITY_ROTATION(bomb, cam_rot.x, cam_rot.y, cam_rot.z, 1, true)
+
+                        while not ENTITY.HAS_ENTITY_COLLIDED_WITH_ANYTHING(bomb) do
+                            util.yield()
+                        end
+                        local nukePos = ENTITY.GET_ENTITY_COORDS(bomb, true)
+                        entities.delete(bomb)
+                        executeNuke(nukePos)
+                    end)
                 else
                     remove_projectiles = false
                 end
-                return nuke_running
-            end)
-        end
+            else
+                remove_projectiles = false
+            end
+            return nuke_running
+        end)
     end)
 
     --credit to scriptCat (^-^)
@@ -1299,34 +1302,37 @@ local whitelistedName = false
 
     local grenade_gun_toggle = JSlang.toggle(throwables_launcher_root, 'Throwables launcher', {'JSgrenade'}, 'Makes the grenade launcher able to shoot throwables, gives you the throwable if you don\'t have it so you can shoot it.', function(toggle)
         grenade_running = toggle
-        if grenade_running then
-            if animals_running then menu.trigger_command(exp_animal_toggle, "off") end
-            util.create_tick_handler(function()
-                if WEAPON.GET_SELECTED_PED_WEAPON(players.user_ped()) == -1568386805 then --if holding grenade launcher
-                    if PED.IS_PED_SHOOTING(players.user_ped()) then
-                        if not remove_projectiles then
-                            remove_projectiles = true
-                            disableProjectileLoop(-1568386805)
-                        end
-                        util.create_thread(function()
-                            local currentWeapon = WEAPON.GET_CURRENT_PED_WEAPON_ENTITY_INDEX(players.user_ped(), false)
-                            local pos1 = ENTITY._GET_ENTITY_BONE_POSITION_2(currentWeapon, ENTITY.GET_ENTITY_BONE_INDEX_BY_NAME(currentWeapon, 'gun_muzzle'))
-                            local pos2 = get_offset_from_gameplay_camera(30)
-                            if not WEAPON.HAS_PED_GOT_WEAPON(players.user_ped(), launcherThrowable, false) then
-                                WEAPON.GIVE_WEAPON_TO_PED(players.user_ped(), launcherThrowable, 9999, false, false)
-                            end
-                            util.yield()
-                            MISC.SHOOT_SINGLE_BULLET_BETWEEN_COORDS(pos1.x, pos1.y, pos1.z, pos2.x, pos2.y, pos2.z, 200, true, launcherThrowable, players.user_ped(), true, false, 2000.0)
-                        end)
-                    else
-                        remove_projectiles = false
+        if not toggle then return end
+
+        if animals_running then
+            menu.set_value(exp_animal_toggle, false)
+        end
+
+        util.create_tick_handler(function()
+            if WEAPON.GET_SELECTED_PED_WEAPON(players.user_ped()) == -1568386805 then --if holding grenade launcher
+                if PED.IS_PED_SHOOTING(players.user_ped()) then
+                    if not remove_projectiles then
+                        remove_projectiles = true
+                        disableProjectileLoop(-1568386805)
                     end
+                    util.create_thread(function()
+                        local currentWeapon = WEAPON.GET_CURRENT_PED_WEAPON_ENTITY_INDEX(players.user_ped(), false)
+                        local pos1 = ENTITY._GET_ENTITY_BONE_POSITION_2(currentWeapon, ENTITY.GET_ENTITY_BONE_INDEX_BY_NAME(currentWeapon, 'gun_muzzle'))
+                        local pos2 = get_offset_from_gameplay_camera(30)
+                        if not WEAPON.HAS_PED_GOT_WEAPON(players.user_ped(), launcherThrowable, false) then
+                            WEAPON.GIVE_WEAPON_TO_PED(players.user_ped(), launcherThrowable, 9999, false, false)
+                        end
+                        util.yield()
+                        MISC.SHOOT_SINGLE_BULLET_BETWEEN_COORDS(pos1.x, pos1.y, pos1.z, pos2.x, pos2.y, pos2.z, 200, true, launcherThrowable, players.user_ped(), true, false, 2000.0)
+                    end)
                 else
                     remove_projectiles = false
                 end
-                return grenade_running
-            end)
-        end
+            else
+                remove_projectiles = false
+            end
+            return grenade_running
+        end)
     end)
 
     local throwablesTable = {
@@ -1359,44 +1365,50 @@ local whitelistedName = false
     local exp_animal = 'a_c_killerwhale'
     exp_animal_toggle = JSlang.toggle(exp_animal_gun_root, 'Explosive animal gun', {'JSexpAnimalGun'}, 'Inspired by impulses explosive whale gun, but can fire other animals too.', function(toggle)
         animals_running = toggle
-        if animals_running then
-            if nuke_running then menu.trigger_command(nuke_gun_toggle, 'off') end
-            if grenade_running then menu.trigger_command(grenade_gun_toggle, 'off') end
-            while animals_running do
-                local weaponHash = WEAPON.GET_SELECTED_PED_WEAPON(players.user_ped())
-                local weaponType = WEAPON.GET_WEAPON_DAMAGE_TYPE(weaponHash)
-                if weaponType == 3 or (weaponType == 5 and WEAPON.GET_WEAPONTYPE_GROUP(weaponHash) != 1548507267) then --weapons that shoot bullets or explosions and isn't in the throwables category (grenades, proximity mines etc...)
-                    disable_firing = true
-                    disableFiringLoop()
-                    if JSkey.is_disabled_control_pressed(2, 'INPUT_ATTACK') and PLAYER.IS_PLAYER_FREE_AIMING(players.user_ped()) then
-                        util.create_thread(function()
-                            local hash = util.joaat(exp_animal)
-                            loadModel(hash)
-
-                            local dir, c1 = direction()
-                            local animal = entities.create_ped(28, hash, c1, 0)
-                            local cam_rot = CAM.GET_FINAL_RENDERED_CAM_ROT(2)
-
-                            ENTITY.APPLY_FORCE_TO_ENTITY(animal, 0, dir.x, dir.y, dir.z, 0.0, 0.0, 0.0, 0, true, false, true, false, true)
-                            ENTITY.SET_ENTITY_ROTATION(animal, cam_rot.x, cam_rot.y, cam_rot.z, 1, true)
-
-                            while not ENTITY.HAS_ENTITY_COLLIDED_WITH_ANYTHING(animal) do
-                                util.yield()
-                            end
-                            local animalPos = ENTITY.GET_ENTITY_COORDS(animal, true)
-                            entities.delete(animal)
-                            FIRE.ADD_EXPLOSION(animalPos.x, animalPos.y,animalPos.z, 1, 10, true, false, 1, false)
-                        end)
-                    end
-                else
-                    disable_firing = false
-                end
-                util.yield(200)
-            end
-        else
+        if not animals_running then
             disable_firing = false
+            return
         end
-    end)
+
+        if nuke_running then
+            menu.set_value(nuke_gun_toggle, false)
+        end
+        if grenade_running then
+            menu.set_value(grenade_gun_toggle, false)
+        end
+
+        while animals_running do
+            local weaponHash = WEAPON.GET_SELECTED_PED_WEAPON(players.user_ped())
+            local weaponType = WEAPON.GET_WEAPON_DAMAGE_TYPE(weaponHash)
+            if weaponType == 3 or (weaponType == 5 and WEAPON.GET_WEAPONTYPE_GROUP(weaponHash) != 1548507267) then --weapons that shoot bullets or explosions and isn't in the throwables category (grenades, proximity mines etc...)
+                disable_firing = true
+                disableFiringLoop()
+                if JSkey.is_disabled_control_pressed(2, 'INPUT_ATTACK') and PLAYER.IS_PLAYER_FREE_AIMING(players.user_ped()) then
+                    util.create_thread(function()
+                        local hash = util.joaat(exp_animal)
+                        loadModel(hash)
+
+                        local dir, c1 = direction()
+                        local animal = entities.create_ped(28, hash, c1, 0)
+                        local cam_rot = CAM.GET_FINAL_RENDERED_CAM_ROT(2)
+
+                        ENTITY.APPLY_FORCE_TO_ENTITY(animal, 0, dir.x, dir.y, dir.z, 0.0, 0.0, 0.0, 0, true, false, true, false, true)
+                        ENTITY.SET_ENTITY_ROTATION(animal, cam_rot.x, cam_rot.y, cam_rot.z, 1, true)
+
+                        while not ENTITY.HAS_ENTITY_COLLIDED_WITH_ANYTHING(animal) do
+                            util.yield()
+                        end
+                        local animalPos = ENTITY.GET_ENTITY_COORDS(animal, true)
+                        entities.delete(animal)
+                        FIRE.ADD_EXPLOSION(animalPos.x, animalPos.y,animalPos.z, 1, 10, true, false, 1, false)
+                    end)
+                end
+            else
+                disable_firing = false
+            end
+            util.yield(200)
+        end
+end)
 
     local animalsTable = {
         ['Cat'] = 'a_c_cat_01',
