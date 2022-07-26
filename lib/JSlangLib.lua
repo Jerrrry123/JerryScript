@@ -120,7 +120,6 @@ for _, filePath in pairs(STRING_FILES) do
         text = string.gsub(text, '\'%)', '')
         text = string.gsub(text, '\\\'', '\'')
         text = string.gsub(text, '\\\n', '\n')
-        text = string.gsub(text, '\\', '\\')
         if registeredStrings[text] == nil then
             registeredStrings[text] = true
             JSlang.trans(text)
@@ -132,7 +131,6 @@ for _, filePath in pairs(STRING_FILES) do
         text = string.gsub(text, '\'%)', '')
         text = string.gsub(text, '\\\'', '\'')
         text = string.gsub(text, '\\\n', '\n')
-        text = string.gsub(text, '\\', '\\\\')
         if registeredStrings[text] == nil then
             registeredStrings[text] = true
             JSlang.trans(text)
