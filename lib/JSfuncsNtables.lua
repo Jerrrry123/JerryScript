@@ -478,15 +478,11 @@
     end
 
     function getWeaponHash(ped)
-        local weaponHash = WEAPON.GET_SELECTED_PED_WEAPON(ped)
-        local vehWeaponHash = nil
         local wpn_ptr = memory.alloc_int()
-        local vehicleWeapon = false
         if WEAPON.GET_CURRENT_PED_VEHICLE_WEAPON(ped, wpn_ptr) then -- only returns true if the weapon is a vehicle weapon
-            vehWeaponHash = memory.read_int(wpn_ptr)
-            vehicleWeapon = true
+            return memory.read_int(wpn_ptr), true
         end
-        return (vehWeaponHash and vehWeaponHash or weaponHash), vehicleWeapon
+        return WEAPON.GET_SELECTED_PED_WEAPON(ped), false
     end
 
     function getWeaponName(weaponHash)
