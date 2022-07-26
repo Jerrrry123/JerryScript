@@ -249,8 +249,8 @@ local whitelistedName = false
                 {
                     name = 'Disable score', command = 'PIdisableScore', description = 'Only shows when you or they have kills.', toggle = true,
                     displayText = function(pid)
-                        local myScore = GET_INT_GLOBAL(2863967 + 386 + 1 + pid)
-                        local theirScore = GET_INT_GLOBAL(2863967 + 353 + 1 + pid)
+                        local myScore = GET_INT_GLOBAL(2870058 + 386 + 1 + pid)
+                        local theirScore = GET_INT_GLOBAL(2870058 + 353 + 1 + pid)
                         return (myScore > 0 or theirScore > 0) and (myScore ..' '.. JSlang.str_trans('Vs') ..' '.. theirScore) --only returns score if either part has kills
                     end
                 },
@@ -562,7 +562,7 @@ local whitelistedName = false
             barrageInput = 'INPUT_COVER'
         end
 
-        memory.write_int(memory.script_global(1645739+1121), 1)
+        memory.write_int(memory.script_global(1649593 + 1163), 1)
         SF.CLEAR_ALL()
         SF.TOGGLE_MOUSE_BUTTONS(false)
         SF.SET_DATA_SLOT(2, JSkey.get_control_instructional_button(0, 'INPUT_ATTACK'), JSlang.str_trans('Explode'))
@@ -934,7 +934,7 @@ local whitelistedName = false
         menu.set_menu_name(custom_respawn_toggle, JSlang.str_trans('Custom respawn') ..': '.. getZoneName(players.user()))
         local pos = 'X: '.. respawnPos.x ..'\nY: '.. respawnPos.y ..'\nZ: '.. respawnPos.z
         menu.set_help_text(custom_respawn_toggle,  pos)
-        menu.set_help_text(custom_respawn_location,  JSlang.str_trans('Current location:') ..'\n'.. pos)
+        menu.set_help_text(custom_respawn_location,  JSlang.str_trans('Current location') ..':\n'.. pos)
     end)
 
     --Transition points
@@ -1798,7 +1798,7 @@ local whitelistedName = false
             util.toast(VEHICLE.GET_DISPLAY_NAME_FROM_VEHICLE_MODEL(ENTITY.GET_ENTITY_MODEL(my_cur_car)))
         end)
 
-        JSlang.toggle_loop(vehicle_sounds_root, 'Emmersive radio', {'JSemersiveRadio'}, 'Lowers the radio when you\'re not in first person mode.', function()
+        JSlang.toggle_loop(vehicle_sounds_root, 'Immersive radio', {'JSemersiveRadio'}, 'Lowers the radio when you\'re not in first person mode.', function()
             AUDIO.SET_FRONTEND_RADIO_ACTIVE(CAM.GET_CAM_VIEW_MODE_FOR_CONTEXT(context) == 4)
         end, function()
             AUDIO.SET_FRONTEND_RADIO_ACTIVE(true)
