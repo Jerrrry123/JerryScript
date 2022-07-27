@@ -219,7 +219,7 @@ local whitelistedName = false
                     name = 'Disable ammo info', command = 'PIdisableAmmo', description = '', toggle = true,
                     displayText = function(pid, ped, weaponHash)
                         local damageType = WEAPON.GET_WEAPON_DAMAGE_TYPE(weaponHash)
-                        if (damageType == 12 or damageType == 1 or damageType == 3 or damageType == 5 or damageType == 13) or util.joaat('weapon_raypistol') != weaponHash then return end
+                        if (damageType == 12 or damageType == 1 or damageType == 5 or damageType == 13) or util.joaat('weapon_raypistol') == weaponHash then return end
                         local ammoCount
                         local ammo_ptr = memory.alloc_int()
                         if WEAPON.GET_AMMO_IN_CLIP(ped, weaponHash, ammo_ptr) and WEAPON.GET_WEAPONTYPE_GROUP(weaponHash) != util.joaat('GROUP_THROWN') then
