@@ -2491,7 +2491,7 @@ end)
         for k, playerPid in ipairs(playerList) do
             local playerPed = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(playerPid)
             if (PLAYER.IS_PLAYER_FREE_AIMING_AT_ENTITY(players.user(), playerPed) or PLAYER.IS_PLAYER_FREE_AIMING_AT_ENTITY(players.user(), playerPed)) and players.is_godmode(playerPid) then
-                util.trigger_script_event(1 << playerPid, {801199324, playerPid, 869796886})
+                util.trigger_script_event(1 << playerPid, {-1388926377, playerPid, -1762807505, math.random(0, 9999)})
             end
         end
     end)
@@ -2537,7 +2537,7 @@ end)
             local userPed = players.user_ped()
             if playerIsTargetingEntity(userPed) and karma[userPed] and players.is_godmode(karma[userPed].pid) then
                 local karmaPid = karma[userPed].pid
-                util.trigger_script_event(1 << karmaPid, {801199324, karmaPid, 869796886})
+                util.trigger_script_event(1 << karmaPid, {-1388926377, karmaPid, -1762807505, math.random(0, 9999)})
             end
         end)
 
@@ -2979,7 +2979,7 @@ local runningTogglingOff = false
             for k, playerPid in ipairs(playerList) do
                 local playerPed = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(playerPid)
                 if (PLAYER.IS_PLAYER_FREE_AIMING_AT_ENTITY(pid, playerPed) or PLAYER.IS_PLAYER_FREE_AIMING_AT_ENTITY(pid, playerPed)) and players.is_godmode(playerPid) then
-                    util.trigger_script_event(1 << playerPid, {801199324, playerPid, 869796886})
+                    util.trigger_script_event(1 << playerPid, {-1388926377, playerPid, -1762807505, math.random(0, 9999)})
                 end
             end
             if not players.exists(pid) then util.stop_thread() end
@@ -3018,7 +3018,7 @@ local runningTogglingOff = false
 
             JSlang.toggle_loop(give_karma_root, 'Disable godmode', {'JSgiveGodAimKarma'}, 'If a god mode player aims at them this disables the aimers god mode by pushing their camera forwards.', function()
                 if playerIsTargetingEntity(playerPed) and karma[playerPed] and players.is_godmode(karma[playerPed].pid) then
-                    util.trigger_script_event(1 << karma[playerPed].pid, {801199324, karma[playerPed].pid, 869796886})
+                    util.trigger_script_event(1 << karma[playerPed].pid, {-1388926377, karma[playerPed].pid, -1762807505, math.random(0, 9999)})
                 end
                 if not players.exists(pid) then util.stop_thread() end
             end)
