@@ -716,7 +716,20 @@ local whitelistedName = false
             scale = 0.3,
             colour = mildOrangeFire,
             on = false,
+            y = { value = 0.12, still = 0.12, walk =  0.22, sprint = 0.32 },
+            z = { value = 0.58, still = 0.58, walk =  0.45, sprint = 0.38 },
         }
+
+        local function transitionValue(value, target, step)
+            if value == target then return value end
+            return value + step * ( value > target and -1 or 1 )
+        end
+
+        function fireBreathSettings:changePos(movementType)
+            self.z.value = transitionValue(self.z.value, self.z[movementType], 0.01)
+            self.y.value = transitionValue(self.y.value, self.y[movementType], 0.01)
+        end
+
         JSlang.toggle(fire_breath_root, 'Fire breath', {'JSfireBreath'}, '', function(toggle)
             fireBreathSettings.on = toggle
             if toggle then
@@ -736,11 +749,16 @@ local whitelistedName = false
                 if PED.GET_PED_PARACHUTE_STATE(players.user_ped()) == 0 and ENTITY.IS_ENTITY_IN_AIR(players.user_ped()) then
                     GRAPHICS.SET_PARTICLE_FX_LOOPED_OFFSETS(fireBreathSettings.ptfx, 0, 0.81, 0, -10, 0, 0)
                 elseif TASK.IS_PED_SPRINTING(players.user_ped()) then
-                    GRAPHICS.SET_PARTICLE_FX_LOOPED_OFFSETS(fireBreathSettings.ptfx, 0, 0.32, 0.38, 30, 0, 0)
+                    fireBreathSettings:changePos('sprint')
+                    GRAPHICS.SET_PARTICLE_FX_LOOPED_OFFSETS(fireBreathSettings.ptfx, 0, fireBreathSettings.y.value, fireBreathSettings.z.value, 30, 0, 0)
+                elseif TASK.IS_PED_WALKING(players.user_ped()) then
+                    fireBreathSettings:changePos('walk')
+                    GRAPHICS.SET_PARTICLE_FX_LOOPED_OFFSETS(fireBreathSettings.ptfx, 0, fireBreathSettings.y.value, fireBreathSettings.z.value, 30, 0, 0)
                 elseif menu.get_value(levitationCommand) then
                     GRAPHICS.SET_PARTICLE_FX_LOOPED_OFFSETS(fireBreathSettings.ptfx, 0, -0.12, 0.58, 150, 0, 0)
                 else
-                    GRAPHICS.SET_PARTICLE_FX_LOOPED_OFFSETS(fireBreathSettings.ptfx, 0, 0.12, 0.58, 30, 0, 0)
+                    fireBreathSettings:changePos('still')
+                    GRAPHICS.SET_PARTICLE_FX_LOOPED_OFFSETS(fireBreathSettings.ptfx, 0, fireBreathSettings.y.value, fireBreathSettings.z.value, 30, 0, 0)
                 end
                 return fireBreathSettings.on
             end)
