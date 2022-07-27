@@ -1,4 +1,33 @@
 ----------------------------------
+-- tables
+----------------------------------
+    --og function written by me
+    function removeValues(t, removeT)
+        for _, r in ipairs(removeT) do
+            for i, v in ipairs(t) do
+                if v == r then
+                    table.remove(t, i)
+                end
+            end
+        end
+    end
+
+    --this function is from wiriScripts functions
+    function pairsByKeys(t, f)
+        local a = {}
+        for n in pairs(t) do table.insert(a, n) end
+        table.sort(a, f)
+        local i = 0
+        local iter = function()
+            i += 1
+            if a[i] == nil then return nil
+            else return a[i], t[a[i]]
+            end
+        end
+        return iter
+    end
+
+----------------------------------
 -- Math
 ----------------------------------
     function roundDecimals(float, decimals)
@@ -203,21 +232,6 @@
             firstOpening[1] = false
             menu.focus(listRoot, '')
         end)
-    end
-
-    --this function is from wiriScripts functions
-    function pairsByKeys(t, f)
-        local a = {}
-        for n in pairs(t) do table.insert(a, n) end
-        table.sort(a, f)
-        local i = 0
-        local iter = function()
-            i += 1
-            if a[i] == nil then return nil
-            else return a[i], t[a[i]]
-            end
-        end
-        return iter
     end
 
     function string.capitalize(str)

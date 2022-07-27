@@ -760,12 +760,12 @@ local whitelistedName = false
                 return fireBreathSettings.on
             end)
         end)
-    
+
         JSlang.slider(fire_breath_root, 'Fire breath scale', {'JSfireBreathScale'}, '', 1, 100, fireBreathSettings.scale * 10, 1, function(value)
             fireBreathSettings.scale = value / 10
             GRAPHICS.SET_PARTICLE_FX_LOOPED_SCALE(fireBreathSettings.ptfx, fireBreathSettings.scale)
         end)
-    
+
         menu.rainbow(JSlang.colour(fire_breath_root, 'Fire breath colour', {'JSfireBreathColour'}, '', fireBreathSettings.colour, false, function(colour)
             fireBreathSettings.colour = colour
             GRAPHICS.SET_PARTICLE_FX_LOOPED_COLOUR(fireBreathSettings.ptfx, fireBreathSettings.colour.r, fireBreathSettings.colour.g, fireBreathSettings.colour.b)
@@ -2653,21 +2653,11 @@ end)
             VEHICLE.DELETE_ALL_TRAINS()
         end)
 
-        local function removeFromValueArray(t, value)
-            for i, v in ipairs(t) do
-                if v == value then
-                  table.remove(t, i)
-                 end
-            end
-        end
-
         local markedTrains = {}
         local markedTrainBlips = {}
         JSlang.toggle_loop(trains_root, 'Mark nearby trains', {'JSnoMapNotifications'}, 'Marks nearby trains with purple blips.', function()
             local vehPointers = entities.get_all_vehicles_as_pointers()
-            for i = 1, #markedTrains do
-                removeFromValueArray(vehPointers, markedTrains[i])
-            end
+            removeValues(vehPointers, markedTrains)
 
             for i = 1, #vehPointers do
                 local vehHash = entities.get_model_hash(vehPointers[i])
