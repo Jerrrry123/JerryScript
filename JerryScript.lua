@@ -127,9 +127,6 @@ local levitationCommand = menu.ref_by_path('Self>Movement>Levitation>Levitation'
                 util.yield()
                 l -= 6 - math.abs(math.floor(l / 10))
             end
-            for i = 1, 250 do
-                util.yield()
-            end
         end)
     end
 ----------------------------------
