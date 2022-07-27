@@ -39,10 +39,10 @@ end
 
 local JS_logo = directx.create_texture(filesystem.resources_dir() ..'JS.png')
 
-local darkBlue = new.colour(0, 0, 12 / 255, 1)
-local black = new.colour(0, 0, 1 / 255, 1)
-local white = new.colour(1, 1, 1, 1)
-local mildOrangeFire = new.colour(255 / 255, 127 / 255, 80 / 255, 1)
+local darkBlue = new.colour( 0, 0, 12 )
+local black = new.colour( 0, 0, 1 )
+local white = new.colour( 255, 255, 255 )
+local mildOrangeFire = new.colour( 255, 127, 80 )
 
 local levitationCommand = menu.ref_by_path('Self>Movement>Levitation>Levitation', 38)
 
@@ -299,7 +299,7 @@ local whitelistedName = false
                 camShake = 0, invisible = false, audible = true, noDamage = false, owned = false, blamed = false, blamedPlayer = false, expType = 0,
                 --stuff for fx explosions
                 currentFx = effects['Clown_Explosion'],
-                colour = new.colour(1, 0, 1)
+                colour = new.colour( 255, 0, 255 )
             }
 
             local exp_fx_root = JSlang.list(epx_settings_root, 'FX explosions', {'JSfxExp'}, 'Lets you choose effects instead of explosion type.')
@@ -419,7 +419,7 @@ local whitelistedName = false
                 menu.set_menu_name(exp_fx_type_root, JSlang.str_trans('FX type') ..': '.. name)
             end)
 
-            menu.rainbow(JSlang.colour(exp_fx_root, 'FX colour', {'JSPfxColour'}, 'Only works on some pfx\'s.',  new.colour(1, 0, 1, 1), false, function(colour)
+            menu.rainbow(JSlang.colour(exp_fx_root, 'FX colour', {'JSPfxColour'}, 'Only works on some pfx\'s.',  new.colour( 255, 0, 255 ), false, function(colour)
                 expSettings.colour = colour
             end))
         -----------------------------------
@@ -2609,7 +2609,7 @@ end)
 
     local colour_overlay_root = JSlang.list(world_root, 'Colour overlay', {}, '')
 
-    local colourOverlay = new.colour(0, 0, 10 / 255, 0.1)
+    local colourOverlay = new.colour( 0, 0, 10, 0.1 )
 
     JSlang.toggle_loop(colour_overlay_root, 'Colour overlay', {'JScolourOverlay'}, 'Applies a colour filter on the game.', function()
         directx.draw_rect(0, 0, 1, 1, colourOverlay)
@@ -2636,13 +2636,15 @@ end)
         end
 
         JSlang.toggle(trains_root, 'Derail trains', {'JSderail'}, 'Derails and stops all trains.', function(toggle)
-            local vehHandles = entities.get_all_vehicles_as_handles()
+            local vehPointers = entities.get_all_vehicles_as_pointers()
             trainsStopped = toggle
-            for i = 1, #vehHandles do
-                if VEHICLE.GET_VEHICLE_CLASS(vehHandles[i]) == 21 then
-                    NETWORK.NETWORK_REQUEST_CONTROL_OF_ENTITY(vehHandles[i])
-                    VEHICLE.SET_RENDER_TRAIN_AS_DERAILED(vehHandles[i], true)
-                    stopTrain(vehHandles[i])
+            for i = 1, #vehPointers do
+                local vehHash = entities.get_model_hash(vehPointers[i])
+                if VEHICLE.GET_VEHICLE_CLASS_FROM_NAME(vehHash) == 21 then
+                    local trainHandle = entities.pointer_to_handle(vehPointers[i])
+                    NETWORK.NETWORK_REQUEST_CONTROL_OF_ENTITY(trainHandle)
+                    VEHICLE.SET_RENDER_TRAIN_AS_DERAILED(trainHandle, true)
+                    stopTrain(trainHandle)
                 end
             end
         end)
@@ -2651,23 +2653,41 @@ end)
             VEHICLE.DELETE_ALL_TRAINS()
         end)
 
+        local function removeFromValueArray(t, value)
+            for i, v in ipairs(t) do
+                if v == value then
+                  table.remove(t, i)
+                 end
+            end
+        end
+
         local markedTrains = {}
+        local markedTrainBlips = {}
         JSlang.toggle_loop(trains_root, 'Mark nearby trains', {'JSnoMapNotifications'}, 'Marks nearby trains with purple blips.', function()
-            local vehHandles = entities.get_all_vehicles_as_handles()
-            for i = 0, #vehHandles do
-                if VEHICLE.GET_VEHICLE_CLASS(vehHandles[i]) == 21 then
-                    for j = 0, #markedTrains do
-                        if vehHandles[i] == markedTrains[j] then pluto_continue end
-                    end
+            local vehPointers = entities.get_all_vehicles_as_pointers()
+            for i = 1, #markedTrains do
+                removeFromValueArray(vehPointers, markedTrains[i])
+            end
+
+            for i = 1, #vehPointers do
+                local vehHash = entities.get_model_hash(vehPointers[i])
+                if VEHICLE.GET_VEHICLE_CLASS_FROM_NAME(vehHash) == 21 then
                     if notifications then
                         JSlang.toast('Marked train')
                     end
-                    table.insert(markedTrains, vehHandles[i])
-                    local blip = HUD.ADD_BLIP_FOR_ENTITY(vehHandles[i])
+                    table.insert(markedTrains, vehPointers[i])
+                    local blip = HUD.ADD_BLIP_FOR_ENTITY(entities.pointer_to_handle(vehPointers[i]))
                     HUD.SET_BLIP_COLOUR(blip, 58)
+                    table.insert(markedTrainBlips, blip)
                 end
             end
             util.yield(100)
+        end, function()
+            for i = #markedTrainBlips, 1, -1 do
+                util.remove_blip(markedTrainBlips[i])
+                markedTrainBlips[i] = nil
+                markedTrains[i] = nil
+            end
         end)
 
     -----------------------------------
