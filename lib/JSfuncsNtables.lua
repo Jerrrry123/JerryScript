@@ -48,17 +48,19 @@
         HUD.END_TEXT_COMMAND_BUSYSPINNER_ON(5)
     end
 
-    new = {
-        colour = function(R, G, B, A)
-            return {r = R, g = G, b = B, a = A}
-        end,
-        hudSettings = function(X, Y, ALIGNMENT)
-            return {xOffset = X, yOffset = Y, scale = 0.5, alignment = ALIGNMENT, textColour = new.colour(1, 1, 1, 1)}
-        end,
-        delay = function(MS, S, MIN)
-            return {ms = MS, s = S, min = MIN}
-        end,
-    }
+    new = {}
+
+    function new.colour(R, G, B, A)
+        return {r = R / 255, g = G / 255, b = B / 255, a = A or 1}
+    end
+
+    function new.hudSettings(X, Y, ALIGNMENT)
+        return {xOffset = X, yOffset = Y, scale = 0.5, alignment = ALIGNMENT, textColour = new.colour( 255, 255, 255 )}
+    end
+
+    function new.delay (MS, S, MIN)
+        return {ms = MS, s = S, min = MIN}
+    end
 
 ----------------------------------
 -- Memory
@@ -83,10 +85,6 @@
         return 'MP'.. util.get_char_slot() ..'_'
     end
 
-    function STAT_SET_INT(Stat, Value)
-        STATS.STAT_SET_INT(util.joaat(getMPX() .. Stat), Value, true)
-    end
-
     function STAT_GET_INT(Stat)
         STATS.STAT_GET_INT(util.joaat(getMPX() .. Stat), Int_PTR, -1)
         return memory.read_int(Int_PTR)
@@ -102,36 +100,8 @@
         return memory.read_float(Int_PTR)
     end
 
-    function STAT_SET_FLOAT(Stat, value)
-        STATS.STAT_SET_FLOAT(util.joaat(getMPX() .. Stat), value, true)
-    end
-    function STAT_SET_FLOAT_MPPLY(Hash, Value)
-        STATS.STAT_SET_FLOAT(util.joaat(Hash), Value, true)
-    end
-
-    function STAT_SET_INT_MPPLY(Stat, Value)
-        STATS.STAT_SET_INT(util.joaat(Stat), Value, true)
-    end
-
-    function STAT_SET_BOOL_MPPLY(Stat, Value)
-        STATS.STAT_SET_BOOL(util.joaat(Stat), Value, true)
-    end
-
-    function STAT_GET_BOOL_MPPLY(Stat)
-        STATS.STAT_GET_BOOL(util.joaat(Stat), Int_PTR, -1)
-        return memory.read_int(Int_PTR)
-    end
-
-    function STAT_SET_BOOL(Stat, Value)
-        STATS.STAT_SET_BOOL(util.joaat(getMPX() .. Stat), Value, true)
-    end
-
     function STAT_SET_INCREMENT(Stat, Value)
         STATS.STAT_INCREMENT(util.joaat(getMPX() .. Stat), Value)
-    end
-
-    function SET_INT_GLOBAL(Global, Value)
-        memory.write_int(memory.script_global(Global), Value)
     end
 
     function GET_INT_GLOBAL(Global)
