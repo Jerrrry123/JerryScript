@@ -571,13 +571,16 @@ local whitelistedName = false
         JSkey.disable_control_action(2, 'INPUT_VEH_FLY_MOUSE_CONTROL_OVERRIDE')
         JSkey.disable_control_action(2, 'INPUT_VEH_SUB_MOUSE_CONTROL_OVERRIDE')
 
-        if not (JSkey.is_control_pressed(0, 'INPUT_ATTACK') or JSkey.is_control_pressed(0, 'INPUT_AIM') or JSkey.is_control_pressed(0, barrageInput)) then return end
+        JSkey.disable_control_action(0, 'INPUT_ATTACK')
+        JSkey.disable_control_action(0, 'INPUT_AIM')
+
+        if not (JSkey.is_disabled_control_pressed(0, 'INPUT_ATTACK') or JSkey.is_disabled_control_pressed(0, 'INPUT_AIM') or JSkey.is_disabled_control_pressed(0, barrageInput)) then return end
 
         local a = ENTITY.GET_ENTITY_COORDS(PLAYER.PLAYER_PED_ID())
         local b = getOffsetFromCam(80)
 
         local hash
-        if JSkey.is_control_pressed(0, 'INPUT_ATTACK') then
+        if JSkey.is_disabled_control_pressed(0, 'INPUT_ATTACK') then
             hash = util.joaat('VEHICLE_WEAPON_PLAYER_LAZER')
             if not WEAPON.HAS_WEAPON_ASSET_LOADED(hash) then
                 WEAPON.REQUEST_WEAPON_ASSET(hash, 31, 26)
@@ -585,7 +588,7 @@ local whitelistedName = false
                     util.yield()
                 end
             end
-        elseif JSkey.is_control_pressed(0, 'INPUT_AIM') then
+        elseif JSkey.is_disabled_control_pressed(0, 'INPUT_AIM') then
             hash = util.joaat('WEAPON_RAYPISTOL')
             if not WEAPON.HAS_PED_GOT_WEAPON(players.user_ped(), hash, false) then
                 WEAPON.GIVE_WEAPON_TO_PED(players.user_ped(), hash, 9999, false, false)
@@ -984,13 +987,14 @@ local whitelistedName = false
 
     local thermal_command = menu.ref_by_path('Game>Rendering>Thermal Vision', 37)
     JSlang.toggle_loop(weapons_root, 'Thermal guns', {'JSthermalGuns'}, 'Makes it so when you aim any gun you can toggle thermal vision on "E".', function()
-        if GRAPHICS.GET_USINGSEETHROUGH() and not PLAYER.IS_PLAYER_FREE_AIMING(players.user_ped()) then
+        local aiming = PLAYER.IS_PLAYER_FREE_AIMING(players.user_ped())
+        if GRAPHICS.GET_USINGSEETHROUGH() and not aiming then
             menu.trigger_command(thermal_command, 'off')
             GRAPHICS._SEETHROUGH_SET_MAX_THICKNESS(1) --default value is 1
         elseif JSkey.is_key_just_down('VK_E') then
             local state = menu.get_value(thermal_command)
-            menu.trigger_command(thermal_command, if state then 'off' else 'on')
-            GRAPHICS._SEETHROUGH_SET_MAX_THICKNESS(if state then 1 else 50)
+            menu.trigger_command(thermal_command, if state or not aiming then 'off' else 'on')
+            GRAPHICS._SEETHROUGH_SET_MAX_THICKNESS(if state or not aiming then 1 else 50)
         end
     end)
 
@@ -1475,7 +1479,6 @@ end)
         flameThrower.on = toggle
         util.create_tick_handler(function()
             if WEAPON.GET_SELECTED_PED_WEAPON(players.user_ped()) == 1119849093 and PLAYER.IS_PLAYER_FREE_AIMING(players.user()) then --if shooting minigun
-                PLAYER.DISABLE_PLAYER_FIRING(players.user_ped(), true)
                 while not STREAMING.HAS_NAMED_PTFX_ASSET_LOADED('weap_xs_vehicle_weapons') do
                     STREAMING.REQUEST_NAMED_PTFX_ASSET('weap_xs_vehicle_weapons')
                     util.yield()
@@ -1485,11 +1488,13 @@ end)
                     flameThrower.ptfx = GRAPHICS.START_NETWORKED_PARTICLE_FX_LOOPED_ON_ENTITY_BONE('muz_xs_turret_flamethrower_looping', WEAPON.GET_CURRENT_PED_WEAPON_ENTITY_INDEX(players.user_ped()), 0.8, 0, 0, 0, 0, 270, ENTITY.GET_ENTITY_BONE_INDEX_BY_NAME(WEAPON.GET_CURRENT_PED_WEAPON_ENTITY_INDEX(players.user_ped()), 'Gun_Nuzzle'), 0.5, false, false, false)
                     GRAPHICS.SET_PARTICLE_FX_LOOPED_COLOUR(flameThrower.ptfx, flameThrower.colour.r, flameThrower.colour.g, flameThrower.colour.b)
                 end
+                disable_firing = true
+                disableFiringLoop()
             else
                 GRAPHICS.REMOVE_PARTICLE_FX(flameThrower.ptfx, true)
                 STREAMING.REMOVE_NAMED_PTFX_ASSET('weap_xs_vehicle_weapons')
                 flameThrower.ptfx = nil
-                PLAYER.DISABLE_PLAYER_FIRING(players.user_ped(), false)
+                disable_firing = true
             end
             return flameThrower.on
         end)
