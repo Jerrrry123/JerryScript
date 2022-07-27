@@ -859,7 +859,7 @@ local whitelistedName = false
             [11] = { name = 'Body Blemishes',     min = -1, max = 11 },
             [12] = { name = 'Add Body Blemishes', min = -1, max = 1  },
         }
-        local face_overlay_list = JSlang.list(self_root, 'Customize face overlays', {}, 'Customizations reset after restarting the game.', function()end)
+        local face_overlay_list = JSlang.list(self_root, 'Customize face overlays', {}, 'Customizations reset after restarting the game.')
 
         for i = 0, #faceOverlays do
             local overlayValue = PED._GET_PED_HEAD_OVERLAY_VALUE(players.user_ped(), i)
@@ -2050,7 +2050,7 @@ end)
                     if propertyBlips[i].subProperties then
                         local subProperties = propertyBlips[i].subProperties
                         local listName = subProperties.listName
-                        propertyTpRefs[listName] = menu.list(root, listName, {}, '', function()end)
+                        propertyTpRefs[listName] = menu.list(root, listName, {}, '')
                         for j = 1, #subProperties.properties do
                             local subPropertyBlip = getUserPropertyBlip(subProperties.properties[j].sprite)
                             if propertyBlip ~= nil then
