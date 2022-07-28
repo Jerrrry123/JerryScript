@@ -219,7 +219,8 @@ local whitelistedName = false
                     name = 'Disable ammo info', command = 'PIdisableAmmo', description = '', toggle = true,
                     displayText = function(pid, ped, weaponHash)
                         local damageType = WEAPON.GET_WEAPON_DAMAGE_TYPE(weaponHash)
-                        if (damageType == 12 or damageType == 1 or damageType == 5 or damageType == 13) or util.joaat('weapon_raypistol') == weaponHash then return end
+                        if (damageType == 2 or damageType == 1 or damageType == 12) or WEAPON.GET_WEAPONTYPE_GROUP(weaponHash) == util.joaat('GROUP_THROWN') or util.joaat('weapon_raypistol') == weaponHash then return end
+
                         local ammoCount
                         local ammo_ptr = memory.alloc_int()
                         if WEAPON.GET_AMMO_IN_CLIP(ped, weaponHash, ammo_ptr) and WEAPON.GET_WEAPONTYPE_GROUP(weaponHash) != util.joaat('GROUP_THROWN') then
@@ -716,8 +717,8 @@ local whitelistedName = false
             scale = 0.3,
             colour = mildOrangeFire,
             on = false,
-            y = { value = 0.12, still = 0.12, walk =  0.22, sprint = 0.32 },
-            z = { value = 0.58, still = 0.58, walk =  0.45, sprint = 0.38 },
+            y = { value = 0.12, still = 0.12, walk =  0.22, sprint = 0.32, sneak = 0.35 },
+            z = { value = 0.58, still = 0.58, walk =  0.45, sprint = 0.38, sneak = 0.35 },
         }
 
         local function transitionValue(value, target, step)
@@ -748,16 +749,19 @@ local whitelistedName = false
             util.create_tick_handler(function()
                 if PED.GET_PED_PARACHUTE_STATE(players.user_ped()) == 0 and ENTITY.IS_ENTITY_IN_AIR(players.user_ped()) then
                     GRAPHICS.SET_PARTICLE_FX_LOOPED_OFFSETS(fireBreathSettings.ptfx, 0, 0.81, 0, -10, 0, 0)
-                elseif TASK.IS_PED_SPRINTING(players.user_ped()) then
-                    fireBreathSettings:changePos('sprint')
-                    GRAPHICS.SET_PARTICLE_FX_LOOPED_OFFSETS(fireBreathSettings.ptfx, 0, fireBreathSettings.y.value, fireBreathSettings.z.value, 30, 0, 0)
-                elseif TASK.IS_PED_WALKING(players.user_ped()) then
-                    fireBreathSettings:changePos('walk')
-                    GRAPHICS.SET_PARTICLE_FX_LOOPED_OFFSETS(fireBreathSettings.ptfx, 0, fireBreathSettings.y.value, fireBreathSettings.z.value, 30, 0, 0)
                 elseif menu.get_value(levitationCommand) then
                     GRAPHICS.SET_PARTICLE_FX_LOOPED_OFFSETS(fireBreathSettings.ptfx, 0, -0.12, 0.58, 150, 0, 0)
                 else
-                    fireBreathSettings:changePos('still')
+                    local movementType = 'still'
+                    if TASK.IS_PED_SPRINTING(players.user_ped()) then
+                        movementType = 'sprint'
+                    elseif TASK.IS_PED_WALKING(players.user_ped()) then
+                        movementType = 'walk'
+                    elseif PED.GET_PED_STEALTH_MOVEMENT(players.user_ped()) then
+                        movementType = 'sneak'
+                    end
+
+                    fireBreathSettings:changePos(movementType)
                     GRAPHICS.SET_PARTICLE_FX_LOOPED_OFFSETS(fireBreathSettings.ptfx, 0, fireBreathSettings.y.value, fireBreathSettings.z.value, 30, 0, 0)
                 end
                 return fireBreathSettings.on
