@@ -1788,19 +1788,15 @@ end)
         local plane_root = JSlang.list(my_vehicle_root, 'Plane options', {'JSplane'}, '')
 
         local afterBurnerState = false
-        local afterburnerToggle = false
-        JSlang.toggle(plane_root, 'Toggle plane afterburner', {'JSafterburner'}, 'Makes you able to toggle afterburner on planes by pressing "left shift".', function(toggle)
-            afterburnerToggle = toggle
-            util.create_tick_handler(function()
-                if JSkey.is_key_just_down('VK_LSHIFT') then
-                    afterBurnerState = not afterBurnerState
-                    VEHICLE.SET_VEHICLE_FORCE_AFTERBURNER(my_cur_car, afterBurnerState)
-                end
-                if afterBurnerState then
-                    VEHICLE.SET_HELI_BLADES_FULL_SPEED(my_cur_car)
-                end
-                return afterburnerToggle
-            end)
+        JSlang.toggle_loop(plane_root, 'Toggle plane afterburner', {'JSafterburner'}, 'Makes you able to toggle afterburner on planes by pressing "left shift".', function()
+            if JSkey.is_key_just_down('VK_LSHIFT') then
+                afterBurnerState = not afterBurnerState
+                VEHICLE.SET_VEHICLE_FORCE_AFTERBURNER(my_cur_car, afterBurnerState)
+            end
+            if afterBurnerState then
+                VEHICLE.SET_HELI_BLADES_FULL_SPEED(my_cur_car)
+            end
+        end, function()
             VEHICLE.SET_VEHICLE_FORCE_AFTERBURNER(my_cur_car, false)
         end)
 
