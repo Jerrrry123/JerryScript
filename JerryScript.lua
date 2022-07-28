@@ -1795,6 +1795,8 @@ end)
                 if JSkey.is_key_just_down('VK_LSHIFT') then
                     afterBurnerState = not afterBurnerState
                     VEHICLE.SET_VEHICLE_FORCE_AFTERBURNER(my_cur_car, afterBurnerState)
+                end
+                if afterBurnerState then
                     VEHICLE.SET_HELI_BLADES_FULL_SPEED(my_cur_car)
                 end
                 return afterburnerToggle
