@@ -1827,7 +1827,6 @@ end)
         }
         JSlang.slider_text(vehicle_sounds_root, 'Engine sound', {'JSengineSound'}, '', {'Default', 'Silent', 'Electric'}, function(index, value)
             AUDIO._FORCE_VEHICLE_ENGINE_AUDIO(entities.get_user_vehicle_as_handle(), if type(car_sounds[value]) == 'string' then car_sounds[value] else car_sounds[value]())
-            util.toast(VEHICLE.GET_DISPLAY_NAME_FROM_VEHICLE_MODEL(ENTITY.GET_ENTITY_MODEL(my_cur_car)))
         end)
 
         JSlang.toggle_loop(vehicle_sounds_root, 'Immersive radio', {'JSemersiveRadio'}, 'Lowers the radio when you\'re not in first person mode.', function()
