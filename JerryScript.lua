@@ -2624,9 +2624,9 @@ end)
         directx.draw_rect(0, 0, 1, 1, colourOverlay)
     end)
 
-    JSlang.colour(colour_overlay_root   , 'Set overlay colour', {'JSoverlayColour'}, '', colourOverlay, true, function(colour)
+    menu.rainbow(JSlang.colour(colour_overlay_root   , 'Set overlay colour', {'JSoverlayColour'}, '', colourOverlay, true, function(colour)
         colourOverlay = colour
-    end)
+    end))
 
     -----------------------------------
     -- Trains
