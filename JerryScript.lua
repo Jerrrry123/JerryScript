@@ -1795,6 +1795,7 @@ end)
                 if JSkey.is_key_just_down('VK_LSHIFT') then
                     afterBurnerState = not afterBurnerState
                     VEHICLE.SET_VEHICLE_FORCE_AFTERBURNER(my_cur_car, afterBurnerState)
+                    VEHICLE.SET_HELI_BLADES_FULL_SPEED(my_cur_car)
                 end
                 return afterburnerToggle
             end)
@@ -2588,6 +2589,7 @@ end)
             128,
     }
     JSlang.toggle_loop(world_root, 'Disable numpad', {'JSdisableNumpad'}, 'Disables numpad so you don\'t rotate your plane/submarine while navigating stand', function()
+        if JSkey.is_key_down('VK_LBUTTON') or JSkey.is_key_down('VK_RBUTTON') then return end
         for _, control in pairs(numpadControls) do
             PAD.DISABLE_CONTROL_ACTION(2, control, true)
         end
