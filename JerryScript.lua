@@ -747,17 +747,18 @@ local whitelistedName = false
                 STREAMING.REMOVE_NAMED_PTFX_ASSET('weap_xs_vehicle_weapons')
             end
             util.create_tick_handler(function()
-                if PED.GET_PED_PARACHUTE_STATE(players.user_ped()) == 0 and ENTITY.IS_ENTITY_IN_AIR(players.user_ped()) then
+                local user_ped = players.user_ped()
+                if PED.GET_PED_PARACHUTE_STATE(user_ped) == 0 and ENTITY.IS_ENTITY_IN_AIR(user_ped) then
                     GRAPHICS.SET_PARTICLE_FX_LOOPED_OFFSETS(fireBreathSettings.ptfx, 0, 0.81, 0, -10, 0, 0)
                 elseif menu.get_value(levitationCommand) then
                     GRAPHICS.SET_PARTICLE_FX_LOOPED_OFFSETS(fireBreathSettings.ptfx, 0, -0.12, 0.58, 150, 0, 0)
                 else
                     local movementType = 'still'
-                    if TASK.IS_PED_SPRINTING(players.user_ped()) then
+                    if TASK.IS_PED_SPRINTING(user_ped) then
                         movementType = 'sprint'
-                    elseif TASK.IS_PED_WALKING(players.user_ped()) then
+                    elseif TASK.IS_PED_WALKING(user_ped) then
                         movementType = 'walk'
-                    elseif PED.GET_PED_STEALTH_MOVEMENT(players.user_ped()) then
+                    elseif PED.GET_PED_STEALTH_MOVEMENT(user_ped) then
                         movementType = 'sneak'
                     end
 
