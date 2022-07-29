@@ -1480,7 +1480,7 @@ end)
     local flameThrower = {
         colour = mildOrangeFire
     }
-    JSlang.toggle(weapons_root, 'Flamethrower', {'JSflamethrower'}, 'Makes the minigun into a flamethrower.', function(toggle)
+    JSlang.toggle(weapons_root, 'Flamethrower', {'JSflamethrower'}, 'Converts the minigun into a flamethrower.', function(toggle)
         flameThrower.on = toggle
         util.create_tick_handler(function()
             if WEAPON.GET_SELECTED_PED_WEAPON(players.user_ped()) == 1119849093 and PLAYER.IS_PLAYER_FREE_AIMING(players.user()) then --if shooting minigun
@@ -1833,7 +1833,7 @@ end)
             AUDIO._FORCE_VEHICLE_ENGINE_AUDIO(entities.get_user_vehicle_as_handle(), if type(car_sounds[value]) == 'string' then car_sounds[value] else car_sounds[value]())
         end)
 
-        JSlang.toggle_loop(vehicle_sounds_root, 'Immersive radio', {'JSemersiveRadio'}, 'Lowers the radio when you\'re not in first person mode.', function()
+        JSlang.toggle_loop(vehicle_sounds_root, 'Immersive radio', {'JSemersiveRadio'}, 'Lowers the radio volume when you\'re not in first person mode.', function()
             AUDIO.SET_FRONTEND_RADIO_ACTIVE(CAM.GET_CAM_VIEW_MODE_FOR_CONTEXT(context) == 4)
         end, function()
             AUDIO.SET_FRONTEND_RADIO_ACTIVE(true)
