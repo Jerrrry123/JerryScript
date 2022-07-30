@@ -1642,12 +1642,25 @@ end)
                 end
 
                 while nitroBoostActive do
-                    if JSkey.is_control_just_pressed(2, 'INPUT_VEH_TRANSFORM') and PED.IS_PED_IN_ANY_VEHICLE(players.user_ped(), true) then --control is x
+                    if JSkey.is_control_just_pressed(2, 'INPUT_VEH_TRANSFORM') and PED.IS_PED_IN_ANY_VEHICLE(players.user_ped(), true) then
+                        repeat
+                            util.yield()
+                        until not JSkey.is_control_just_pressed(2, 'INPUT_VEH_TRANSFORM')
+
                         VEHICLE._SET_VEHICLE_NITRO_ENABLED(my_cur_car, true, getTotalDelay(nitroSettings.level) / 10, nitroSettings.power, 999999999999999999, false)
-                        util.yield(getTotalDelay(nitroSettings.level))
-                        VEHICLE._SET_VEHICLE_NITRO_ENABLED(my_cur_car, false, getTotalDelay(nitroSettings.level) / 10, nitroSettings.power, 999999999999999999, false)
+
                         local startTime = util.current_time_millis()
-                        while util.current_time_millis() < startTime + getTotalDelay(nitroSettings.rechargeTime) do util.yield() end
+                        while util.current_time_millis() < startTime + getTotalDelay(nitroSettings.level) do
+                            if JSkey.is_control_just_pressed(2, 'INPUT_VEH_TRANSFORM') then
+                                break
+                            end
+                            util.yield()
+                        end
+                        VEHICLE._SET_VEHICLE_NITRO_ENABLED(my_cur_car, false, getTotalDelay(nitroSettings.level) / 10, nitroSettings.power, 999999999999999999, false)
+                        startTime = util.current_time_millis()
+                        while util.current_time_millis() < startTime + getTotalDelay(nitroSettings.rechargeTime) do
+                            util.yield()
+                        end
                     end
                     util.yield()
                 end
