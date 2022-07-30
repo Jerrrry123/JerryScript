@@ -181,32 +181,15 @@
         end)
     end
 
-    function getDelayDisplayValue(delayTable)
-        if delayTable.min > 0 then
-            return delayTable.min .. JSlang.str_trans('min')
-        elseif delayTable.s > 0 then
-            return delayTable.s + delayTable.ms / 1000 .. JSlang.str_trans('s')
-        else
-            return delayTable.ms .. JSlang.str_trans('ms')
-        end
-    end
-
-    local function setDelayDisplay(root, name, delayTable)
-        menu.set_menu_name(root, name..': '..getDelayDisplayValue(delayTable))
-    end
-
     function generateDelaySettings(root, name, delayTable)
         JSlang.slider(root, 'Ms', {'JS'..name..'DelayMs'}, 'The delay is the added total of ms, sec and min values.', 1, 999, delayTable.ms, 1, function(value)
             delayTable.ms = value
-            setDelayDisplay(root, name, delayTable)
         end)
         JSlang.slider(root, 'Seconds', {'JS'..name..'DelaySec'}, 'The delay is the added total of ms, sec and min values.', 0, 59, delayTable.s, 1, function(value)
             delayTable.s = value
-            setDelayDisplay(root, name, delayTable)
         end)
         JSlang.slider(root, 'Minutes', {'JS'..name..'DelayMin'}, 'The delay is the added total of ms, sec and min values.', 0, 60, delayTable.min, 1, function(value)
             delayTable.min = value
-            setDelayDisplay(root, name, delayTable)
         end)
     end
 

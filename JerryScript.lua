@@ -289,7 +289,7 @@ local whitelistedName = false
 
         local expLoopDelay = new.delay(250, 0, 0)
 
-        local loop_delay_root = menu.list(epx_settings_root, JSlang.str_trans('Loop delay') ..': '.. getDelayDisplayValue(expLoopDelay), {'JSexpDelay'}, JSlang.str_trans('Lets you set a custom delay between looped explosions.'))
+        local loop_delay_root = menu.list(epx_settings_root, JSlang.str_trans('Loop delay'), {'JSexpDelay'}, JSlang.str_trans('Lets you set a custom delay between looped explosions.'))
 
         generateDelaySettings(loop_delay_root, JSlang.str_trans('Loop delay'), expLoopDelay)
 
@@ -1653,10 +1653,10 @@ end)
                 end
             end)
 
-            local nitro_duration_root = menu.list(boosts_root, JSlang.str_trans('Duration') ..': '.. getDelayDisplayValue(nitroSettings.level), {'JSnitroDuration'}, JSlang.str_trans('Lets you set a customize how long the nitro lasts.'))
+            local nitro_duration_root = menu.list(boosts_root, JSlang.str_trans('Duration'), {'JSnitroDuration'}, JSlang.str_trans('Lets you set a customize how long the nitro lasts.'))
             generateDelaySettings(nitro_duration_root, JSlang.str_trans('Duration'), nitroSettings.level)
 
-            local nitro_recharge_root = menu.list(boosts_root, JSlang.str_trans('Recharge time') ..': '.. getDelayDisplayValue(nitroSettings.rechargeTime), {'JSnitroRecharge'}, JSlang.str_trans('Lets you set a custom delay of how long it takes for nitro to recharge.'))
+            local nitro_recharge_root = menu.list(boosts_root, JSlang.str_trans('Recharge time'), {'JSnitroRecharge'}, JSlang.str_trans('Lets you set a custom delay of how long it takes for nitro to recharge.'))
             generateDelaySettings(nitro_recharge_root, JSlang.str_trans('Recharge time'), nitroSettings.rechargeTime)
 
         -----------------------------------
@@ -1896,7 +1896,7 @@ end)
             fakeMoneyTransactionPending = toggle
         end, fakeMoneyTransactionPending)
 
-        local fake_money_loop_delay_root = menu.list(fake_money_root, JSlang.str_trans('Fake money loop delay') ..': '.. getDelayDisplayValue(fakeMoneyLoopDelay), {'JSexpDelay'}, JSlang.str_trans('Lets you set a custom delay to the fake money loop.'))
+        local fake_money_loop_delay_root = menu.list(fake_money_root, JSlang.str_trans('Fake money loop delay'), {'JSexpDelay'}, JSlang.str_trans('Lets you set a custom delay to the fake money loop.'))
 
         generateDelaySettings(fake_money_loop_delay_root, JSlang.str_trans('Fake money loop delay'), fakeMoneyLoopDelay)
 
@@ -2984,7 +2984,7 @@ local runningTogglingOff = false
                 yeetMultiplier = value
             end)
 
-            local strom_delay_root = menu.list(trolling_root, JSlang.str_trans('Storm delay') ..': '.. getDelayDisplayValue(stormDelay), {'JSentStormDelay'}, JSlang.str_trans('Lets you set the delay for how often entities are pushed in entity storm.'))
+            local strom_delay_root = menu.list(trolling_root, JSlang.str_trans('Storm delay'), {'JSentStormDelay'}, JSlang.str_trans('Lets you set the delay for how often entities are pushed in entity storm.'))
             generateDelaySettings(strom_delay_root, JSlang.str_trans('Storm delay'), stormDelay)
         -----------------------------------
 
