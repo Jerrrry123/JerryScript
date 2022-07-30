@@ -1480,29 +1480,27 @@ end)
     local flameThrower = {
         colour = mildOrangeFire
     }
-    JSlang.toggle(weapons_root, 'Flamethrower', {'JSflamethrower'}, 'Converts the minigun into a flamethrower.', function(toggle)
-        flameThrower.on = toggle
-        util.create_tick_handler(function()
-            if WEAPON.GET_SELECTED_PED_WEAPON(players.user_ped()) == 1119849093 and PLAYER.IS_PLAYER_FREE_AIMING(players.user()) then --if shooting minigun
-                while not STREAMING.HAS_NAMED_PTFX_ASSET_LOADED('weap_xs_vehicle_weapons') do
-                    STREAMING.REQUEST_NAMED_PTFX_ASSET('weap_xs_vehicle_weapons')
-                    util.yield()
-                end
-                GRAPHICS.USE_PARTICLE_FX_ASSET('weap_xs_vehicle_weapons')
-                if flameThrower.ptfx == nil then
-                    flameThrower.ptfx = GRAPHICS.START_NETWORKED_PARTICLE_FX_LOOPED_ON_ENTITY_BONE('muz_xs_turret_flamethrower_looping', WEAPON.GET_CURRENT_PED_WEAPON_ENTITY_INDEX(players.user_ped()), 0.8, 0, 0, 0, 0, 270, ENTITY.GET_ENTITY_BONE_INDEX_BY_NAME(WEAPON.GET_CURRENT_PED_WEAPON_ENTITY_INDEX(players.user_ped()), 'Gun_Nuzzle'), 0.5, false, false, false)
-                    GRAPHICS.SET_PARTICLE_FX_LOOPED_COLOUR(flameThrower.ptfx, flameThrower.colour.r, flameThrower.colour.g, flameThrower.colour.b)
-                end
-                disable_firing = true
-                disableFiringLoop()
-            else
-                GRAPHICS.REMOVE_PARTICLE_FX(flameThrower.ptfx, true)
-                STREAMING.REMOVE_NAMED_PTFX_ASSET('weap_xs_vehicle_weapons')
-                flameThrower.ptfx = nil
-                disable_firing = true
-            end
-            return flameThrower.on
-        end)
+    JSlang.toggle_loop(weapons_root, 'Flamethrower', {'JSflamethrower'}, 'Converts the minigun into a flamethrower.', function()
+        if WEAPON.GET_SELECTED_PED_WEAPON(players.user_ped()) != 1119849093 or not JSkey.is_control_pressed(2, 'INPUT_AIM') then
+            if not flameThrower.ptfx then return end
+
+            GRAPHICS.REMOVE_PARTICLE_FX(flameThrower.ptfx, true)
+            STREAMING.REMOVE_NAMED_PTFX_ASSET('weap_xs_vehicle_weapons')
+            flameThrower.ptfx = nil
+            return
+        end
+
+        PLAYER.DISABLE_PLAYER_FIRING(players.user_ped(), true)
+
+        while not STREAMING.HAS_NAMED_PTFX_ASSET_LOADED('weap_xs_vehicle_weapons') do
+            STREAMING.REQUEST_NAMED_PTFX_ASSET('weap_xs_vehicle_weapons')
+            util.yield()
+        end
+        GRAPHICS.USE_PARTICLE_FX_ASSET('weap_xs_vehicle_weapons')
+        if flameThrower.ptfx == nil then
+            flameThrower.ptfx = GRAPHICS.START_NETWORKED_PARTICLE_FX_LOOPED_ON_ENTITY_BONE('muz_xs_turret_flamethrower_looping', WEAPON.GET_CURRENT_PED_WEAPON_ENTITY_INDEX(players.user_ped()), 0.8, 0, 0, 0, 0, 270, ENTITY.GET_ENTITY_BONE_INDEX_BY_NAME(WEAPON.GET_CURRENT_PED_WEAPON_ENTITY_INDEX(players.user_ped()), 'Gun_Nuzzle'), 0.5, false, false, false)
+            GRAPHICS.SET_PARTICLE_FX_LOOPED_COLOUR(flameThrower.ptfx, flameThrower.colour.r, flameThrower.colour.g, flameThrower.colour.b)
+        end
     end)
 
     JSlang.toggle(weapons_root, 'Friendly fire', {'JSfriendlyFire'}, 'Makes you able to shoot peds the game count as your friends.', function(toggle)
