@@ -26,15 +26,12 @@ util.create_thread(function()
 
     --wait for all lang labels to get registered when loading the script to avoid errors when registering translations for those labels
     while LOADING_SCRIPT do
-        util.yield(1)
+        util.yield_once()
     end
 
-    for i, profilePath in pairs(filesystem.list_files(LANG_DIR)) do
+    for _, profilePath in pairs(filesystem.list_files(LANG_DIR)) do
         if string.find(profilePath, 'template') == nil and string.find(profilePath, 'translated') == nil and string.find(profilePath, 'result') == nil then
-            util.create_thread(function()
-                util.yield(100 * i)
-                require(getPathPart(profilePath, filesystem.scripts_dir()))
-            end)
+            util.require_no_lag(getPathPart(profilePath, filesystem.scripts_dir()))
         end
     end
 end)
@@ -45,7 +42,7 @@ local JSlang = {}
 function JSlang.trans(txt)
     if txt == nil or #txt < 1 then return '' end
 
-    local label = lang.find(txt, 'en')
+    local label = lang.find(txt)
     if label == 0 then
         label = lang.register(txt)
     end
