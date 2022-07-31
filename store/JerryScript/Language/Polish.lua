@@ -1,7 +1,7 @@
 lang.set_translate('pl') --thank you DumbBird#9143 for creating this translation ^-^
 
 local f = lang.find
-local t = lang.translate
+local t = function(a, b) if a != lang.find(b) then lang.translate(a, b) end end
 
 t(f('Notifications on'), 'Włącz powiadomienia')
 t(f('Stop creating template files, you have way too many!'), 'Przestań tworzyć szablony, masz ich o wiele za dużo!')

@@ -1,7 +1,7 @@
 lang.set_translate('lt')
 
 local f = lang.find
-local t = lang.translate
+local t = function(a, b) if a != lang.find(b) then lang.translate(a, b) end end
 
 t(f('Notifications on'), 'Pranešimai įjungti')
 t(f('Stop creating template files, you have way too many!'), 'Nustokite kurti šabloninių failų, jų yra per daug!')

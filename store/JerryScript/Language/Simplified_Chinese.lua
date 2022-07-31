@@ -1,7 +1,7 @@
 lang.set_translate('zh') --thank you zzzz#5116 for creating this translation ^-^
 
 local f = lang.find
-local t = lang.translate
+local t = function(a, b) if a != lang.find(b) then lang.translate(a, b) end end
 
 t(f('Notifications on'), '通知已开启')
 t(f('Stop creating template files, you have way too many!'), '已停止创建模板文件,你已经有太多模板了!')

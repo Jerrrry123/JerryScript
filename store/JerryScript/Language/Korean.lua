@@ -1,7 +1,7 @@
 lang.set_translate('ko')
 
 local f = lang.find
-local t = lang.translate
+local t = function(a, b) if a != lang.find(b) then lang.translate(a, b) end end
 
 t(f('Notifications on'), '알림')
 t(f('Stop creating template files, you have way too many!'), '템플릿 파일 생성을 중지하세요. 너무 많습니다!')

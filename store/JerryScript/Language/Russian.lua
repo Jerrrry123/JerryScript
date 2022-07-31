@@ -1,7 +1,7 @@
 lang.set_translate('ru')
 
 local f = lang.find
-local t = lang.translate
+local t = function(a, b) if a != lang.find(b) then lang.translate(a, b) end end
 
 t(f('Notifications on'), 'Уведомления о')
 t(f('Stop creating template files, you have way too many!'), 'Прекратите создавать файлы шаблонов, у вас их слишком много!')
