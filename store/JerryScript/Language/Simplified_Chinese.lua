@@ -1,7 +1,7 @@
 lang.set_translate('zh') --thank you zzzz#5116 for creating this translation ^-^
 
 local f = lang.find
-local t = function(a, b) if a != lang.find(b) then lang.translate(a, b) end end
+local t = lang.translate
 
 t(f('Notifications on'), '通知已开启')
 t(f('Stop creating template files, you have way too many!'), '已停止创建模板文件,你已经有太多模板了!')
@@ -110,8 +110,6 @@ t(f('Lets you set the delay for how often entities are pushed in entity storm.')
 t(f('Forcing'), '强制')
 t(f('\'s submarine to the surface.'), '\'s 潜艇浮出水面')
 t(f('Failed to get latest release.'), '获取最新版本失败')
-t(f('min'), '分钟--')
-t(f('s'), '秒')
 t(f('I can\'t guarantee that these options are 100% safe. I tested them on my main, but im stupid.'), '我不能保证这些选项是100%安全的. 我在我的大号测试了它们,但我太蠢了.')
 t(f('climbing Ladder'), '爬梯')
 t(f('exiting vehicle'), '离开载具')

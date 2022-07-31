@@ -1,7 +1,7 @@
 lang.set_translate('ko')
 
 local f = lang.find
-local t = function(a, b) if a != lang.find(b) then lang.translate(a, b) end end
+local t = lang.translate
 
 t(f('Notifications on'), '알림')
 t(f('Stop creating template files, you have way too many!'), '템플릿 파일 생성을 중지하세요. 너무 많습니다!')
@@ -110,8 +110,6 @@ t(f('Lets you set the delay for how often entities are pushed in entity storm.')
 t(f('Forcing'), '강제')
 t(f('\'s submarine to the surface.'), '수면으로의 잠수함.')
 t(f('Failed to get latest release.'), '최신 릴리스를 가져오지 못했습니다.')
-t(f('min'), '분')
-t(f('s'), '에스')
 t(f('I can\'t guarantee that these options are 100% safe. I tested them on my main, but im stupid.'), '이러한 옵션이 100% 안전하다고 보장할 수 없습니다. 나는 그것들을 내 메인에서 테스트했지만 나는 바보입니다.')
 t(f('climbing Ladder'), '등반 사다리')
 t(f('exiting vehicle'), '나가는 차량')

@@ -1,7 +1,7 @@
 lang.set_translate('nl')
 
 local f = lang.find
-local t = function(a, b) if a != lang.find(b) then lang.translate(a, b) end end
+local t = lang.translate
 
 t(f('Notifications on'), 'Meldingen aan')
 t(f('Stop creating template files, you have way too many!'), 'Stop met het maken van sjabloonbestanden, je hebt er veel te veel!')
@@ -110,8 +110,6 @@ t(f('Lets you set the delay for how often entities are pushed in entity storm.')
 t(f('Forcing'), 'Forceren')
 t(f('\'s submarine to the surface.'), '\'s onderzeeër naar de oppervlakte.')
 t(f('Failed to get latest release.'), 'Kan de laatste release niet ophalen.')
-t(f('min'), 'min')
-t(f('s'), 's')
 t(f('I can\'t guarantee that these options are 100% safe. I tested them on my main, but im stupid.'), 'Ik kan niet garanderen dat deze opties 100% veilig zijn. Ik heb ze getest op mijn main, maar ik ben dom.')
 t(f('climbing Ladder'), 'klimladder')
 t(f('exiting vehicle'), 'verlaten voertuig')

@@ -1,7 +1,7 @@
 lang.set_translate('lt')
 
 local f = lang.find
-local t = function(a, b) if a != lang.find(b) then lang.translate(a, b) end end
+local t = lang.translate
 
 t(f('Notifications on'), 'Pranešimai įjungti')
 t(f('Stop creating template files, you have way too many!'), 'Nustokite kurti šabloninių failų, jų yra per daug!')
@@ -110,8 +110,6 @@ t(f('Lets you set the delay for how often entities are pushed in entity storm.')
 t(f('Forcing'), 'Priversti')
 t(f('\'s submarine to the surface.'), 'povandeninis laivas į paviršių.')
 t(f('Failed to get latest release.'), 'Nepavyko gauti naujausio leidimo.')
-t(f('min'), 'min')
-t(f('s'), 's')
 t(f('I can\'t guarantee that these options are 100% safe. I tested them on my main, but im stupid.'), 'Negaliu garantuoti, kad šios parinktys yra 100% saugios. Išbandžiau juos pagrindiniame, bet esu kvailas.')
 t(f('climbing Ladder'), 'kopimas Kopėčiomis')
 t(f('exiting vehicle'), 'išvažiuojanti transporto priemonė')

@@ -1,7 +1,7 @@
 lang.set_translate('tr')
 
 local f = lang.find
-local t = function(a, b) if a != lang.find(b) then lang.translate(a, b) end end
+local t = lang.translate
 
 t(f('Notifications on'), 'Bildirimler açık')
 t(f('Stop creating template files, you have way too many!'), 'Şablon dosyaları oluşturmayı bırakın, çok fazla dosyanız var!')
@@ -110,8 +110,6 @@ t(f('Lets you set the delay for how often entities are pushed in entity storm.')
 t(f('Forcing'), 'zorlamak')
 t(f('\'s submarine to the surface.'), '\'ın denizaltısı yüzeye.')
 t(f('Failed to get latest release.'), 'En son sürüm alınamadı.')
-t(f('min'), 'dk')
-t(f('s'), 's')
 t(f('I can\'t guarantee that these options are 100% safe. I tested them on my main, but im stupid.'), 'Bu seçeneklerin %100 güvenli olduğunu garanti edemem. Onları ana bilgisayarımda test ettim, ama aptalım.')
 t(f('climbing Ladder'), 'tırmanma merdiveni')
 t(f('exiting vehicle'), 'araçtan çıkmak')

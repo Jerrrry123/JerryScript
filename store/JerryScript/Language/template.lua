@@ -1,7 +1,7 @@
 lang.set_translate('') --insert lang code here e.x. fr en or de
 
 local f = lang.find
-local t = function(a, b) if a != lang.find(b) then lang.translate(a, b) end end
+local t = lang.translate
 
 t(f('Notifications on'), '')
 t(f('Stop creating template files, you have way too many!'), '')
@@ -110,8 +110,6 @@ t(f('Lets you set the delay for how often entities are pushed in entity storm.')
 t(f('Forcing'), '')
 t(f('\'s submarine to the surface.'), '')
 t(f('Failed to get latest release.'), '')
-t(f('min'), '')
-t(f('s'), '')
 t(f('I can\'t guarantee that these options are 100% safe. I tested them on my main, but im stupid.'), '')
 t(f('climbing Ladder'), '')
 t(f('exiting vehicle'), '')

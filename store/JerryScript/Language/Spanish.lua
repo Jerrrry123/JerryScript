@@ -1,7 +1,7 @@
 lang.set_translate('es')
 
 local f = lang.find
-local t = function(a, b) if a != lang.find(b) then lang.translate(a, b) end end
+local t = lang.translate
 
 t(f('Notifications on'), 'Notificaciones en')
 t(f('Stop creating template files, you have way too many!'), 'Deja de crear archivos de plantilla, ¡tienes demasiados!')
@@ -110,8 +110,6 @@ t(f('Lets you set the delay for how often entities are pushed in entity storm.')
 t(f('Forcing'), 'Forzar')
 t(f('\'s submarine to the surface.'), '\'s submarino a la superficie.')
 t(f('Failed to get latest release.'), 'No se pudo obtener la última versión.')
-t(f('min'), 'min')
-t(f('s'), 's')
 t(f('I can\'t guarantee that these options are 100% safe. I tested them on my main, but im stupid.'), 'No puedo garantizar que estas opciones sean 100% seguras. Los probé en mi principal, pero soy estúpido.')
 t(f('climbing Ladder'), 'escalera de escalada')
 t(f('exiting vehicle'), 'saliendo del vehiculo')
