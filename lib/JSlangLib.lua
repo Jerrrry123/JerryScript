@@ -7,7 +7,6 @@ local LANG_DIR = filesystem.store_dir() .. 'JerryScript\\Language\\'
 --files to search for JSlang.toast and JSlang.str_trans in when generating a template
 local STRING_FILES = {
     filesystem.scripts_dir() ..'JerryScript.lua',
-    filesystem.scripts_dir() ..'lib//JSfuncsNtables.lua',
 }
 
 --if you have a template file and a translated file with just plaintext of your translation, this will help you merge those files into translations
