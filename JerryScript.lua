@@ -1303,7 +1303,10 @@ local whitelistedName = false
         end)
 
         players.on_leave(function(pid)
-            menu.delete(blamesTogglesTable[pid])
+            if blamesTogglesTable[pid] then
+                menu.delete(blamesTogglesTable[pid])
+            end
+    
             if expSettings.blamedPlayer == pid then
                 local playerList = players.list(true, true, true)
                 for _, pid in pairs(playerList) do
@@ -3157,6 +3160,7 @@ end)
             end)
         end)
         players.on_leave(function(pid)
+            if not whitelistTogglesTable[pid] then return end
             menu.delete(whitelistTogglesTable[pid])
             whitelistListTable[pid] = nil --removes the player from the whitelist
         end)
