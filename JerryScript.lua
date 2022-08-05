@@ -240,6 +240,17 @@ local SF = scaleForm("instructional_buttons")
         return this_toggle
     end
 
+    function is_any_exclusive_toggle_on(exclusive_toggles)
+        local on = false
+
+        for _, ref in pairs(exclusive_toggles) do
+            on = menu.get_value(ref)
+            if on then break end
+        end
+
+        return on
+    end
+
     --only warns on the first opening, credit to sai for providing this workaround
     function listWarning(listRoot, firstOpening)
         if not firstOpening[1] then return end
@@ -3716,7 +3727,7 @@ play_credits_toggle = JSlang.toggle(menu_root, 'Play credits', {}, '', function(
 end)
 
 
-local playerInfoPid = nil
+local playerInfoPid
 local playerInfoToggles = {}
 ----------------------------------
 -- Player options
@@ -3731,7 +3742,11 @@ local playerInfoToggles = {}
         -- Player info toggle
         ----------------------------------
             playerInfoToggles[pid] = menu.mutually_exclusive_toggle(player_root, 'Player info', {'JSplayerInfo'}, 'Display information about this player.', playerInfoToggles, function(toggle)
-                playerInfoPid = if toggle then pid else nil --hud starts when this is set
+                if toggle then
+                    playerInfoPid = pid --hud is visible when this var is truthy
+                elseif not is_any_exclusive_toggle_on(playerInfoToggles) then
+                    playerInfoPid = nil
+                end
             end)
 
         -----------------------------------
