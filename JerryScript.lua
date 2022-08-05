@@ -2130,10 +2130,22 @@ local whitelistedName = false
     end)
 
     --credit to scriptCat (^-^)
-    local function get_waypoint_pos2()
+    local function get_waypoint_v3()
         if HUD.IS_WAYPOINT_ACTIVE() then
             local blip = HUD.GET_FIRST_BLIP_INFO_ID(8)
             local waypoint_pos = HUD.GET_BLIP_COORDS(blip)
+
+            local success, Zcoord = util.get_ground_z(waypoint_pos.x, waypoint_pos.y)
+            local tries = 0
+            while not success or tries <= 100 do
+                success, Zcoord = util.get_ground_z(waypoint_pos.x, waypoint_pos.y)
+                tries += 1
+                util.yield()
+            end
+            if success then
+                waypoint_pos.z = Zcoord
+            end
+
             return waypoint_pos
         else
             JSlang.toast('No waypoint set.')
@@ -2141,7 +2153,7 @@ local whitelistedName = false
     end
 
     JSlang.action(nuke_gun_root, 'Nuke waypoint', {'JSnukeWP'}, 'Drops a nuke on your selected Waypoint.', function ()
-        local waypointPos = get_waypoint_pos2()
+        local waypointPos = get_waypoint_v3()
         if waypointPos then
             local hash = util.joaat('w_arena_airmissile_01a')
             loadModel(hash)
