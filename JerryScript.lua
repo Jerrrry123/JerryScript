@@ -225,6 +225,21 @@ local SF = scaleForm("instructional_buttons")
         end
     end
 
+    function menu.mutually_exclusive_toggle(root, name, commands, help, exclusive_toggles, func)
+        local this_toggle
+        this_toggle = JSlang.toggle(root, name, commands, help, function(toggle)
+            if toggle then
+                for _, ref in pairs(exclusive_toggles) do
+                    if ref != this_toggle and menu.get_value(ref) then
+                        menu.set_value(ref, false)
+                    end
+                end
+            end
+            func(toggle)
+        end)
+        return this_toggle
+    end
+
     --only warns on the first opening, credit to sai for providing this workaround
     function listWarning(listRoot, firstOpening)
         if not firstOpening[1] then return end
@@ -1059,6 +1074,7 @@ local whitelistedName = false
                 {
                     name = 'Disable vehicle', command = 'PIdisableVehicle', description = '', toggle = true,
                     displayText = function(pid, ped)
+                        if not PED.IS_PED_IN_ANY_VEHICLE(ped, false) then return end
                         local vehicleName = getPlayerVehicleName(ped)
                         return vehicleName and JSlang.str_trans('Vehicle') ..': '.. vehicleName
                     end
@@ -2047,6 +2063,7 @@ local whitelistedName = false
     local nuke_running = false
     local grenade_running = false
     local animals_running = false
+    local mutually_exclusive_weapons = {}
 
     local nuke_height = 40
     local function executeNuke(pos)
@@ -2063,14 +2080,9 @@ local whitelistedName = false
     --credit to lance for the entity gun, but i edited it a bit
     local nuke_gun_root = JSlang.list(weapons_root, 'Nuke options', {}, '')
 
-    local nuke_gun_toggle = JSlang.toggle(nuke_gun_root, 'Nuke gun', {'JSnukeGun'}, 'Makes the rpg fire nukes', function(toggle)
-        nuke_running = toggle
-        if not toggle then return end
-
-        if animals_running then
-            menu.set_value(exp_animal_toggle, false)
-        end
-
+    local nuke_gun_option
+    mutually_exclusive_weapons[#mutually_exclusive_weapons + 1] = menu.mutually_exclusive_toggle(nuke_gun_root, 'Nuke gun', {'JSnukeGun'}, 'Makes the rpg fire nukes', mutually_exclusive_weapons, function(toggle)
+        nuke_gun_option = toggle
         util.create_tick_handler(function()
             if WEAPON.GET_SELECTED_PED_WEAPON(players.user_ped()) == -1312131151 then --if holding homing launcher
                 if PED.IS_PED_SHOOTING(players.user_ped()) then
@@ -2102,7 +2114,7 @@ local whitelistedName = false
             else
                 remove_projectiles = false
             end
-            return nuke_running
+            return nuke_gun_option
         end)
     end)
 
@@ -2146,14 +2158,9 @@ local whitelistedName = false
     local launcherThrowable = util.joaat('weapon_grenade')
     local throwables_launcher_root = JSlang.list(weapons_root, 'Throwables launcher', {}, '')
 
-    local grenade_gun_toggle = JSlang.toggle(throwables_launcher_root, 'Throwables launcher', {'JSgrenade'}, 'Makes the grenade launcher able to shoot throwables, gives you the throwable if you don\'t have it so you can shoot it.', function(toggle)
-        grenade_running = toggle
-        if not toggle then return end
-
-        if animals_running then
-            menu.set_value(exp_animal_toggle, false)
-        end
-
+    local throwables_launcher
+    mutually_exclusive_weapons[#mutually_exclusive_weapons + 1] = menu.mutually_exclusive_toggle(throwables_launcher_root, 'Throwables launcher', {'JSgrenade'}, 'Makes the grenade launcher able to shoot throwables, gives you the throwable if you don\'t have it so you can shoot it.', mutually_exclusive_weapons, function(toggle)
+        throwables_launcher = toggle
         util.create_tick_handler(function()
             if WEAPON.GET_SELECTED_PED_WEAPON(players.user_ped()) == -1568386805 then --if holding grenade launcher
                 if PED.IS_PED_SHOOTING(players.user_ped()) then
@@ -2177,7 +2184,7 @@ local whitelistedName = false
             else
                 remove_projectiles = false
             end
-            return grenade_running
+            return throwables_launcher
         end)
     end)
 
@@ -2209,21 +2216,10 @@ local whitelistedName = false
     local exp_animal_gun_root = JSlang.list(weapons_root, 'Explosive animal gun', {}, '')
 
     local exp_animal = 'a_c_killerwhale'
-    exp_animal_toggle = JSlang.toggle(exp_animal_gun_root, 'Explosive animal gun', {'JSexpAnimalGun'}, 'Inspired by impulses explosive whale gun, but can fire other animals too.', function(toggle)
-        animals_running = toggle
-        if not animals_running then
-            disable_firing = false
-            return
-        end
-
-        if nuke_running then
-            menu.set_value(nuke_gun_toggle, false)
-        end
-        if grenade_running then
-            menu.set_value(grenade_gun_toggle, false)
-        end
-
-        while animals_running do
+    local explosive_animal_gun
+    mutually_exclusive_weapons[#mutually_exclusive_weapons + 1] = menu.mutually_exclusive_toggle(exp_animal_gun_root, 'Explosive animal gun', {'JSexpAnimalGun'}, 'Inspired by impulses explosive whale gun, but can fire other animals too.', mutually_exclusive_weapons, function(toggle)
+        explosive_animal_gun = toggle
+        while explosive_animal_gun do
             local weaponHash = WEAPON.GET_SELECTED_PED_WEAPON(players.user_ped())
             local weaponType = WEAPON.GET_WEAPON_DAMAGE_TYPE(weaponHash)
             if weaponType == 3 or (weaponType == 5 and WEAPON.GET_WEAPONTYPE_GROUP(weaponHash) != 1548507267) then --weapons that shoot bullets or explosions and isn't in the throwables category (grenades, proximity mines etc...)
@@ -2254,7 +2250,7 @@ local whitelistedName = false
             end
             util.yield(200)
         end
-end)
+    end)
 
     local animalsTable = {
         ['Cat'] = 'a_c_cat_01',
@@ -3721,8 +3717,7 @@ end)
 
 
 local playerInfoPid = nil
-local playerInfoTogglesTable = {}
-local runningTogglingOff = false
+local playerInfoToggles = {}
 ----------------------------------
 -- Player options
 ----------------------------------
@@ -3735,23 +3730,8 @@ local runningTogglingOff = false
         ----------------------------------
         -- Player info toggle
         ----------------------------------
-            playerInfoTogglesTable[pid] = JSlang.toggle(player_root, 'Player info', {'JSplayerInfo'}, 'Display information about this player.', function(toggle)
-                if not runningTogglingOff then
-                    if toggle then
-                        runningTogglingOff = true
-                        local playerList = players.list(true, true, true)
-                        for i, playerPid in pairs(playerList) do
-                            if menu.get_value(playerInfoTogglesTable[playerPid]) and not (playerInfoTogglesTable[playerPid] == playerInfoTogglesTable[pid]) then
-                                menu.trigger_command(playerInfoTogglesTable[playerPid])
-                            end
-                        end
-                        util.yield()
-                        runningTogglingOff = false
-                        playerInfoPid = pid   --hud starts when this is set
-                    else
-                        playerInfoPid = nil
-                    end
-                end
+            playerInfoToggles[pid] = menu.mutually_exclusive_toggle(player_root, 'Player info', {'JSplayerInfo'}, 'Display information about this player.', playerInfoToggles, function(toggle)
+                playerInfoPid = if toggle then pid else nil --hud starts when this is set
             end)
 
         -----------------------------------
@@ -4021,7 +4001,7 @@ local runningTogglingOff = false
     end)
 
     players.on_leave(function(pid)
-        playerInfoTogglesTable[pid] = nil
+        playerInfoToggles[pid] = nil
         if pid == playerInfoPid then
             playerInfoPid = nil
         end
