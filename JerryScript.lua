@@ -599,9 +599,14 @@ end
         }
         return destination
     end
+    
+    local function raycast_gameplay_cam(distance)
+        local result = {}
+        local didHit = memory.alloc(1)
+        local endCoords = v3.new()
+        local surfaceNormal = v3.new()
+        local hitEntity = memory.alloc_int()
 
-    local function raycast_gameplay_cam(flag, distance)
-        local ptr1, ptr2, ptr3, ptr4 = memory.alloc(), memory.alloc(), memory.alloc(), memory.alloc()
         local cam_rot = CAM.GET_GAMEPLAY_CAM_ROT(2)
         local cam_pos = CAM.GET_GAMEPLAY_CAM_COORD()
         local direction = v3.toDir(cam_rot)
@@ -611,32 +616,24 @@ end
             y = cam_pos.y + direction.y * distance,
             z = cam_pos.z + direction.z * distance
         }
-        SHAPETEST.GET_SHAPE_TEST_RESULT(
-            SHAPETEST.START_EXPENSIVE_SYNCHRONOUS_SHAPE_TEST_LOS_PROBE(
-                cam_pos.x,
-                cam_pos.y,
-                cam_pos.z,
-                destination.x,
-                destination.y,
-                destination.z,
-                flag,
-                -1,
-                1
-            ), ptr1, ptr2, ptr3, ptr4)
-        local p1 = memory.read_int(ptr1)
-        local p2 = memory.read_vector3(ptr2)
-        local p3 = memory.read_vector3(ptr3)
-        local p4 = memory.read_int(ptr4)
-        return {p1, p2, p3, p4}
+
+        local handle = SHAPETEST.START_EXPENSIVE_SYNCHRONOUS_SHAPE_TEST_LOS_PROBE(cam_pos.x, cam_pos.y, cam_pos.z, destination.x, destination.y, destination.z, -1, players.user_ped(), 4)
+	    SHAPETEST.GET_SHAPE_TEST_RESULT(handle, didHit, endCoords, surfaceNormal, hitEntity)
+
+        result.didHit = memory.read_byte(didHit) ~= 0
+        result.endCoords = endCoords
+        result.surfaceNormal = surfaceNormal
+        result.hitEntity = memory.read_int(hitEntity)
+        return result
     end
 
     local function direction()
         local c1 = ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(PLAYER.PLAYER_PED_ID(), 0, 5, 0)
-        local res = raycast_gameplay_cam(-1, 1000)
+        local res = raycast_gameplay_cam(1000)
         local c2
 
-        if res[1] != 0 then
-            c2 = res[2]
+        if res.didHit != 0 then
+            c2 = res.endCoords
         else
             c2 = get_offset_from_gameplay_camera(1000)
         end
@@ -2080,11 +2077,6 @@ do
         end)
     end
 
-    local exp_animal_toggle --so options above it have access to the toggle option
-
-    local nuke_running = false
-    local grenade_running = false
-    local animals_running = false
     local mutually_exclusive_weapons = {}
 
     local nuke_height = 40
@@ -2127,7 +2119,7 @@ do
                             util.yield()
                         end
                         local nukePos = ENTITY.GET_ENTITY_COORDS(bomb, true)
-                        entities.delete(bomb)
+                        entities.delete_by_handle(bomb)
                         executeNuke(nukePos)
                     end)
                 else
@@ -2179,7 +2171,7 @@ do
             while not ENTITY.HAS_ENTITY_COLLIDED_WITH_ANYTHING(bomb) do
                 util.yield()
             end
-            entities.delete(bomb)
+            entities.delete_by_handle(bomb)
             executeNuke(waypointPos)
         end
     end)
@@ -2275,7 +2267,7 @@ do
                             util.yield()
                         end
                         local animalPos = ENTITY.GET_ENTITY_COORDS(animal, true)
-                        entities.delete(animal)
+                        entities.delete_by_handle(animal)
                         FIRE.ADD_EXPLOSION(animalPos.x, animalPos.y,animalPos.z, 1, 10, true, false, 1, false)
                     end)
                 end
@@ -3835,7 +3827,7 @@ local playerInfoToggles = {}
                         util.yield()
                     end
                     AUDIO.PLAY_SOUND_FROM_COORD(-1, 'LOCAL_PLYR_CASH_COUNTER_COMPLETE', pos.x, pos.y, pos.z, 'DLC_HEISTS_GENERAL_FRONTEND_SOUNDS', true, 2, false)
-                    entities.delete(money)
+                    entities.delete_by_handle(money)
                 end)
             end)
 
