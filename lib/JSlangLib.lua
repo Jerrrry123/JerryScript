@@ -28,11 +28,15 @@ util.create_thread(function()
         util.yield_once()
     end
 
+    local lang_load = util.current_time_millis()
+
     for _, profilePath in pairs(filesystem.list_files(LANG_DIR)) do
         if string.find(profilePath, 'template') == nil and string.find(profilePath, 'translated') == nil and string.find(profilePath, 'result') == nil then
             util.require_no_lag(getPathPart(profilePath, filesystem.scripts_dir()))
         end
     end
+
+    util.log('Loaded lang files in '.. util.current_time_millis() - lang_load ..' ms.')
 end)
 
 --add lang functions
@@ -111,6 +115,7 @@ local registeredStrings = {}
 for _, filePath in pairs(STRING_FILES) do
     local script_file = readAll(filePath)
 
+
     for text in string.gmatch(script_file, 'JSlang.toast%(\'.-\'%)') do
         text = string.gsub(text, 'JSlang.toast%(\'', '')
         text = string.gsub(text, '\'%)', '')
@@ -132,6 +137,7 @@ for _, filePath in pairs(STRING_FILES) do
             JSlang.trans(text)
         end
     end
+
 end
 
 function JSlang.str_trans(string)

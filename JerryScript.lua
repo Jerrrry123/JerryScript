@@ -10,6 +10,7 @@
     thx to Sai, ren, aaron, Nowry, JayMontana, IceDoomfist and scriptCat and everyone else that helped me in #programming :)
 ]]
 
+local LOADING_START = util.current_time_millis()
 LOADING_SCRIPT = true
 
 util.ensure_package_is_installed("lua/ScaleformLib")
@@ -21,545 +22,21 @@ local JSkey = require 'JSkeyLib'
 local scaleForm = require("ScaleformLib")
 local SF = scaleForm("instructional_buttons")
 
--- JS functions
-
-----------------------------------
--- tables
-----------------------------------
-    --og function written by me
-    function removeValues(t, removeT)
-        for _, r in ipairs(removeT) do
-            for i, v in ipairs(t) do
-                if v == r then
-                    table.remove(t, i)
-                end
-            end
-        end
-    end
-
-    --this function is from wiriScripts functions
-    function pairsByKeys(t, f)
-        local a = {}
-        for n in pairs(t) do table.insert(a, n) end
-        table.sort(a, f)
-        local i = 0
-        local iter = function()
-            i += 1
-            if a[i] == nil then return nil
-            else return a[i], t[a[i]]
-            end
-        end
-        return iter
-    end
-
-----------------------------------
--- Misc
-----------------------------------
-    function getLatestRelease()
-        local version
-        async_http.init('api.github.com', '/repos/Jerrrry123/JerryScript/tags', function(res)
-            for match in string.gmatch(res, '"(.-)"') do
-                local firstCharacter = string.sub(match, 0, 1)
-                if tonumber(firstCharacter) then
-                    version = match
-                    break
-                end
-            end
-        end, function()
-            JSlang.toast('Failed to get latest release.')
-            version = ''
-        end)
-        async_http.dispatch()
-        while version == nil do util.yield() end
-        return version
-    end
-
-    --returns weather or not the user is in the current vehicles drivers seat
-    function is_user_driving_vehicle()
-        return (PED.IS_PED_IN_ANY_VEHICLE(players.user_ped(), true) and VEHICLE.GET_PED_IN_VEHICLE_SEAT(entities.get_user_vehicle_as_handle(), -1, false) == players.user_ped())
-    end
-
-    function loadModel(hash)
-        STREAMING.REQUEST_MODEL(hash)
-        while not STREAMING.HAS_MODEL_LOADED(hash) do util.yield() end
-    end
-
-    function getTotalDelay(delayTable)
-        return (delayTable.ms + (delayTable.s * 1000) + (delayTable.min * 1000 * 60))
-    end
-
-    function startBusySpinner(message)
-        HUD.BEGIN_TEXT_COMMAND_BUSYSPINNER_ON("STRING")
-        HUD.ADD_TEXT_COMPONENT_SUBSTRING_PLAYER_NAME(message)
-        HUD.END_TEXT_COMMAND_BUSYSPINNER_ON(5)
-    end
-
-    new = {}
-
-    function new.colour(R, G, B, A)
-        return {r = R / 255, g = G / 255, b = B / 255, a = A or 1}
-    end
-
-    function new.hudSettings(X, Y, ALIGNMENT)
-        return {xOffset = X, yOffset = Y, scale = 0.5, alignment = ALIGNMENT, textColour = new.colour( 255, 255, 255 )}
-    end
-
-    function new.delay(MS, S, MIN)
-        return {ms = MS, s = S, min = MIN}
-    end
-
-----------------------------------
--- Memory
-----------------------------------
-    --function skidded from murtens utils
-    function address_from_pointer_chain(address, offsets)
-        local addr = address
-        for k = 1, (#offsets - 1) do
-            addr = memory.read_long(addr + offsets[k])
-            if addr == 0 then
-                return 0
-            end
-        end
-        addr += offsets[#offsets]
-        return addr
-    end
-
-    --memory stuff skidded from heist control
-    local Int_PTR = memory.alloc_int()
-
-    function getMPX()
-        return 'MP'.. util.get_char_slot() ..'_'
-    end
-
-    function STAT_GET_INT(Stat)
-        STATS.STAT_GET_INT(util.joaat(getMPX() .. Stat), Int_PTR, -1)
-        return memory.read_int(Int_PTR)
-    end
-
-    function STAT_GET_INT_MPPLY(Stat)
-        STATS.STAT_GET_INT(util.joaat(Stat), Int_PTR, -1)
-        return memory.read_int(Int_PTR)
-    end
-
-    function STAT_GET_FLOAT(Stat)
-        STATS.STAT_GET_FLOAT(util.joaat(getMPX() .. Stat), Int_PTR, true)
-        return memory.read_float(Int_PTR)
-    end
-
-    function STAT_SET_INCREMENT(Stat, Value)
-        STATS.STAT_INCREMENT(util.joaat(getMPX() .. Stat), Value)
-    end
-
-    function GET_INT_GLOBAL(Global)
-        return memory.read_int(memory.script_global(Global))
-    end
-
-----------------------------------
--- Whitelist
-----------------------------------
-    --returns a table of all players that aren't whitelisted
-    function getNonWhitelistedPlayers(whitelistListTable, whitelistGroups, whitelistedName)
-        local playerList = players.list(whitelistGroups.user, whitelistGroups.friends, whitelistGroups.strangers)
-        local notWhitelisted = {}
-        for i = 1, #playerList do
-            if not whitelistListTable[playerList[i]] and not (players.get_name(playerList[i]) == whitelistedName) then
-                notWhitelisted[#notWhitelisted + 1] = playerList[i]
-            end
-        end
-        return notWhitelisted
-    end
-
-----------------------------------
--- Generating menu options
-----------------------------------
-    function getLabelTableFromKeys(keyTable)
-        local labelTable = {}
-        for k, v in pairsByKeys(keyTable) do
-            table.insert(labelTable, {k})
-        end
-        return labelTable
-    end
-
-    function generateHudSettings(root, prefix, settingsTable)
-        JSlang.slider(root, 'X position', {prefix..'XPos'}, '', -200, 0, settingsTable.xOffset, 1, function(value)
-            settingsTable.xOffset = value
-        end)
-        JSlang.slider(root, 'Y position', {prefix..'YPos'}, '', -5, 195, settingsTable.yOffset, 1, function(value)
-            settingsTable.yOffset = value
-        end)
-        JSlang.slider(root, 'Scale', {prefix..'scale'}, 'The size of the text.', 200, 1500, 500, 1, function(value)
-            settingsTable.scale = value / 1000
-        end)
-        JSlang.slider(root, 'Text alignment', {prefix..'alignment'}, '1 is center, 2 is left and 3 is right.', 1, 3, settingsTable.alignment, 1, function(value)
-            settingsTable.alignment = value
-        end)
-        JSlang.colour(root, 'Text colour', {prefix..'colour'}, 'Sets the colour of the text overlay.', settingsTable.textColour, true, function(colour)
-            settingsTable.textColour = colour
-        end)
-    end
-
-    function generateDelaySettings(root, name, delayTable)
-        JSlang.slider(root, 'Ms', {'JS'..name..'DelayMs'}, 'The delay is the added total of ms, sec and min values.', 1, 999, delayTable.ms, 1, function(value)
-            delayTable.ms = value
-        end)
-        JSlang.slider(root, 'Seconds', {'JS'..name..'DelaySec'}, 'The delay is the added total of ms, sec and min values.', 0, 59, delayTable.s, 1, function(value)
-            delayTable.s = value
-        end)
-        JSlang.slider(root, 'Minutes', {'JS'..name..'DelayMin'}, 'The delay is the added total of ms, sec and min values.', 0, 60, delayTable.min, 1, function(value)
-            delayTable.min = value
-        end)
-    end
-
-    function generateToggles(table, root, reversed)
-        for i = 1, #table do
-            if not reversed then
-                JSlang.toggle(root, table[i].name, {table[i].command}, table[i].description, function(toggle)
-                    table[i].toggle = toggle
-                end, table[i].toggle)
-            else
-                JSlang.toggle(root, table[i].name, {table[i].command}, table[i].description, function(toggle)
-                    table[i].toggle = not toggle
-                end, not table[i].toggle)
-            end
-
-        end
-    end
-
-    function menu.mutually_exclusive_toggle(root, name, commands, help, exclusive_toggles, func)
-        local this_toggle
-        this_toggle = JSlang.toggle(root, name, commands, help, function(toggle)
-            if toggle then
-                for _, ref in pairs(exclusive_toggles) do
-                    if ref != this_toggle and menu.get_value(ref) then
-                        menu.set_value(ref, false)
-                    end
-                end
-            end
-            func(toggle)
-        end)
-        return this_toggle
-    end
-
-    function is_any_exclusive_toggle_on(exclusive_toggles)
-        local on = false
-
-        for _, ref in pairs(exclusive_toggles) do
-            on = menu.get_value(ref)
-            if on then break end
-        end
-
-        return on
-    end
-
-    --only warns on the first opening, credit to sai for providing this workaround
-    function listWarning(listRoot, firstOpening)
-        if not firstOpening[1] then return end
-        menu.show_warning(listRoot, CLICK_MENU, JSlang.str_trans('I can\'t guarantee that these options are 100% safe. I tested them on my main, but im stupid.'), function()
-            firstOpening[1] = false
-            menu.focus(listRoot, '')
-        end)
-    end
-
-    function string.capitalize(str)
-        return str:sub(1,1):upper()..str:sub(2):lower()
-    end
-
-----------------------------------
--- Stuff for aiming and guns
-----------------------------------
-    --aiming functions are skidded from lanceScript, credit to nowiry for probably helping lance with them
-    function get_offset_from_gameplay_camera(distance)
-        local cam_rot = CAM.GET_GAMEPLAY_CAM_ROT(2)
-        local cam_pos = CAM.GET_GAMEPLAY_CAM_COORD()
-        local direction = v3.toDir(cam_rot)
-        local destination =
-        {
-            x = cam_pos.x + direction.x * distance,
-            y = cam_pos.y + direction.y * distance,
-            z = cam_pos.z + direction.z * distance
-        }
-        return destination
-    end
-
-    function raycast_gameplay_cam(flag, distance)
-        local ptr1, ptr2, ptr3, ptr4 = memory.alloc(), memory.alloc(), memory.alloc(), memory.alloc()
-        local cam_rot = CAM.GET_GAMEPLAY_CAM_ROT(2)
-        local cam_pos = CAM.GET_GAMEPLAY_CAM_COORD()
-        local direction = v3.toDir(cam_rot)
-        local destination =
-        {
-            x = cam_pos.x + direction.x * distance,
-            y = cam_pos.y + direction.y * distance,
-            z = cam_pos.z + direction.z * distance
-        }
-        SHAPETEST.GET_SHAPE_TEST_RESULT(
-            SHAPETEST.START_EXPENSIVE_SYNCHRONOUS_SHAPE_TEST_LOS_PROBE(
-                cam_pos.x,
-                cam_pos.y,
-                cam_pos.z,
-                destination.x,
-                destination.y,
-                destination.z,
-                flag,
-                -1,
-                1
-            ), ptr1, ptr2, ptr3, ptr4)
-        local p1 = memory.read_int(ptr1)
-        local p2 = memory.read_vector3(ptr2)
-        local p3 = memory.read_vector3(ptr3)
-        local p4 = memory.read_int(ptr4)
-        return {p1, p2, p3, p4}
-    end
-
-    function direction()
-        local c1 = ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(PLAYER.PLAYER_PED_ID(), 0, 5, 0)
-        local res = raycast_gameplay_cam(-1, 1000)
-        local c2
-
-        if res[1] != 0 then
-            c2 = res[2]
-        else
-            c2 = get_offset_from_gameplay_camera(1000)
-        end
-
-        c2.x = (c2.x - c1.x) * 1000
-        c2.y = (c2.y - c1.y) * 1000
-        c2.z = (c2.z - c1.z) * 1000
-        return c2, c1
-    end
-
-----------------------------------
--- Functions for exploding a player
-----------------------------------
-    local function addFx(pos, currentFx, colour)
-        STREAMING.REQUEST_NAMED_PTFX_ASSET(currentFx.asset)
-        while not STREAMING.HAS_NAMED_PTFX_ASSET_LOADED(currentFx.asset) do util.yield() end
-        GRAPHICS.USE_PARTICLE_FX_ASSET(currentFx.asset)
-        if currentFx.colour then
-            GRAPHICS.SET_PARTICLE_FX_NON_LOOPED_COLOUR(colour.r, colour.g, colour.b)
-        end
-        GRAPHICS.START_NETWORKED_PARTICLE_FX_NON_LOOPED_AT_COORD(
-            currentFx.name,
-            pos.x,
-            pos.y,
-            pos.z,
-            0,
-            0,
-            0,
-            1.0,
-            false, false, false, false
-        )
-    end
-
-    local function explosion(pos, expSettings)
-        if expSettings.currentFx then
-            if expSettings.currentFx.exp then
-                FIRE.ADD_EXPLOSION(pos.x, pos.y, pos.z, expSettings.currentFx.exp, 10, expSettings.audible, true, 0, expSettings.noDamage)
-                FIRE.ADD_EXPLOSION(pos.x, pos.y, pos.z, 1, 10, false, true, expSettings.camShake, expSettings.noDamage)
-            else
-                FIRE.ADD_EXPLOSION(pos.x, pos.y, pos.z, 1, 10, false, true, expSettings.camShake, expSettings.noDamage)
-            end
-            if not expSettings.invisible then
-                addFx(pos, expSettings.currentFx, expSettings.colour)
-            end
-        else
-            FIRE.ADD_EXPLOSION(pos.x, pos.y, pos.z, expSettings.expType, 10, expSettings.audible, expSettings.invisible, expSettings.camShake, expSettings.noDamage)
-        end
-    end
-
-    local function ownedExplosion(ped, pos, expSettings)
-        if expSettings.currentFx then
-            if expSettings.currentFx.exp then
-                FIRE.ADD_OWNED_EXPLOSION(ped, pos.x, pos.y, pos.z, expSettings.currentFx.exp, 10, expSettings.audible, true, expSettings.camShake)
-                FIRE.ADD_OWNED_EXPLOSION(ped, pos.x, pos.y, pos.z, 1, 10, false, true, expSettings.camShake)
-            else
-                FIRE.ADD_OWNED_EXPLOSION(ped, pos.x, pos.y, pos.z, 1, 10, false, true, expSettings.camShake)
-            end
-            if not expSettings.invisible then
-                addFx(pos, expSettings.currentFx, expSettings.colour)
-            end
-        else
-            FIRE.ADD_OWNED_EXPLOSION(ped, pos.x, pos.y, pos.z, expSettings.expType, 10, expSettings.audible, expSettings.invisible, expSettings.camShake)
-        end
-    end
-
-    function explodePlayer(ped, loop, expSettings)
-        local pos = ENTITY.GET_ENTITY_COORDS(ped)
-        --if any blame is enabled this decides who should be blamed
-        local blamedPlayer = PLAYER.PLAYER_PED_ID()
-        if expSettings.blamedPlayer and expSettings.blamed then
-            blamedPlayer = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(expSettings.blamedPlayer)
-        elseif expSettings.blamed then
-            local playerList = players.list(true, true, true)
-            blamedPlayer = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(playerList[math.random(1, #playerList)])
-        end
-        if not loop and PED.IS_PED_IN_ANY_VEHICLE(ped, true) then
-            for i = 0, 50, 1 do --50 explosions to account for most armored vehicles
-                if expSettings.owned or expSettings.blamed then
-                    ownedExplosion(blamedPlayer, pos, expSettings)
-                else
-                    explosion(pos, expSettings)
-                end
-                util.yield(10)
-            end
-        elseif expSettings.owned or expSettings.blamed then
-            ownedExplosion(blamedPlayer, pos, expSettings)
-        else
-            explosion(pos, expSettings)
-        end
-        util.yield(10)
-    end
-
-----------------------------------
--- player info functions
-----------------------------------
-    function getMk2Rounds(ped, weaponHash)
-        local ammoType = WEAPON.GET_PED_AMMO_TYPE_FROM_WEAPON(ped, weaponHash)
-        if mkIIammoTable[weaponHash] and mkIIammoTable[weaponHash][ammoType] then
-            return util.get_label_text(mkIIammoTable[weaponHash][ammoType])
-        end
-    end
-
-    local weaponTypes = {
-        [0] = 'Unknown',
-        [1] = 'No damage',
-        [2] = 'Melee',
-        [3] = function(ped, weaponHash)
-                return getMk2Rounds(ped, weaponHash) or 'Bullets'
-            end,
-        [4] = 'Force ragdoll fall',
-        [5] = 'Explosive',
-        [6] = 'Fire',
-        [8] = 'Fall',
-        [10] = 'Electric',
-        [11] = 'Barbed wire',
-        [12] = 'Extinguisher',
-        [13] = 'Gas',
-        [14] = 'Water',
-    }
-
-    function getDamageType(ped, weaponHash)
-        local damageType = WEAPON.GET_WEAPON_DAMAGE_TYPE(weaponHash)
-
-        local final = weaponTypes[damageType]
-        return type(final) == 'string' and final or final(ped, weaponHash)
-    end
-
-    function getWeaponHash(ped)
-        local wpn_ptr = memory.alloc_int()
-        if WEAPON.GET_CURRENT_PED_VEHICLE_WEAPON(ped, wpn_ptr) then -- only returns true if the weapon is a vehicle weapon
-            return memory.read_int(wpn_ptr), true
-        end
-        return WEAPON.GET_SELECTED_PED_WEAPON(ped), false
-    end
-
-    function getWeaponName(weaponHash)
-        if vehicleWeaponHashToLabel[weaponHash] then
-            return util.get_label_text(vehicleWeaponHashToLabel[weaponHash])
-        elseif vehicleWeaponHashToString[weaponHash] then
-            return vehicleWeaponHashToString[weaponHash]
-        else
-            for k, v in pairs(util.get_weapons()) do
-                if v.hash == weaponHash then
-                    return util.get_label_text(v.label_key)
-                end
-            end
-        end
-    end
-
-    function getPlayerVehicleName(ped)
-        local playersVehicle = PED.GET_VEHICLE_PED_IS_IN(ped)
-        local vehHash = ENTITY.GET_ENTITY_MODEL(playersVehicle)
-        if vehHash == 0 then return end
-        return util.get_label_text(VEHICLE.GET_DISPLAY_NAME_FROM_VEHICLE_MODEL(vehHash))
-    end
-
-    function isPlayerMoving(ped)
-        if not PED.IS_PED_IN_ANY_VEHICLE(ped, true) and ENTITY.GET_ENTITY_SPEED(ped) > 1 then return true end
-        if ENTITY.GET_ENTITY_SPEED(PED.GET_VEHICLE_PED_IS_IN(ped, false)) > 1 then return true end
-    end
-
-    local taskTable = {
-        [1] = {1,  JSlang.str_trans('climbing Ladder')},
-        [2] = {2,  JSlang.str_trans('exiting vehicle')},
-        [3] = {160,  JSlang.str_trans('entering vehicle')},
-        [4] = {335, JSlang.str_trans('parachuting')},
-        [5] = {422,  JSlang.str_trans('jumping')},
-        [6] = {423,  JSlang.str_trans('falling')},
-    }
-    function getMovementType(ped)
-        if PED.IS_PED_RAGDOLL(ped) then
-            return  JSlang.str_trans('ragdolling')
-        elseif PED.IS_PED_CLIMBING(ped) then
-            return  JSlang.str_trans('climbing')
-        elseif PED.IS_PED_VAULTING(ped) then
-            return  JSlang.str_trans('vaulting')
-        end
-        for i = 1, #taskTable do
-            if TASK.GET_IS_TASK_ACTIVE(ped, taskTable[i][1]) then return taskTable[i][2] end
-        end
-        if not isPlayerMoving(ped) then return end
-        if PED.IS_PED_IN_ANY_VEHICLE(ped, true) then
-            if PED.IS_PED_IN_ANY_PLANE(ped) then
-                return  JSlang.str_trans('flying a plane')
-            elseif PED.IS_PED_IN_ANY_HELI(ped) then
-                return  JSlang.str_trans('flying a helicopter')
-            elseif PED.IS_PED_IN_ANY_BOAT(ped) then
-                return  JSlang.str_trans('driving a boat')
-            elseif PED.IS_PED_IN_ANY_SUB(ped) then
-                return  JSlang.str_trans('driving a submarine')
-            elseif PED.IS_PED_ON_ANY_BIKE(ped) then
-                return  JSlang.str_trans('biking')
-            end
-            return  JSlang.str_trans('driving')
-        elseif PED.IS_PED_SWIMMING(ped) then
-            return  JSlang.str_trans('swimming')
-        elseif TASK.IS_PED_STRAFING(ped) then
-            return  JSlang.str_trans('strafing')
-        elseif TASK.IS_PED_SPRINTING(ped) then
-            return  JSlang.str_trans('sprinting')
-        elseif PED.GET_PED_STEALTH_MOVEMENT(ped) then
-            return  JSlang.str_trans('sneaking')
-        elseif TASK.IS_PED_GETTING_UP(ped) then
-            return  JSlang.str_trans('getting up')
-        elseif PED.IS_PED_GOING_INTO_COVER(ped) then
-            return  JSlang.str_trans('going into cover')
-        elseif PED.IS_PED_IN_COVER(ped) then
-            return  JSlang.str_trans('moving in cover')
-        else
-            return  JSlang.str_trans('moving')
-        end
-    end
-
-----------------------------------
--- Safe monitor functions
-----------------------------------
-    function getNightclubDailyEarnings()
-        local popularity = math.floor(STAT_GET_INT('CLUB_POPULARITY') / 10)
-        if popularity == 100 then return 50000
-        elseif popularity >= 90 then return 45000
-        elseif popularity >= 80 then return 24000
-        elseif popularity >= 70 then return 22000
-        elseif popularity >= 60 then return 20000
-        elseif popularity >= 50 then return 9500
-        elseif popularity >= 40 then return 8500
-        elseif popularity >= 30 then return 2500
-        elseif popularity >= 20 then return 2000
-        elseif popularity >= 10 then return 1600
-        else return 1500
-        end
-    end
-
-    function getAgencyDailyEarnings(securityContracts)
-        if securityContracts >= 200 then return 20000 end
-        return math.floor(securityContracts / 5) * 500
-    end
+--list refs
+local _LR = {}
+function JSlang.list(root, name, tableCommands, description, ...)
+    local ref = menu.list(root, JSlang.trans(name), if tableCommands then tableCommands else {}, JSlang.trans(description), ...)
+        _LR[name] = ref
+    return ref
+end
 
 ----------------------------------
 -- Tables
 ----------------------------------
+local JS_tables = {}
+do
     local joaat = util.joaat
-    effects = {
+    JS_tables.effects = {
         ['Clown Explosion'] = {
             asset  	= 'scr_rcbarry2',
             name	= 'scr_exp_clown',
@@ -577,7 +54,6 @@ local SF = scaleForm("instructional_buttons")
             name 	= 'scr_mich4_firework_trailburst_spawn',
             colour 	= true,
             exp     = 66,
-
         },
         ['FW Starburst'] = {
             asset	= 'scr_indep_fireworks',
@@ -619,7 +95,7 @@ local SF = scaleForm("instructional_buttons")
         [joaat('AMMO_RIFLE_ARMORPIERCING')] = 'WCT_CLIP_AP',
         [joaat('AMMO_RIFLE_FMJ')]           = 'WCT_CLIP_FMJ',
     }
-    mkIIammoTable = {
+    JS_tables.mkIIammoTable = {
         [joaat('weapon_pistol_mk2')] = pistolMk2Ammo,
         [joaat('weapon_snspistol_mk2')] = pistolMk2Ammo,
         [joaat('weapon_revolver_mk2')] = pistolMk2Ammo,
@@ -680,7 +156,7 @@ local SF = scaleForm("instructional_buttons")
         mine = 'WT_VEHMINE',
     }
     --i assume many of these are accurate, but many of them aren't tested
-    vehicleWeaponHashToLabel = {
+    JS_tables.vehicleWeaponHashToLabel = {
         [joaat('vehicle_weapon_cannon_blazer')] = vehWeaponLabels.machineGun2, --tested
         [joaat('vehicle_weapon_enemy_laser')] = 'WT_A_ENMYLSR',
         [joaat('vehicle_weapon_plane_rocket')] = vehWeaponLabels.missiles,
@@ -853,7 +329,7 @@ local SF = scaleForm("instructional_buttons")
         [joaat('vehicle_weapon_bruiser_50cal')] = vehWeaponLabels.dual50cal,
         [joaat('vehicle_weapon_bruiser2_50cal_laser')] = vehWeaponLabels.dualLasers,
     }
-    vehicleWeaponHashToString = {
+    JS_tables.vehicleWeaponHashToString = {
         [joaat('vehicle_weapon_bomb')] = 'Bomb',
         [joaat('vehicle_weapon_bomb_cluster')] = 'Cluster Bomb',
         [joaat('vehicle_weapon_bomb_gas')] = 'Gas Bomb',
@@ -862,6 +338,539 @@ local SF = scaleForm("instructional_buttons")
         [joaat('vehicle_weapon_sub_missile_homing')] = 'Homing Missiles',
         [joaat('vehicle_weapon_water_cannon')] = 'Water Cannon',
     }
+end
+
+-- JS functions
+
+----------------------------------
+-- table functions
+----------------------------------
+    --og function written by me
+    local function removeValues(t, removeT)
+        for _, r in ipairs(removeT) do
+            for i, v in ipairs(t) do
+                if v == r then
+                    table.remove(t, i)
+                end
+            end
+        end
+    end
+
+    --this function is from wiriScripts functions
+    local function pairsByKeys(t, f)
+        local a = {}
+        for n in pairs(t) do table.insert(a, n) end
+        table.sort(a, f)
+        local i = 0
+        local iter = function()
+            i += 1
+            if a[i] == nil then return nil
+            else return a[i], t[a[i]]
+            end
+        end
+        return iter
+    end
+
+----------------------------------
+-- Misc
+----------------------------------
+    local function getLatestRelease()
+        local version
+        async_http.init('api.github.com', '/repos/Jerrrry123/JerryScript/tags', function(res)
+            for match in string.gmatch(res, '"(.-)"') do
+                local firstCharacter = string.sub(match, 0, 1)
+                if tonumber(firstCharacter) then
+                    version = match
+                    break
+                end
+            end
+        end, function()
+            JSlang.toast('Failed to get latest release.')
+            version = ''
+        end)
+        async_http.dispatch()
+        while version == nil do util.yield() end
+        return version
+    end
+
+    --returns weather or not the user is in the current vehicles drivers seat
+    local function is_user_driving_vehicle()
+        return (PED.IS_PED_IN_ANY_VEHICLE(players.user_ped(), true) and VEHICLE.GET_PED_IN_VEHICLE_SEAT(entities.get_user_vehicle_as_handle(), -1, false) == players.user_ped())
+    end
+
+    local function loadModel(hash)
+        STREAMING.REQUEST_MODEL(hash)
+        while not STREAMING.HAS_MODEL_LOADED(hash) do util.yield() end
+    end
+
+    local function getTotalDelay(delayTable)
+        return (delayTable.ms + (delayTable.s * 1000) + (delayTable.min * 1000 * 60))
+    end
+
+    local function startBusySpinner(message)
+        HUD.BEGIN_TEXT_COMMAND_BUSYSPINNER_ON("STRING")
+        HUD.ADD_TEXT_COMPONENT_SUBSTRING_PLAYER_NAME(message)
+        HUD.END_TEXT_COMMAND_BUSYSPINNER_ON(5)
+    end
+
+    local new = {}
+
+    function new.colour(R, G, B, A)
+        return {r = R / 255, g = G / 255, b = B / 255, a = A or 1}
+    end
+
+    function new.hudSettings(X, Y, ALIGNMENT)
+        return {xOffset = X, yOffset = Y, scale = 0.5, alignment = ALIGNMENT, textColour = new.colour( 255, 255, 255 )}
+    end
+
+    function new.delay(MS, S, MIN)
+        return {ms = MS, s = S, min = MIN}
+    end
+
+----------------------------------
+-- Memory
+----------------------------------
+    --function skidded from murtens utils
+    local function address_from_pointer_chain(address, offsets)
+        local addr = address
+        for k = 1, (#offsets - 1) do
+            addr = memory.read_long(addr + offsets[k])
+            if addr == 0 then
+                return 0
+            end
+        end
+        addr += offsets[#offsets]
+        return addr
+    end
+
+    --memory stuff skidded from heist control
+    local Int_PTR = memory.alloc_int()
+
+    local function getMPX()
+        return 'MP'.. util.get_char_slot() ..'_'
+    end
+
+    local function STAT_GET_INT(Stat)
+        STATS.STAT_GET_INT(util.joaat(getMPX() .. Stat), Int_PTR, -1)
+        return memory.read_int(Int_PTR)
+    end
+
+    local function STAT_GET_INT_MPPLY(Stat)
+        STATS.STAT_GET_INT(util.joaat(Stat), Int_PTR, -1)
+        return memory.read_int(Int_PTR)
+    end
+
+    local function STAT_GET_FLOAT(Stat)
+        STATS.STAT_GET_FLOAT(util.joaat(getMPX() .. Stat), Int_PTR, true)
+        return memory.read_float(Int_PTR)
+    end
+
+    local function STAT_SET_INCREMENT(Stat, Value)
+        STATS.STAT_INCREMENT(util.joaat(getMPX() .. Stat), Value)
+    end
+
+    local function GET_INT_GLOBAL(Global)
+        return memory.read_int(memory.script_global(Global))
+    end
+
+----------------------------------
+-- Whitelist
+----------------------------------
+    --returns a table of all players that aren't whitelisted
+    local function getNonWhitelistedPlayers(whitelistListTable, whitelistGroups, whitelistedName)
+        local playerList = players.list(whitelistGroups.user, whitelistGroups.friends, whitelistGroups.strangers)
+        local notWhitelisted = {}
+        for i = 1, #playerList do
+            if not whitelistListTable[playerList[i]] and not (players.get_name(playerList[i]) == whitelistedName) then
+                notWhitelisted[#notWhitelisted + 1] = playerList[i]
+            end
+        end
+        return notWhitelisted
+    end
+
+----------------------------------
+-- Generating menu options
+----------------------------------
+    local function getLabelTableFromKeys(keyTable)
+        local labelTable = {}
+        for k, v in pairsByKeys(keyTable) do
+            table.insert(labelTable, {k})
+        end
+        return labelTable
+    end
+
+    local function generateHudSettings(root, prefix, settingsTable)
+        JSlang.slider(root, 'X position', {prefix..'XPos'}, '', -200, 0, settingsTable.xOffset, 1, function(value)
+            settingsTable.xOffset = value
+        end)
+        JSlang.slider(root, 'Y position', {prefix..'YPos'}, '', -5, 195, settingsTable.yOffset, 1, function(value)
+            settingsTable.yOffset = value
+        end)
+        JSlang.slider(root, 'Scale', {prefix..'scale'}, 'The size of the text.', 200, 1500, 500, 1, function(value)
+            settingsTable.scale = value / 1000
+        end)
+        JSlang.slider(root, 'Text alignment', {prefix..'alignment'}, '1 is center, 2 is left and 3 is right.', 1, 3, settingsTable.alignment, 1, function(value)
+            settingsTable.alignment = value
+        end)
+        JSlang.colour(root, 'Text colour', {prefix..'colour'}, 'Sets the colour of the text overlay.', settingsTable.textColour, true, function(colour)
+            settingsTable.textColour = colour
+        end)
+    end
+
+    local function generateDelaySettings(root, name, delayTable)
+        JSlang.slider(root, 'Ms', {'JS'..name..'DelayMs'}, 'The delay is the added total of ms, sec and min values.', 1, 999, delayTable.ms, 1, function(value)
+            delayTable.ms = value
+        end)
+        JSlang.slider(root, 'Seconds', {'JS'..name..'DelaySec'}, 'The delay is the added total of ms, sec and min values.', 0, 59, delayTable.s, 1, function(value)
+            delayTable.s = value
+        end)
+        JSlang.slider(root, 'Minutes', {'JS'..name..'DelayMin'}, 'The delay is the added total of ms, sec and min values.', 0, 60, delayTable.min, 1, function(value)
+            delayTable.min = value
+        end)
+    end
+
+    local function generateToggles(table, root, reversed)
+        for i = 1, #table do
+            if not reversed then
+                JSlang.toggle(root, table[i].name, {table[i].command}, table[i].description, function(toggle)
+                    table[i].toggle = toggle
+                end, table[i].toggle)
+            else
+                JSlang.toggle(root, table[i].name, {table[i].command}, table[i].description, function(toggle)
+                    table[i].toggle = not toggle
+                end, not table[i].toggle)
+            end
+
+        end
+    end
+
+    function menu.mutually_exclusive_toggle(root, name, commands, help, exclusive_toggles, func)
+        local this_toggle
+        this_toggle = JSlang.toggle(root, name, commands, help, function(toggle)
+            if toggle then
+                for _, ref in pairs(exclusive_toggles) do
+                    if ref != this_toggle and menu.get_value(ref) then
+                        menu.set_value(ref, false)
+                    end
+                end
+            end
+            func(toggle)
+        end)
+        return this_toggle
+    end
+
+    local function is_any_exclusive_toggle_on(exclusive_toggles)
+        local on = false
+
+        for _, ref in pairs(exclusive_toggles) do
+            on = menu.get_value(ref)
+            if on then break end
+        end
+
+        return on
+    end
+
+    --only warns on the first opening, credit to sai for providing this workaround
+    local function listWarning(listRoot, firstOpening)
+        if not firstOpening[1] then return end
+        menu.show_warning(listRoot, CLICK_MENU, JSlang.str_trans('I can\'t guarantee that these options are 100% safe. I tested them on my main, but im stupid.'), function()
+            firstOpening[1] = false
+            menu.focus(listRoot, '')
+        end)
+    end
+
+    function string.capitalize(str)
+        return str:sub(1,1):upper()..str:sub(2):lower()
+    end
+
+----------------------------------
+-- Stuff for aiming and guns
+----------------------------------
+    --aiming functions are skidded from lanceScript, credit to nowiry for probably helping lance with them
+    local function get_offset_from_gameplay_camera(distance)
+        local cam_rot = CAM.GET_GAMEPLAY_CAM_ROT(2)
+        local cam_pos = CAM.GET_GAMEPLAY_CAM_COORD()
+        local direction = v3.toDir(cam_rot)
+        local destination =
+        {
+            x = cam_pos.x + direction.x * distance,
+            y = cam_pos.y + direction.y * distance,
+            z = cam_pos.z + direction.z * distance
+        }
+        return destination
+    end
+
+    local function raycast_gameplay_cam(flag, distance)
+        local ptr1, ptr2, ptr3, ptr4 = memory.alloc(), memory.alloc(), memory.alloc(), memory.alloc()
+        local cam_rot = CAM.GET_GAMEPLAY_CAM_ROT(2)
+        local cam_pos = CAM.GET_GAMEPLAY_CAM_COORD()
+        local direction = v3.toDir(cam_rot)
+        local destination =
+        {
+            x = cam_pos.x + direction.x * distance,
+            y = cam_pos.y + direction.y * distance,
+            z = cam_pos.z + direction.z * distance
+        }
+        SHAPETEST.GET_SHAPE_TEST_RESULT(
+            SHAPETEST.START_EXPENSIVE_SYNCHRONOUS_SHAPE_TEST_LOS_PROBE(
+                cam_pos.x,
+                cam_pos.y,
+                cam_pos.z,
+                destination.x,
+                destination.y,
+                destination.z,
+                flag,
+                -1,
+                1
+            ), ptr1, ptr2, ptr3, ptr4)
+        local p1 = memory.read_int(ptr1)
+        local p2 = memory.read_vector3(ptr2)
+        local p3 = memory.read_vector3(ptr3)
+        local p4 = memory.read_int(ptr4)
+        return {p1, p2, p3, p4}
+    end
+
+    local function direction()
+        local c1 = ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(PLAYER.PLAYER_PED_ID(), 0, 5, 0)
+        local res = raycast_gameplay_cam(-1, 1000)
+        local c2
+
+        if res[1] != 0 then
+            c2 = res[2]
+        else
+            c2 = get_offset_from_gameplay_camera(1000)
+        end
+
+        c2.x = (c2.x - c1.x) * 1000
+        c2.y = (c2.y - c1.y) * 1000
+        c2.z = (c2.z - c1.z) * 1000
+        return c2, c1
+    end
+
+----------------------------------
+-- Functions for exploding a player
+----------------------------------
+    local function addFx(pos, currentFx, colour)
+        STREAMING.REQUEST_NAMED_PTFX_ASSET(currentFx.asset)
+        while not STREAMING.HAS_NAMED_PTFX_ASSET_LOADED(currentFx.asset) do util.yield() end
+        GRAPHICS.USE_PARTICLE_FX_ASSET(currentFx.asset)
+        if currentFx.colour then
+            GRAPHICS.SET_PARTICLE_FX_NON_LOOPED_COLOUR(colour.r, colour.g, colour.b)
+        end
+        GRAPHICS.START_NETWORKED_PARTICLE_FX_NON_LOOPED_AT_COORD(
+            currentFx.name,
+            pos,
+            0,
+            0,
+            0,
+            1.0,
+            false, false, false, false
+        )
+    end
+
+    local function explosion(pos, expSettings)
+        if expSettings.currentFx then
+            if expSettings.currentFx.exp then
+                FIRE.ADD_EXPLOSION(pos.x, pos.y, pos.z, expSettings.currentFx.exp, 10, expSettings.audible, true, 0, expSettings.noDamage)
+                FIRE.ADD_EXPLOSION(pos.x, pos.y, pos.z, 1, 10, false, true, expSettings.camShake, expSettings.noDamage)
+            else
+                FIRE.ADD_EXPLOSION(pos.x, pos.y, pos.z, 1, 10, false, true, expSettings.camShake, expSettings.noDamage)
+            end
+            if not expSettings.invisible then
+                addFx(pos, expSettings.currentFx, expSettings.colour)
+            end
+        else
+            FIRE.ADD_EXPLOSION(pos.x, pos.y, pos.z, expSettings.expType, 10, expSettings.audible, expSettings.invisible, expSettings.camShake, expSettings.noDamage)
+        end
+    end
+
+    local function ownedExplosion(ped, pos, expSettings)
+        if expSettings.currentFx then
+            if expSettings.currentFx.exp then
+                FIRE.ADD_OWNED_EXPLOSION(ped, pos.x, pos.y, pos.z, expSettings.currentFx.exp, 10, expSettings.audible, true, expSettings.camShake)
+                FIRE.ADD_OWNED_EXPLOSION(ped, pos.x, pos.y, pos.z, 1, 10, false, true, expSettings.camShake)
+            else
+                FIRE.ADD_OWNED_EXPLOSION(ped, pos.x, pos.y, pos.z, 1, 10, false, true, expSettings.camShake)
+            end
+            if not expSettings.invisible then
+                addFx(pos, expSettings.currentFx, expSettings.colour)
+            end
+        else
+            FIRE.ADD_OWNED_EXPLOSION(ped, pos.x, pos.y, pos.z, expSettings.expType, 10, expSettings.audible, expSettings.invisible, expSettings.camShake)
+        end
+    end
+
+    local function explodePlayer(ped, loop, expSettings)
+        local pos = ENTITY.GET_ENTITY_COORDS(ped)
+        --if any blame is enabled this decides who should be blamed
+        local blamedPlayer = PLAYER.PLAYER_PED_ID()
+        if expSettings.blamedPlayer and expSettings.blamed then
+            blamedPlayer = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(expSettings.blamedPlayer)
+        elseif expSettings.blamed then
+            local playerList = players.list(true, true, true)
+            blamedPlayer = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(playerList[math.random(1, #playerList)])
+        end
+        if not loop and PED.IS_PED_IN_ANY_VEHICLE(ped, true) then
+            for i = 0, 50, 1 do --50 explosions to account for most armored vehicles
+                if expSettings.owned or expSettings.blamed then
+                    ownedExplosion(blamedPlayer, pos, expSettings)
+                else
+                    explosion(pos, expSettings)
+                end
+                util.yield(10)
+            end
+        elseif expSettings.owned or expSettings.blamed then
+            ownedExplosion(blamedPlayer, pos, expSettings)
+        else
+            explosion(pos, expSettings)
+        end
+        util.yield(10)
+    end
+
+----------------------------------
+-- player info functions
+----------------------------------
+    function getMk2Rounds(ped, weaponHash)
+        local ammoType = WEAPON.GET_PED_AMMO_TYPE_FROM_WEAPON(ped, weaponHash)
+        if JS_tables.mkIIammoTable[weaponHash] and JS_tables.mkIIammoTable[weaponHash][ammoType] then
+            return util.get_label_text(JS_tables.mkIIammoTable[weaponHash][ammoType])
+        end
+    end
+
+    JS_tables.weaponTypes = {
+        [0] = 'Unknown',
+        [1] = 'No damage',
+        [2] = 'Melee',
+        [3] = function(ped, weaponHash)
+                return getMk2Rounds(ped, weaponHash) or 'Bullets'
+            end,
+        [4] = 'Force ragdoll fall',
+        [5] = 'Explosive',
+        [6] = 'Fire',
+        [8] = 'Fall',
+        [10] = 'Electric',
+        [11] = 'Barbed wire',
+        [12] = 'Extinguisher',
+        [13] = 'Gas',
+        [14] = 'Water',
+    }
+
+    local function getDamageType(ped, weaponHash)
+        local damageType = WEAPON.GET_WEAPON_DAMAGE_TYPE(weaponHash)
+
+        local final = JS_tables.weaponTypes[damageType]
+        return type(final) == 'string' and final or final(ped, weaponHash)
+    end
+
+    local function getWeaponHash(ped)
+        local wpn_ptr = memory.alloc_int()
+        if WEAPON.GET_CURRENT_PED_VEHICLE_WEAPON(ped, wpn_ptr) then -- only returns true if the weapon is a vehicle weapon
+            return memory.read_int(wpn_ptr), true
+        end
+        return WEAPON.GET_SELECTED_PED_WEAPON(ped), false
+    end
+
+    local function getWeaponName(weaponHash)
+        if JS_tables.vehicleWeaponHashToLabel[weaponHash] then
+            return util.get_label_text(JS_tables.vehicleWeaponHashToLabel[weaponHash])
+        elseif JS_tables.vehicleWeaponHashToString[weaponHash] then
+            return JS_tables.vehicleWeaponHashToString[weaponHash]
+        else
+            for k, v in pairs(util.get_weapons()) do
+                if v.hash == weaponHash then
+                    return util.get_label_text(v.label_key)
+                end
+            end
+        end
+    end
+
+    local function getPlayerVehicleName(ped)
+        local playersVehicle = PED.GET_VEHICLE_PED_IS_IN(ped)
+        local vehHash = ENTITY.GET_ENTITY_MODEL(playersVehicle)
+        if vehHash == 0 then return end
+        return util.get_label_text(VEHICLE.GET_DISPLAY_NAME_FROM_VEHICLE_MODEL(vehHash))
+    end
+
+    local function isMoving(ped)
+        if not PED.IS_PED_IN_ANY_VEHICLE(ped, true) and ENTITY.GET_ENTITY_SPEED(ped) > 1 then return true end
+        if ENTITY.GET_ENTITY_SPEED(PED.GET_VEHICLE_PED_IS_IN(ped, false)) > 1 then return true end
+    end
+
+    local taskTable = {
+        [1] = {1,  JSlang.str_trans('climbing Ladder')},
+        [2] = {2,  JSlang.str_trans('exiting vehicle')},
+        [3] = {160,  JSlang.str_trans('entering vehicle')},
+        [4] = {335, JSlang.str_trans('parachuting')},
+        [5] = {422,  JSlang.str_trans('jumping')},
+        [6] = {423,  JSlang.str_trans('falling')},
+    }
+    local function getMovementType(ped)
+        if PED.IS_PED_RAGDOLL(ped) then
+            return  JSlang.str_trans('ragdolling')
+        elseif PED.IS_PED_CLIMBING(ped) then
+            return  JSlang.str_trans('climbing')
+        elseif PED.IS_PED_VAULTING(ped) then
+            return  JSlang.str_trans('vaulting')
+        end
+        for i = 1, #taskTable do
+            if TASK.GET_IS_TASK_ACTIVE(ped, taskTable[i][1]) then return taskTable[i][2] end
+        end
+        if not isMoving(ped) then return end
+        if PED.IS_PED_IN_ANY_VEHICLE(ped, true) then
+            if PED.IS_PED_IN_ANY_PLANE(ped) then
+                return  JSlang.str_trans('flying a plane')
+            elseif PED.IS_PED_IN_ANY_HELI(ped) then
+                return  JSlang.str_trans('flying a helicopter')
+            elseif PED.IS_PED_IN_ANY_BOAT(ped) then
+                return  JSlang.str_trans('driving a boat')
+            elseif PED.IS_PED_IN_ANY_SUB(ped) then
+                return  JSlang.str_trans('driving a submarine')
+            elseif PED.IS_PED_ON_ANY_BIKE(ped) then
+                return  JSlang.str_trans('biking')
+            end
+            return  JSlang.str_trans('driving')
+        elseif PED.IS_PED_SWIMMING(ped) then
+            return  JSlang.str_trans('swimming')
+        elseif TASK.IS_PED_STRAFING(ped) then
+            return  JSlang.str_trans('strafing')
+        elseif TASK.IS_PED_SPRINTING(ped) then
+            return  JSlang.str_trans('sprinting')
+        elseif PED.GET_PED_STEALTH_MOVEMENT(ped) then
+            return  JSlang.str_trans('sneaking')
+        elseif TASK.IS_PED_GETTING_UP(ped) then
+            return  JSlang.str_trans('getting up')
+        elseif PED.IS_PED_GOING_INTO_COVER(ped) then
+            return  JSlang.str_trans('going into cover')
+        elseif PED.IS_PED_IN_COVER(ped) then
+            return  JSlang.str_trans('moving in cover')
+        else
+            return  JSlang.str_trans('moving')
+        end
+    end
+
+----------------------------------
+-- Safe monitor functions
+----------------------------------
+    local function getNightclubDailyEarnings()
+        local popularity = math.floor(STAT_GET_INT('CLUB_POPULARITY') / 10)
+        if popularity == 100 then return 50000
+        elseif popularity >= 90 then return 45000
+        elseif popularity >= 80 then return 24000
+        elseif popularity >= 70 then return 22000
+        elseif popularity >= 60 then return 20000
+        elseif popularity >= 50 then return 9500
+        elseif popularity >= 40 then return 8500
+        elseif popularity >= 30 then return 2500
+        elseif popularity >= 20 then return 2000
+        elseif popularity >= 10 then return 1600
+        else return 1500
+        end
+    end
+
+    local function getAgencyDailyEarnings(securityContracts)
+        if securityContracts >= 200 then return 20000 end
+        return math.floor(securityContracts / 5) * 500
+    end
 
 ----------------------------------
 -- Dirs and colors setup
@@ -894,7 +903,7 @@ local levitationCommand = menu.ref_by_path('Self>Movement>Levitation>Levitation'
 ----------------------------------
 -- Start message
 ----------------------------------
-    function rotatePoint(x, y, center, degrees)
+    local function rotatePoint(x, y, center, degrees)
 
         local radians = math.rad(degrees)
 
@@ -985,15 +994,15 @@ local whitelistedName = false
 ----------------------------------
 -- Settings
 ----------------------------------
-    local settings_root = JSlang.list(menu_root, 'Settings', {}, '')
+    JSlang.list(menu_root, 'Settings', {}, '')
 
     ----------------------------------
     -- Script settings
     ----------------------------------
-        local script_settings_root = JSlang.list(settings_root, 'Script settings', {'JSsettings'}, '')
+        JSlang.list(_LR['Settings'], 'Script settings', {'JSsettings'}, '')
 
         notifications = true
-        JSlang.toggle(script_settings_root, 'Disable JS notifications', {'JSnoNotify'}, 'Makes the script not notify when stuff happens. These can be pretty useful so I don\'t recommend turning them off.', function(toggle)
+        JSlang.toggle(_LR['Script settings'], 'Disable JS notifications', {'JSnoNotify'}, 'Makes the script not notify when stuff happens. These can be pretty useful so I don\'t recommend turning them off.', function(toggle)
             notifications = not toggle
             if notifications then
                 JSlang.toast('Notifications on')
@@ -1001,11 +1010,11 @@ local whitelistedName = false
         end)
 
         local maxTimeBetweenPress = 300
-        JSlang.slider(script_settings_root, 'Double tap interval', {'JSdoubleTapInterval'}, 'Lets you set the maximum time between double taps in ms.', 1, 1000, 300, 1, function(value)
+        JSlang.slider(_LR['Script settings'], 'Double tap interval', {'JSdoubleTapInterval'}, 'Lets you set the maximum time between double taps in ms.', 1, 1000, 300, 1, function(value)
             maxTimeBetweenPress = value
         end)
 
-        JSlang.action(script_settings_root, 'Create translation template', {'JStranslationTemplate'}, 'Creates a template file for translation in store/JerryScript/Language.', function()
+        JSlang.action(_LR['Script settings'], 'Create translation template', {'JStranslationTemplate'}, 'Creates a template file for translation in store/JerryScript/Language.', function()
             async_http.init('raw.githubusercontent.com', '/Jerrrry123/JerryScript/'.. getLatestRelease() ..'/store/JerryScript/Language/template.lua', function(fileContent)
                 local i = ''
                 if filesystem.exists(lang_dir ..'template.lua') then
@@ -1031,20 +1040,20 @@ local whitelistedName = false
             async_http.dispatch()
         end)
 
-        JSlang.hyperlink(script_settings_root, 'Command list', 'https://raw.githubusercontent.com/Jerrrry123/JerryScript/main/commandList.txt', 'A list of all the scripts features and commands.')
+        JSlang.hyperlink(_LR['Script settings'], 'Command list', 'https://raw.githubusercontent.com/Jerrrry123/JerryScript/main/commandList.txt', 'A list of all the scripts features and commands.')
 
     ----------------------------------
     -- Player info settings
     ----------------------------------
-        local pi_settings_root = JSlang.list(settings_root, 'Player info settings', {'JSplayerInfoSettings'}, '')
+        JSlang.list(_LR['Settings'], 'Player info settings', {'JSplayerInfoSettings'}, '')
 
         local piSettings = new.hudSettings(-151, 1, 3)
-        generateHudSettings(pi_settings_root, 'PI', piSettings)
+        generateHudSettings(_LR['Player info settings'], 'PI', piSettings)
 
         ----------------------------------
         -- Player info toggles
         ----------------------------------
-            local pi_display_options_root = JSlang.list(pi_settings_root, 'Display options', {'PIDisplay'}, '')
+            JSlang.list(_LR['Player info settings'], 'Display options', {'PIDisplay'}, '')
 
             local playerInfoTogglesOptions = {
                 {
@@ -1118,26 +1127,25 @@ local whitelistedName = false
                     end
                 },
             }
-            generateToggles(playerInfoTogglesOptions, pi_display_options_root, true)
+            generateToggles(playerInfoTogglesOptions, _LR['Display options'], true)
 
     -----------------------------------
     -- Safe monitor settings
     -----------------------------------
-        local sm_settings_root = JSlang.list(settings_root, 'Safe monitor settings', {'SMsettings'}, 'Settings for the on screen text')
+        JSlang.list(_LR['Settings'], 'Safe monitor settings', {'SMsettings'}, 'Settings for the on screen text')
 
         smSettings = new.hudSettings(-3, 0, 2)
-        generateHudSettings(sm_settings_root, 'SM', smSettings)
+        generateHudSettings(_LR['Safe monitor settings'], 'SM', smSettings)
 
     -----------------------------------
     -- Explosion settings
     -----------------------------------
-        local epx_settings_root = JSlang.list(settings_root, 'Explosion settings', {'JSexpSettings'}, 'Settings for the different options that explode players in this script.')
+        JSlang.list(_LR['Settings'], 'Explosion settings', {'JSexpSettings'}, 'Settings for the different options that explode players in this script.')
 
         local expLoopDelay = new.delay(250, 0, 0)
 
-        local loop_delay_root = menu.list(epx_settings_root, JSlang.str_trans('Loop delay'), {'JSexpDelay'}, JSlang.str_trans('Lets you set a custom delay between looped explosions.'))
-
-        generateDelaySettings(loop_delay_root, JSlang.str_trans('Loop delay'), expLoopDelay)
+        JSlang.list(_LR['Explosion settings'], 'Loop delay', {'JSexpDelay'}, 'Lets you set a custom delay between looped explosions.')
+        generateDelaySettings(_LR['Loop delay'], 'Loop delay', expLoopDelay)
 
         -----------------------------------
         -- Fx explosion settings
@@ -1145,14 +1153,15 @@ local whitelistedName = false
             local expSettings = {
                 camShake = 0, invisible = false, audible = true, noDamage = false, owned = false, blamed = false, blamedPlayer = false, expType = 0,
                 --stuff for fx explosions
-                currentFx = effects['Clown_Explosion'],
+                currentFx = JS_tables.effects['Clown_Explosion'],
                 colour = new.colour( 255, 0, 255 )
             }
 
-            local exp_fx_root = JSlang.list(epx_settings_root, 'FX explosions', {'JSfxExp'}, 'Lets you choose effects instead of explosion type.')
+            JSlang.list(_LR['Explosion settings'], 'FX explosions', {'JSfxExp'}, 'Lets you choose effects instead of explosion type.')
             local exp_fx_type_root
 
-            local exp_type_root exp_type_root = menu.list_action(epx_settings_root, JSlang.str_trans('Explosion type') ..': Grenade', {}, '', {
+            local exp_type_root
+            exp_type_root = menu.list_action(_LR['Explosion settings'], JSlang.str_trans('Explosion type') ..': Grenade', {}, '', {
                 {'Grenade'},
                 {'Grenadelauncher'},
                 {'Stickybomb'},
@@ -1248,7 +1257,7 @@ local whitelistedName = false
                 local labelTable = {}
                 for k, v in pairsByKeys(keyTable) do
                     local helpText = ''
-                    if keyTable[k].colour and not effects[k].exp then
+                    if keyTable[k].colour and not JS_tables.effects[k].exp then
                         helpText ..= JSlang.str_trans('Colour can be changed.') ..'\n'.. JSlang.str_trans('Can\'t be silenced.')
                     elseif keyTable[k].colour then
                         helpText ..=  JSlang.str_trans('Colour can be changed.')
@@ -1260,34 +1269,34 @@ local whitelistedName = false
                 return labelTable
             end
 
-            exp_fx_type_root = menu.list_action(exp_fx_root, JSlang.str_trans('FX type') ..': '.. JSlang.str_trans('none'), {'JSfxExpType'}, JSlang.str_trans('Choose a fx explosion type.'), getEffectLabelTableFromKeys(effects), function(index, name)
-                expSettings.currentFx = effects[name]
+            exp_fx_type_root = menu.list_action(_LR['FX explosions'], JSlang.str_trans('FX type') ..': '.. JSlang.str_trans('none'), {'JSfxExpType'}, JSlang.str_trans('Choose a fx explosion type.'), getEffectLabelTableFromKeys(JS_tables.effects), function(index, name)
+                expSettings.currentFx = JS_tables.effects[name]
                 menu.set_menu_name(exp_type_root, JSlang.str_trans('Explosion type') ..': '.. JSlang.str_trans('Fx active'))
                 menu.set_menu_name(exp_fx_type_root, JSlang.str_trans('FX type') ..': '.. name)
             end)
 
-            menu.rainbow(JSlang.colour(exp_fx_root, 'FX colour', {'JSPfxColour'}, 'Only works on some pfx\'s.',  new.colour( 255, 0, 255 ), false, function(colour)
+            menu.rainbow(JSlang.colour(_LR['FX explosions'], 'FX colour', {'JSPfxColour'}, 'Only works on some pfx\'s.',  new.colour( 255, 0, 255 ), false, function(colour)
                 expSettings.colour = colour
             end))
         -----------------------------------
 
-        JSlang.slider(epx_settings_root, 'Camera shake', {'JSexpCamShake'}, 'How much explosions shake the camera.', 0, 1000, expSettings.camShake, 1, function(value)
+        JSlang.slider(_LR['Explosion settings'], 'Camera shake', {'JSexpCamShake'}, 'How much explosions shake the camera.', 0, 1000, expSettings.camShake, 1, function(value)
             expSettings.camShake = value
         end)
 
-        JSlang.toggle(epx_settings_root, 'Invisible explosions', {'JSexpInvis'}, '', function(toggle)
+        JSlang.toggle(_LR['Explosion settings'], 'Invisible explosions', {'JSexpInvis'}, '', function(toggle)
             expSettings.invisible = toggle
         end)
 
-        JSlang.toggle(epx_settings_root, 'Silent explosions', {'JSexpSilent'}, '', function(toggle)
+        JSlang.toggle(_LR['Explosion settings'], 'Silent explosions', {'JSexpSilent'}, '', function(toggle)
             expSettings.audible = not toggle
         end)
 
-        JSlang.toggle(epx_settings_root, 'Disable explosion damage', {'JSnoExpDamage'}, '', function(toggle)
+        JSlang.toggle(_LR['Explosion settings'], 'Disable explosion damage', {'JSnoExpDamage'}, '', function(toggle)
             expSettings.noDamage = toggle
         end)
 
-        local blame_settings_root = JSlang.list(epx_settings_root, 'Blame settings', {'JSblameSettings'}, 'Lets you blame yourself or other players for your explosions, go to the player list to chose a specific player to blame.')
+        JSlang.list(_LR['Explosion settings'], 'Blame settings', {'JSblameSettings'}, 'Lets you blame yourself or other players for your explosions, go to the player list to chose a specific player to blame.')
 
         local runningToggling = false
         local function mutuallyExclusiveToggles(toggle)
@@ -1300,32 +1309,32 @@ local whitelistedName = false
         end
 
         local exp_blame_toggle
-        local exp_own_toggle = JSlang.toggle(blame_settings_root, 'Owned explosions', {'JSownExp'}, 'Will overwrite "Disable explosion damage".', function(toggle)
+        local exp_own_toggle = JSlang.toggle(_LR['Blame settings'], 'Owned explosions', {'JSownExp'}, 'Will overwrite "Disable explosion damage".', function(toggle)
             expSettings.owned = toggle
             if not runningToggling then
                 mutuallyExclusiveToggles(exp_blame_toggle)
             end
         end)
 
-        exp_blame_toggle = menu.toggle(blame_settings_root, JSlang.str_trans('Blame') ..': '.. JSlang.str_trans('Random'), {'JSblameExp'}, JSlang.str_trans('Will overwrite "Disable explosion damage" and if you haven\'t chosen a player random players will be blamed for each explosion.'), function(toggle)
+        exp_blame_toggle = menu.toggle(_LR['Blame settings'], JSlang.str_trans('Blame') ..': '.. JSlang.str_trans('Random'), {'JSblameExp'}, JSlang.str_trans('Will overwrite "Disable explosion damage" and if you haven\'t chosen a player random players will be blamed for each explosion.'), function(toggle)
             expSettings.blamed = toggle
             if not runningToggling then
                 mutuallyExclusiveToggles(exp_own_toggle)
             end
         end)
 
-        local blame_list_root = JSlang.list(blame_settings_root, 'Blame player list', {'JSblameList'}, 'Custom player list for selecting blames.')
+        JSlang.list(_LR['Blame settings'], 'Blame player list', {'JSblameList'}, 'Custom player list for selecting blames.')
 
         local blamesTogglesTable = {}
         players.on_join(function(pid)
             local playerName = players.get_name(pid)
-            blamesTogglesTable[pid] = menu.action(blame_list_root, playerName, {'JSblame'.. playerName}, JSlang.str_trans('Blames your explosions on them.'), function()
+            blamesTogglesTable[pid] = menu.action(_LR['Blame player list'], playerName, {'JSblame'.. playerName}, JSlang.str_trans('Blames your explosions on them.'), function()
                 expSettings.blamedPlayer = pid
                 if not menu.get_value(exp_blame_toggle) then
                     menu.trigger_command(exp_blame_toggle)
                 end
                 menu.set_menu_name(exp_blame_toggle, JSlang.str_trans('Blame') ..': '.. playerName)
-                menu.focus(blame_list_root)
+                menu.focus(_LR['Blame player list'])
             end)
         end)
 
@@ -1333,7 +1342,7 @@ local whitelistedName = false
             if blamesTogglesTable[pid] then
                 menu.delete(blamesTogglesTable[pid])
             end
-    
+
             if expSettings.blamedPlayer == pid then
                 local playerList = players.list(true, true, true)
                 for _, pid in pairs(playerList) do
@@ -1348,7 +1357,7 @@ local whitelistedName = false
             end
         end)
 
-        JSlang.action(blame_settings_root, 'Random blames', {'JSblameRandomExp'}, 'Switches blamed explosions back to random if you already chose a player to blame.', function()
+        JSlang.action(_LR['Blame settings'], 'Random blames', {'JSblameRandomExp'}, 'Switches blamed explosions back to random if you already chose a player to blame.', function()
             expSettings.blamedPlayer = false
             if not menu.get_value(exp_blame_toggle) then
                 menu.trigger_command(exp_blame_toggle)
@@ -1357,14 +1366,15 @@ local whitelistedName = false
         end)
 
         local hornBoostMultiplier = 1.000
-        JSlang.slider(settings_root, 'Horn boost multiplier', {'JShornBoostMultiplier'}, 'Set the force applied to the car when you or another player uses horn boost.', -100000, 100000, hornBoostMultiplier * 1000, 1, function(value)
+        JSlang.slider(_LR['Settings'], 'Horn boost multiplier', {'JShornBoostMultiplier'}, 'Set the force applied to the car when you or another player uses horn boost.', -100000, 100000, hornBoostMultiplier * 1000, 1, function(value)
             hornBoostMultiplier = value / 1000
         end)
 
 -----------------------------------
 -- Self
 -----------------------------------
-    local self_root = JSlang.list(menu_root, 'Self', {'JSself'}, '')
+do
+    JSlang.list(menu_root, 'Self', {'JSself'}, '')
 
     local function getOffsetFromCam(dist)
         local pos = CAM.GET_FINAL_RENDERED_CAM_COORD()
@@ -1380,7 +1390,7 @@ local whitelistedName = false
     local startViewMode
     local scope_scaleform
     local gaveHelmet = false
-    JSlang.toggle_loop(self_root, 'Ironman mode', {'JSironman'}, 'Grants you the abilities of ironman :)', function()
+    JSlang.toggle_loop(_LR['Self'], 'Ironman mode', {'JSironman'}, 'Grants you the abilities of ironman :)', function()
         if not menu.get_value(levitationCommand) then
             menu.trigger_command(levitationCommand)
         end
@@ -1481,7 +1491,7 @@ local whitelistedName = false
     -----------------------------------
     -- Fire wings
     -----------------------------------
-        local fire_wings_list = JSlang.list(self_root, 'Fire wings', {}, '')
+        JSlang.list(_LR['Self'], 'Fire wings', {}, '')
 
         local fireWings = {
             [1] = {pos = {[1] = 120, [2] =  75}},
@@ -1501,7 +1511,7 @@ local whitelistedName = false
         }
 
         local ptfxEgg
-        JSlang.toggle(fire_wings_list, 'Fire wings', {'JSfireWings'}, 'Puts wings made of fire on your back.', function (toggle)
+        JSlang.toggle(_LR['Fire wings'], 'Fire wings', {'JSfireWings'}, 'Puts wings made of fire on your back.', function (toggle)
             fireWingsSettings.on = toggle
             if fireWingsSettings.on then
                 ENTITY.SET_ENTITY_PROOFS(players.user_ped(), false, true, false, false, false, false, 1, false)
@@ -1548,19 +1558,18 @@ local whitelistedName = false
             end
         end)
 
-        JSlang.slider(fire_wings_list, 'Fire wings scale', {'JSfireWingsScale'}, '', 1, 100, 3, 1, function(value)
+        JSlang.slider(_LR['Fire wings'], 'Fire wings scale', {'JSfireWingsScale'}, '', 1, 100, 3, 1, function(value)
             fireWingsSettings.scale = value / 10
         end)
 
-        menu.rainbow(JSlang.colour(fire_wings_list, 'Fire wings colour', {'JSfireWingsColour'}, '', fireWingsSettings.colour, false, function(colour)
+        menu.rainbow(JSlang.colour(_LR['Fire wings'], 'Fire wings colour', {'JSfireWingsColour'}, '', fireWingsSettings.colour, false, function(colour)
             fireWingsSettings.colour = colour
         end))
 
     -----------------------------------
     -- Fire breath
     -----------------------------------
-
-        local fire_breath_root = JSlang.list(self_root, 'Fire breath', {}, '')
+        JSlang.list(_LR['Self'], 'Fire breath', {}, '')
 
         local fireBreathSettings = {
             scale = 0.3,
@@ -1580,7 +1589,7 @@ local whitelistedName = false
             self.y.value = transitionValue(self.y.value, self.y[movementType], 0.01)
         end
 
-        JSlang.toggle(fire_breath_root, 'Fire breath', {'JSfireBreath'}, '', function(toggle)
+        JSlang.toggle(_LR['Fire breath'], 'Fire breath', {'JSfireBreath'}, '', function(toggle)
             fireBreathSettings.on = toggle
             if toggle then
                 while not STREAMING.HAS_NAMED_PTFX_ASSET_LOADED('weap_xs_vehicle_weapons') do
@@ -1618,12 +1627,12 @@ local whitelistedName = false
             end)
         end)
 
-        JSlang.slider(fire_breath_root, 'Fire breath scale', {'JSfireBreathScale'}, '', 1, 100, fireBreathSettings.scale * 10, 1, function(value)
+        JSlang.slider(_LR['Fire breath'], 'Fire breath scale', {'JSfireBreathScale'}, '', 1, 100, fireBreathSettings.scale * 10, 1, function(value)
             fireBreathSettings.scale = value / 10
             GRAPHICS.SET_PARTICLE_FX_LOOPED_SCALE(fireBreathSettings.ptfx, fireBreathSettings.scale)
         end)
 
-        menu.rainbow(JSlang.colour(fire_breath_root, 'Fire breath colour', {'JSfireBreathColour'}, '', fireBreathSettings.colour, false, function(colour)
+        menu.rainbow(JSlang.colour(_LR['Fire breath'], 'Fire breath colour', {'JSfireBreathColour'}, '', fireBreathSettings.colour, false, function(colour)
             fireBreathSettings.colour = colour
             GRAPHICS.SET_PARTICLE_FX_LOOPED_COLOUR(fireBreathSettings.ptfx, fireBreathSettings.colour.r, fireBreathSettings.colour.g, fireBreathSettings.colour.b)
         end))
@@ -1653,18 +1662,18 @@ local whitelistedName = false
             [18] = 'Chin Hole',
             [19] = 'Neck Width',
         }
-        local face_profiles_list = JSlang.list(self_root, 'Face features', {}, '')
-        local face_feature_list = JSlang.list(face_profiles_list, 'Customize face features', {}, 'Customizations reset after restarting the game.')
+        JSlang.list(_LR['Self'], 'Face features', {}, '')
+        JSlang.list(_LR['Face features'], 'Customize face features', {}, 'Customizations reset after restarting the game.')
 
         local face_sliders = {}
         for i = 0, #faceFeatures do
             local faceValue = (util.is_session_started() and math.floor(STAT_GET_FLOAT('FEATURE_'.. i) * 100) or 0)
-            face_sliders[faceFeatures[i]] = JSlang.slider(face_feature_list, faceFeatures[i], {'JSset'.. string.gsub(faceFeatures[i], ' ', '')}, '', -1000, 1000, faceValue, 1, function(value)
+            face_sliders[faceFeatures[i]] = JSlang.slider(_LR['Customize face features'], faceFeatures[i], {'JSset'.. string.gsub(faceFeatures[i], ' ', '')}, '', -1000, 1000, faceValue, 1, function(value)
                 PED._SET_PED_MICRO_MORPH_VALUE(players.user_ped(), i, value / 100)
             end)
         end
 
-        menu.divider(face_profiles_list, '', {}, '')
+        menu.divider(_LR['Face features'], '', {}, '')
 
         local function getProfileName(fullPath, removePath)
             local path = string.sub(fullPath, #removePath + 1)
@@ -1695,7 +1704,7 @@ local whitelistedName = false
             loadProfiles(root)
         end
 
-        JSlang.action(face_profiles_list, 'Create face feature profile', {"JSsaveFaceFeatures"}, 'Saves your customized face in a file so you can load it.', function()
+        JSlang.action(_LR['Face features'], 'Create face feature profile', {"JSsaveFaceFeatures"}, 'Saves your customized face in a file so you can load it.', function()
             menu.show_command_box("JSsaveFaceFeatures ")
         end, function(fileName)
             local f = assert(io.open(face_profiles_dir .. fileName ..'.txt', 'w'))
@@ -1703,17 +1712,17 @@ local whitelistedName = false
                 f:write(faceFeatures[i] ..': '.. menu.get_value(face_sliders[faceFeatures[i]]) ..'\n')
             end
             f:close()
-            reloadProfiles(face_profiles_list)
+            reloadProfiles(_LR['Face features'])
         end)
 
-        JSlang.action(face_profiles_list, 'Reload profiles', {"JSreLoadFaceFeatureProfiles"}, 'Refreshes your profiles without having to restart the script.', function()
-            reloadProfiles(face_profiles_list)
+        JSlang.action(_LR['Face features'], 'Reload profiles', {"JSreLoadFaceFeatureProfiles"}, 'Refreshes your profiles without having to restart the script.', function()
+            reloadProfiles(_LR['Face features'])
         end)
 
-        JSlang.divider(face_profiles_list, 'Profiles')
+        JSlang.divider(_LR['Face features'], 'Profiles')
 
         if filesystem.is_dir(face_profiles_dir) then
-            loadProfiles(face_profiles_list)
+            loadProfiles(_LR['Face features'])
         end
 
         local faceOverlays = {
@@ -1731,11 +1740,11 @@ local whitelistedName = false
             [11] = { name = 'Body Blemishes',     min = -1, max = 11 },
             [12] = { name = 'Add Body Blemishes', min = -1, max = 1  },
         }
-        local face_overlay_list = JSlang.list(self_root, 'Customize face overlays', {}, 'Customizations reset after restarting the game.')
+        JSlang.list(_LR['Self'], 'Customize face overlays', {}, 'Customizations reset after restarting the game.')
 
         for i = 0, #faceOverlays do
             local overlayValue = PED._GET_PED_HEAD_OVERLAY_VALUE(players.user_ped(), i)
-            JSlang.slider(face_overlay_list, faceOverlays[i].name, {}, '', faceOverlays[i].min, faceOverlays[i].max, (overlayValue == 255 and -1 or overlayValue), 1, function(value)
+            JSlang.slider(_LR['Customize face overlays'], faceOverlays[i].name, {}, '', faceOverlays[i].min, faceOverlays[i].max, (overlayValue == 255 and -1 or overlayValue), 1, function(value)
                 PED.SET_PED_HEAD_OVERLAY(players.user_ped(), i, (value == 255 and -1 or value), 1)
             end)
         end
@@ -1743,21 +1752,21 @@ local whitelistedName = false
     -----------------------------------
     -- Ragdoll options
     -----------------------------------
-        local ragdoll_types = JSlang.list(self_root, 'Ragdoll options', {'JSragdollOptions'}, 'Different options for making yourself ragdoll.')
+        JSlang.list(_LR['Self'], 'Ragdoll options', {'JSragdollOptions'}, 'Different options for making yourself ragdoll.')
 
-        JSlang.toggle_loop(ragdoll_types, 'Better clumsiness', {'JSclumsy'}, 'Like stands clumsiness, but you can get up after you fall.', function()
+        JSlang.toggle_loop(_LR['Ragdoll options'], 'Better clumsiness', {'JSclumsy'}, 'Like stands clumsiness, but you can get up after you fall.', function()
             if PED.IS_PED_RAGDOLL(players.user_ped()) then util.yield(3000) return end
             PED.SET_PED_RAGDOLL_ON_COLLISION(players.user_ped(), true)
         end)
 
-        JSlang.action(ragdoll_types, 'Stumble', {'JSstumble'}, 'Makes you stumble with a good chance of falling over.', function()
+        JSlang.action(_LR['Ragdoll options'], 'Stumble', {'JSstumble'}, 'Makes you stumble with a good chance of falling over.', function()
             local vector = ENTITY.GET_ENTITY_FORWARD_VECTOR(players.user_ped())
             PED.SET_PED_TO_RAGDOLL_WITH_FALL(players.user_ped(), 1500, 2000, 2, vector.x, -vector.y, vector.z, 1, 0, 0, 0, 0, 0, 0)
         end)
 
         -- credit to LAZScript for inspiring this
         local fallTimeout = false
-        JSlang.toggle(ragdoll_types, 'Fall over', {'JSfallOver'}, 'Makes you stumble, fall over and prevents you from getting back up.', function(toggle)
+        JSlang.toggle(_LR['Ragdoll options'], 'Fall over', {'JSfallOver'}, 'Makes you stumble, fall over and prevents you from getting back up.', function(toggle)
             if toggle then
                 local vector = ENTITY.GET_ENTITY_FORWARD_VECTOR(players.user_ped())
                 PED.SET_PED_TO_RAGDOLL_WITH_FALL(players.user_ped(), 1500, 2000, 2, vector.x, -vector.y, vector.z, 1, 0, 0, 0, 0, 0, 0)
@@ -1770,17 +1779,17 @@ local whitelistedName = false
         end)
 
         -- credit to aaron for telling me this :p
-        JSlang.toggle_loop(ragdoll_types, 'Ragdoll', {'JSragdoll'}, 'Just makes you ragdoll.', function()
+        JSlang.toggle_loop(_LR['Ragdoll options'], 'Ragdoll', {'JSragdoll'}, 'Just makes you ragdoll.', function()
             PED.SET_PED_TO_RAGDOLL(players.user_ped(), 2000, 2000, 0, true, true, true)
         end)
     -----------------------------------
 
-    local custom_respawn_root = JSlang.list(self_root, 'Custom respawn', {}, '')
+    JSlang.list(_LR['Self'], 'Custom respawn', {}, '')
 
     local wasDead = false
     local respawnPos
     local respawnRot
-    local custom_respawn_toggle = menu.toggle_loop(custom_respawn_root, JSlang.str_trans('Custom respawn') ..': '.. JSlang.str_trans('none'), {}, 'Set a location that you respawn at when you die.', function()
+    local custom_respawn_toggle = menu.toggle_loop(_LR['Custom respawn'], JSlang.str_trans('Custom respawn') ..': '.. JSlang.str_trans('none'), {}, 'Set a location that you respawn at when you die.', function()
         if respawnPos == nil then return end
         local isDead = PLAYER.IS_PLAYER_DEAD(players.user())
         if wasDead and not isDead then
@@ -1800,7 +1809,7 @@ local whitelistedName = false
         return util.get_label_text(ZONE.GET_NAME_OF_ZONE(v3.get(players.get_position(pid))))
     end
 
-    local custom_respawn_location custom_respawn_location = JSlang.action(custom_respawn_root, 'Save location', {}, 'No location set.', function()
+    local custom_respawn_location custom_respawn_location = JSlang.action(_LR['Custom respawn'], 'Save location', {}, 'No location set.', function()
         respawnPos = players.get_position(players.user())
         respawnRot = ENTITY.GET_ENTITY_ROTATION(players.user_ped(), 2)
         menu.set_menu_name(custom_respawn_toggle, JSlang.str_trans('Custom respawn') ..': '.. getZoneName(players.user()))
@@ -1815,32 +1824,34 @@ local whitelistedName = false
     -- 159 -> 160
     -- 207 -> 208
     local alphaPoints = {0, 87, 159, 207, 255}
-    JSlang.slider(self_root, 'Ghost', {'JSghost'}, 'Makes your player different levels off see through.', 0, 100, 100, 25, function(value)
+    JSlang.slider(_LR['Self'], 'Ghost', {'JSghost'}, 'Makes your player different levels off see through.', 0, 100, 100, 25, function(value)
         ENTITY.SET_ENTITY_ALPHA(players.user_ped(),alphaPoints[value / 25 + 1], false)
     end)
 
-    JSlang.toggle_loop(self_root, 'Full regen', {'JSfullRegen'}, 'Makes your hp regenerate until you\'re at full health.', function()
+    JSlang.toggle_loop(_LR['Self'], 'Full regen', {'JSfullRegen'}, 'Makes your hp regenerate until you\'re at full health.', function()
         local health = ENTITY.GET_ENTITY_HEALTH(players.user_ped())
         if ENTITY.GET_ENTITY_MAX_HEALTH(players.user_ped()) == health then return end
         ENTITY.SET_ENTITY_HEALTH(players.user_ped(), health + 5, 0)
         util.yield(255)
     end)
 
-    JSlang.toggle(self_root, 'Cold blooded', {'JScoldBlooded'}, 'Removes your thermal signature.\nOther players still see it tho.', function(toggle)
+    JSlang.toggle(_LR['Self'], 'Cold blooded', {'JScoldBlooded'}, 'Removes your thermal signature.\nOther players still see it tho.', function(toggle)
         PED.SET_PED_HEATSCALE_OVERRIDE(players.user_ped(), (toggle and 0 or 1))
     end)
 
-    JSlang.toggle(self_root, 'Quiet footsteps', {'JSquietSteps'}, 'Disables the sound of your footsteps.', function(toggle)
+    JSlang.toggle(_LR['Self'], 'Quiet footsteps', {'JSquietSteps'}, 'Disables the sound of your footsteps.', function(toggle)
         AUDIO._SET_PED_AUDIO_FOOTSTEP_LOUD(players.user_ped(), not toggle)
     end)
+end
 
 -----------------------------------
 -- Weapons
 -----------------------------------
-    local weapons_root = JSlang.list(menu_root, 'Weapons', {'JSweapons'}, '')
+do
+    JSlang.list(menu_root, 'Weapons', {'JSweapons'}, '')
 
     local thermal_command = menu.ref_by_path('Game>Rendering>Thermal Vision', 37)
-    JSlang.toggle_loop(weapons_root, 'Thermal guns', {'JSthermalGuns'}, 'Makes it so when you aim any gun you can toggle thermal vision on "E".', function()
+    JSlang.toggle_loop(_LR['Weapons'], 'Thermal guns', {'JSthermalGuns'}, 'Makes it so when you aim any gun you can toggle thermal vision on "E".', function()
         local aiming = PLAYER.IS_PLAYER_FREE_AIMING(players.user_ped())
         if GRAPHICS.GET_USINGSEETHROUGH() and not aiming then
             menu.trigger_command(thermal_command, 'off')
@@ -1855,7 +1866,7 @@ local whitelistedName = false
     ----------------------------------
     -- Weapon settings
     ----------------------------------
-        local weapon_settings_root = JSlang.list(weapons_root, 'Weapon settings', {}, '')
+        JSlang.list(_LR['Weapons'], 'Weapon settings', {}, '')
 
         local function readWeaponAddress(storeTable, offset, stopIfModified)
             if util.is_session_transition_active() then return 0 end
@@ -1886,7 +1897,7 @@ local whitelistedName = false
         end
 
         local modifiedRecoil = {}
-        JSlang.toggle_loop(weapon_settings_root, 'Disable recoil', {'JSnoRecoil'}, 'Disables the camera shake when shooting guns.', function()
+        JSlang.toggle_loop(_LR['Weapon settings'], 'Disable recoil', {'JSnoRecoil'}, 'Disables the camera shake when shooting guns.', function()
             local weaponHash = readWeaponAddress(modifiedRecoil, 0x2F4, true)
             if weaponHash == 0 then return end
             memory.write_float(modifiedRecoil[weaponHash].address, 0)
@@ -1895,7 +1906,7 @@ local whitelistedName = false
         end)
 
         local modifiedRange = {}
-        JSlang.toggle_loop(weapon_settings_root, 'Infinite range', {'JSinfiniteRange'}, '', function()
+        JSlang.toggle_loop(_LR['Weapon settings'], 'Infinite range', {'JSinfiniteRange'}, '', function()
             if util.is_session_transition_active() then return end
             local userPed = players.user_ped()
             local weaponHash, vehicleWeapon = getWeaponHash(userPed)
@@ -1927,7 +1938,7 @@ local whitelistedName = false
         end)
 
         local modifiedSpread = {}
-        JSlang.toggle_loop(weapon_settings_root, 'Disable spread', {'JSnoSpread'}, '', function()
+        JSlang.toggle_loop(_LR['Weapon settings'], 'Disable spread', {'JSnoSpread'}, '', function()
             local weaponHash = readWeaponAddress(modifiedSpread, 0x74, true)
             if weaponHash == 0 then return end
             memory.write_float(modifiedSpread[weaponHash].address, 0)
@@ -1939,7 +1950,7 @@ local whitelistedName = false
             [1] = {hash = util.joaat('weapon_minigun')},
             [2] = {hash = util.joaat('weapon_rayminigun')},
         }
-        JSlang.toggle_loop(weapon_settings_root, 'Remove spin-up time', {'JSnoSpinUp'}, 'Removes the spin-up from both the minigun and the widowmaker.', function()
+        JSlang.toggle_loop(_LR['Weapon settings'], 'Remove spin-up time', {'JSnoSpinUp'}, 'Removes the spin-up from both the minigun and the widowmaker.', function()
             local weaponHash = WEAPON.GET_SELECTED_PED_WEAPON(players.user_ped())
             for i = 1, #modifiedSpinup do
                 if weaponHash == modifiedSpinup[i].hash then
@@ -1959,7 +1970,7 @@ local whitelistedName = false
         local modifiedCarForce = {}
         local modifiedHeliForce = {}
         local modifiedPedForce = {}
-        JSlang.toggle_loop(weapon_settings_root, 'Bullet force multiplier', {'JSbulletForceMultiplier'}, 'Works best when shooting vehicles from the front.\nDisplayed value is in percent.', function()
+        JSlang.toggle_loop(_LR['Weapon settings'], 'Bullet force multiplier', {'JSbulletForceMultiplier'}, 'Works best when shooting vehicles from the front.\nDisplayed value is in percent.', function()
             local weaponHash = readWeaponAddress(modifiedCarForce, 0x0E0, false)
             if weaponHash == 0 then return end
             memory.write_float(modifiedCarForce[weaponHash].address, modifiedCarForce[weaponHash].original * 99999999999999)
@@ -1977,11 +1988,11 @@ local whitelistedName = false
             resetWeapons(modifiedPedForce)
         end)
 
-        JSlang.divider(weapon_settings_root, 'Aim fov')
+        JSlang.divider(_LR['Weapon settings'], 'Aim fov')
 
         local extraZoom2 = 0
         local modifiedAimFov = {}
-        JSlang.toggle_loop(weapon_settings_root, 'Enable aim fov', {'JSenableAimFov'}, 'Lets you modify the fov you have while you\'re aiming.', function()
+        JSlang.toggle_loop(_LR['Weapon settings'], 'Enable aim fov', {'JSenableAimFov'}, 'Lets you modify the fov you have while you\'re aiming.', function()
             local weaponHash = readWeaponAddress(modifiedAimFov, 0x2FC, false)
             if weaponHash == 0 then return end
             memory.write_float(modifiedAimFov[weaponHash].address,  modifiedAimFov[weaponHash].original + extraZoom2)
@@ -1989,15 +2000,15 @@ local whitelistedName = false
             resetWeapons(modifiedAimFov)
         end)
 
-        JSlang.slider(weapon_settings_root, 'Aim fov', {'JSaimFov'}, '',-40, 100, 0, 1, function(value)
+        JSlang.slider(_LR['Weapon settings'], 'Aim fov', {'JSaimFov'}, '',-40, 100, 0, 1, function(value)
             extraZoom2 = value
         end)
 
-        JSlang.divider(weapon_settings_root, 'Zoom aim fov')
+        JSlang.divider(_LR['Weapon settings'], 'Zoom aim fov')
 
         local extraZoom = 0
         local modifiedZoomFov = {}
-        JSlang.toggle_loop(weapon_settings_root, 'Enable zoom fov', {'JSenableZoomFov'}, 'Lets you modify the fov you have while you\'re aiming and has zoomed in.', function()
+        JSlang.toggle_loop(_LR['Weapon settings'], 'Enable zoom fov', {'JSenableZoomFov'}, 'Lets you modify the fov you have while you\'re aiming and has zoomed in.', function()
             local weaponHash = readWeaponAddress(modifiedZoomFov, 0x410, false)
             if weaponHash == 0 then return end
             memory.write_float(modifiedZoomFov[weaponHash].address,  modifiedZoomFov[weaponHash].original + extraZoom)
@@ -2005,7 +2016,7 @@ local whitelistedName = false
             resetWeapons(modifiedZoomFov)
         end)
 
-        JSlang.slider_float(weapon_settings_root, 'Zoom aim fov', {'JSzoomAimFov'}, '', 100, 9999999999, 100, 1, function(value)
+        JSlang.slider_float(_LR['Weapon settings'], 'Zoom aim fov', {'JSzoomAimFov'}, '', 100, 9999999999, 100, 1, function(value)
             extraZoom = (value - 100) / 100
             modifiedZoomWeapon = nil
         end)
@@ -2013,7 +2024,7 @@ local whitelistedName = false
     -----------------------------------
     -- Proxy stickys
     -----------------------------------
-        local proxy_sticky_root = JSlang.list(weapons_root, 'Proxy stickys', {}, '')
+        JSlang.list(_LR['Weapons'], 'Proxy stickys', {}, '')
 
         local proxyStickySettings = {players = true, npcs = false, radius = 2}
         local function autoExplodeStickys(ped)
@@ -2023,7 +2034,7 @@ local whitelistedName = false
             end
         end
 
-        JSlang.toggle_loop(proxy_sticky_root, 'Proxy stickys', {'JSproxyStickys'}, 'Makes your sticky bombs automatically detonate around players or npc\'s, works with the player whitelist.', function()
+        JSlang.toggle_loop(_LR['Proxy stickys'], 'Proxy stickys', {'JSproxyStickys'}, 'Makes your sticky bombs automatically detonate around players or npc\'s, works with the player whitelist.', function()
             if proxyStickySettings.players then
                 local specificWhitelistGroup = {user = false,  friends = whitelistGroups.friends, strangers = whitelistGroups.strangers}
                 local playerList = getNonWhitelistedPlayers(whitelistListTable, specificWhitelistGroup, whitelistedName)
@@ -2042,19 +2053,19 @@ local whitelistedName = false
             end
         end)
 
-        JSlang.toggle(proxy_sticky_root, 'Detonate near players', {'JSProxyStickyPlayers'}, 'If your sticky bombs automatically detonate near players.', function(toggle)
+        JSlang.toggle(_LR['Proxy stickys'], 'Detonate near players', {'JSProxyStickyPlayers'}, 'If your sticky bombs automatically detonate near players.', function(toggle)
             proxyStickySettings.players = toggle
         end, proxyStickySettings.players)
 
-        JSlang.toggle(proxy_sticky_root, 'Detonate near npc\'s', {'JSProxyStickyNpcs'}, 'If your sticky bombs automatically detonate near npc\'s.', function(toggle)
+        JSlang.toggle(_LR['Proxy stickys'], 'Detonate near npc\'s', {'JSProxyStickyNpcs'}, 'If your sticky bombs automatically detonate near npc\'s.', function(toggle)
             proxyStickySettings.npcs = toggle
         end, proxyStickySettings.npcs)
 
-        JSlang.slider(proxy_sticky_root, 'Detonation radius', {'JSstickyRadius'}, 'How close the sticky bombs have to be to the target to detonate.', 1, 10, proxyStickySettings.radius, 1, function(value)
+        JSlang.slider(_LR['Proxy stickys'], 'Detonation radius', {'JSstickyRadius'}, 'How close the sticky bombs have to be to the target to detonate.', 1, 10, proxyStickySettings.radius, 1, function(value)
             proxyStickySettings.radius = value
         end)
 
-        JSlang.action(proxy_sticky_root, 'Remove all sticky bombs', {'JSremoveStickys'}, 'Removes every single sticky bomb that exists (not only yours).', function()
+        JSlang.action(_LR['Proxy stickys'], 'Remove all sticky bombs', {'JSremoveStickys'}, 'Removes every single sticky bomb that exists (not only yours).', function()
             WEAPON.REMOVE_ALL_PROJECTILES_OF_TYPE(util.joaat('weapon_stickybomb'), false)
         end)
     -----------------------------------
@@ -2089,10 +2100,10 @@ local whitelistedName = false
     end
 
     --credit to lance for the entity gun, but i edited it a bit
-    local nuke_gun_root = JSlang.list(weapons_root, 'Nuke options', {}, '')
+    JSlang.list(_LR['Weapons'], 'Nuke options', {}, '')
 
     local nuke_gun_option
-    mutually_exclusive_weapons[#mutually_exclusive_weapons + 1] = menu.mutually_exclusive_toggle(nuke_gun_root, 'Nuke gun', {'JSnukeGun'}, 'Makes the rpg fire nukes', mutually_exclusive_weapons, function(toggle)
+    mutually_exclusive_weapons[#mutually_exclusive_weapons + 1] = menu.mutually_exclusive_toggle(_LR['Nuke options'], 'Nuke gun', {'JSnukeGun'}, 'Makes the rpg fire nukes', mutually_exclusive_weapons, function(toggle)
         nuke_gun_option = toggle
         util.create_tick_handler(function()
             if WEAPON.GET_SELECTED_PED_WEAPON(players.user_ped()) == -1312131151 then --if holding homing launcher
@@ -2152,7 +2163,7 @@ local whitelistedName = false
         end
     end
 
-    JSlang.action(nuke_gun_root, 'Nuke waypoint', {'JSnukeWP'}, 'Drops a nuke on your selected Waypoint.', function ()
+    JSlang.action(_LR['Nuke options'], 'Nuke waypoint', {'JSnukeWP'}, 'Drops a nuke on your selected Waypoint.', function ()
         local waypointPos = get_waypoint_v3()
         if waypointPos then
             local hash = util.joaat('w_arena_airmissile_01a')
@@ -2173,16 +2184,16 @@ local whitelistedName = false
         end
     end)
 
-    JSlang.slider(nuke_gun_root, 'Nuke height', {'JSnukeHeight'}, 'The height of the nukes you drop.', 10, 100, nuke_height, 10, function(value)
+    JSlang.slider(_LR['Nuke options'], 'Nuke height', {'JSnukeHeight'}, 'The height of the nukes you drop.', 10, 100, nuke_height, 10, function(value)
         nuke_height = value
     end)
 
     --this is heavily skidded from wiriScript so credit to wiri
     local launcherThrowable = util.joaat('weapon_grenade')
-    local throwables_launcher_root = JSlang.list(weapons_root, 'Throwables launcher', {}, '')
+    JSlang.list(_LR['Weapons'], 'Throwables launcher', {}, '')
 
     local throwables_launcher
-    mutually_exclusive_weapons[#mutually_exclusive_weapons + 1] = menu.mutually_exclusive_toggle(throwables_launcher_root, 'Throwables launcher', {'JSgrenade'}, 'Makes the grenade launcher able to shoot throwables, gives you the throwable if you don\'t have it so you can shoot it.', mutually_exclusive_weapons, function(toggle)
+    mutually_exclusive_weapons[#mutually_exclusive_weapons + 1] = menu.mutually_exclusive_toggle(_LR['Throwables launcher'], 'Throwables launcher', {'JSgrenade'}, 'Makes the grenade launcher able to shoot throwables, gives you the throwable if you don\'t have it so you can shoot it.', mutually_exclusive_weapons, function(toggle)
         throwables_launcher = toggle
         util.create_tick_handler(function()
             if WEAPON.GET_SELECTED_PED_WEAPON(players.user_ped()) == -1568386805 then --if holding grenade launcher
@@ -2223,7 +2234,7 @@ local whitelistedName = false
         ['Ball']  = util.joaat('weapon_ball'),
         ['Pipe Bomb'] = util.joaat('weapon_pipebomb'),
     }
-    local throwables_launcher_list throwables_launcher_list = menu.list_action(throwables_launcher_root, JSlang.str_trans('Current throwable') ..': Grenade', {}, JSlang.trans('Choose what throwable the grenade launcher has.'), getLabelTableFromKeys(throwablesTable), function(index, text)
+    local throwables_launcher_list throwables_launcher_list = menu.list_action(_LR['Throwables launcher'], JSlang.str_trans('Current throwable') ..': Grenade', {}, JSlang.trans('Choose what throwable the grenade launcher has.'), getLabelTableFromKeys(throwablesTable), function(index, text)
         menu.set_menu_name(throwables_launcher_list, JSlang.str_trans('Current throwable') ..': '.. text)
         launcherThrowable = throwablesTable[text]
     end)
@@ -2236,11 +2247,11 @@ local whitelistedName = false
         end)
     end
 
-    local exp_animal_gun_root = JSlang.list(weapons_root, 'Explosive animal gun', {}, '')
+    JSlang.list(_LR['Weapons'], 'Explosive animal gun', {}, '')
 
     local exp_animal = 'a_c_killerwhale'
     local explosive_animal_gun
-    mutually_exclusive_weapons[#mutually_exclusive_weapons + 1] = menu.mutually_exclusive_toggle(exp_animal_gun_root, 'Explosive animal gun', {'JSexpAnimalGun'}, 'Inspired by impulses explosive whale gun, but can fire other animals too.', mutually_exclusive_weapons, function(toggle)
+    mutually_exclusive_weapons[#mutually_exclusive_weapons + 1] = menu.mutually_exclusive_toggle(_LR['Explosive animal gun'], 'Explosive animal gun', {'JSexpAnimalGun'}, 'Inspired by impulses explosive whale gun, but can fire other animals too.', mutually_exclusive_weapons, function(toggle)
         explosive_animal_gun = toggle
         while explosive_animal_gun do
             local weaponHash = WEAPON.GET_SELECTED_PED_WEAPON(players.user_ped())
@@ -2288,15 +2299,16 @@ local whitelistedName = false
         ['Retriever'] = 'a_c_retriever',
         ['Rottweiler'] = 'a_c_rottweiler',
     }
-    local exp_animal_gun_list exp_animal_gun_list = menu.list_action(exp_animal_gun_root, JSlang.str_trans('Current animal') ..': Killerwhale', {}, JSlang.trans('Choose what animal the explosive animal gun has.'), getLabelTableFromKeys(animalsTable), function(index, text)
+    local exp_animal_gun_list exp_animal_gun_list = menu.list_action(_LR['Explosive animal gun'], JSlang.str_trans('Current animal') ..': Killerwhale', {}, JSlang.trans('Choose what animal the explosive animal gun has.'), getLabelTableFromKeys(animalsTable), function(index, text)
         menu.set_menu_name(exp_animal_gun_list, JSlang.str_trans('Current animal') ..': '.. text)
         exp_animal = animalsTable[text]
     end)
 
+    JSlang.list(_LR['Weapons'], 'Minecraft gun', {}, '')
+
     local impactCords = v3.new()
     local blocks = {}
-    local minecraft_gun_root = JSlang.list(weapons_root, 'Minecraft gun', {}, '')
-    JSlang.toggle_loop(minecraft_gun_root, 'Minecraft gun', {'JSminecraftGun'}, 'Spawns blocks where you shoot.', function()
+    JSlang.toggle_loop(_LR['Minecraft gun'], 'Minecraft gun', {'JSminecraftGun'}, 'Spawns blocks where you shoot.', function()
         if WEAPON.GET_PED_LAST_WEAPON_IMPACT_COORD(players.user_ped(), impactCords) then
             local hash = util.joaat('prop_mb_sandblock_01')
             loadModel(hash)
@@ -2304,14 +2316,14 @@ local whitelistedName = false
         end
     end)
 
-    JSlang.action(minecraft_gun_root, 'Delete last block', {'JSdeleteLastBlock'}, '', function()
+    JSlang.action(_LR['Minecraft gun'], 'Delete last block', {'JSdeleteLastBlock'}, '', function()
         if blocks[#blocks] != nil then
             entities.delete_by_handle(blocks[#blocks])
             blocks[#blocks] = nil
         end
     end)
 
-    JSlang.action(minecraft_gun_root, 'Delete all blocks', {'JSdeleteBlocks'}, '', function()
+    JSlang.action(_LR['Minecraft gun'], 'Delete all blocks', {'JSdeleteBlocks'}, '', function()
         for i = 1, #blocks do
             entities.delete_by_handle(blocks[i])
             blocks[i] = nil
@@ -2321,7 +2333,7 @@ local whitelistedName = false
     local flameThrower = {
         colour = mildOrangeFire
     }
-    JSlang.toggle_loop(weapons_root, 'Flamethrower', {'JSflamethrower'}, 'Converts the minigun into a flamethrower.', function()
+    JSlang.toggle_loop(_LR['Weapons'], 'Flamethrower', {'JSflamethrower'}, 'Converts the minigun into a flamethrower.', function()
         if WEAPON.GET_SELECTED_PED_WEAPON(players.user_ped()) != 1119849093 or not JSkey.is_control_pressed(2, 'INPUT_AIM') then
             if not flameThrower.ptfx then return end
 
@@ -2344,21 +2356,23 @@ local whitelistedName = false
         end
     end)
 
-    JSlang.toggle(weapons_root, 'Friendly fire', {'JSfriendlyFire'}, 'Makes you able to shoot peds the game count as your friends.', function(toggle)
+    JSlang.toggle(_LR['Weapons'], 'Friendly fire', {'JSfriendlyFire'}, 'Makes you able to shoot peds the game count as your friends.', function(toggle)
         PED.SET_CAN_ATTACK_FRIENDLY(players.user_ped(), toggle, false)
     end)
 
-    JSlang.toggle_loop(weapons_root, 'Reload when rolling', {'JSrollReload'}, 'Reloads your weapon when doing a roll.', function()
+    JSlang.toggle_loop(_LR['Weapons'], 'Reload when rolling', {'JSrollReload'}, 'Reloads your weapon when doing a roll.', function()
         if TASK.GET_IS_TASK_ACTIVE(players.user_ped(), 4) and JSkey.is_control_pressed(2, 'INPUT_JUMP') and not PED.IS_PED_SHOOTING(players.user_ped())  then --checking if player is rolling
             util.yield(900)
             WEAPON.REFILL_AMMO_INSTANTLY(players.user_ped())
         end
     end)
+end
 
 -----------------------------------
 -- Vehicle
 -----------------------------------
-    local my_vehicle_root = JSlang.list(menu_root, 'Vehicle', {'JSVeh'}, '')
+do
+    JSlang.list(menu_root, 'Vehicle', {'JSVeh'}, '')
 
     local my_cur_car = entities.get_user_vehicle_as_handle() --gets updated in the tick loop at the bottom of the script
 
@@ -2400,7 +2414,7 @@ local whitelistedName = false
         end},
     }
 
-    local function setCarOptions(toggle)
+    function setCarOptions(toggle)
         for k, option in pairs(carSettings) do
             if option.on then option.setOption(toggle) end
         end
@@ -2409,20 +2423,20 @@ local whitelistedName = false
     -----------------------------------
     -- Speed and handling
     -----------------------------------
-        local speedHandling_root = JSlang.list(my_vehicle_root, 'Speed and handling', {'JSspeedHandling'}, '')
+        JSlang.list(_LR['Vehicle'], 'Speed and handling', {'JSspeedHandling'}, '')
 
-        JSlang.toggle(speedHandling_root, 'Low traction', {'JSlowTraction'}, 'Makes your vehicle have low traction, I recommend setting this to a hotkey.', function(toggle)
+        JSlang.toggle(_LR['Speed and handling'], 'Low traction', {'JSlowTraction'}, 'Makes your vehicle have low traction, I recommend setting this to a hotkey.', function(toggle)
             carSettings.lowTraction.on = toggle
             carSettings.lowTraction.setOption(toggle)
         end)
 
-        JSlang.toggle(speedHandling_root, 'Launch control', {'JSlaunchControl'}, 'Limits how much force your car applies when accelerating so it doesn\'t burnout, very noticeable in a Emerus.', function(toggle)
+        JSlang.toggle(_LR['Speed and handling'], 'Launch control', {'JSlaunchControl'}, 'Limits how much force your car applies when accelerating so it doesn\'t burnout, very noticeable in a Emerus.', function(toggle)
             carSettings.launchControl.on = toggle
             carSettings.launchControl.setOption(toggle)
         end)
 
         local my_torque = 100
-        JSlang.slider_float(speedHandling_root, 'Set torque', {'JSsetSelfTorque'}, 'Modifies the speed of your vehicle.', -1000000, 1000000, my_torque, 1, function(value)
+        JSlang.slider_float(_LR['Speed and handling'], 'Set torque', {'JSsetSelfTorque'}, 'Modifies the speed of your vehicle.', -1000000, 1000000, my_torque, 1, function(value)
             my_torque = value
             util.create_tick_handler(function()
                 VEHICLE.SET_VEHICLE_CHEAT_POWER_INCREASE(my_cur_car, my_torque/100)
@@ -2431,28 +2445,28 @@ local whitelistedName = false
         end)
 
         local quickBrakeLvL = 1.5
-        JSlang.toggle_loop(speedHandling_root, 'Quick brake', {'JSquickBrake'}, 'Slows down your speed more when pressing "S".', function(toggle)
+        JSlang.toggle_loop(_LR['Speed and handling'], 'Quick brake', {'JSquickBrake'}, 'Slows down your speed more when pressing "S".', function(toggle)
             if JSkey.is_control_just_pressed(2, 'INPUT_VEH_BRAKE') and ENTITY.GET_ENTITY_SPEED(my_cur_car) >= 0 and not ENTITY.IS_ENTITY_IN_AIR(my_cur_car) and VEHICLE.GET_PED_IN_VEHICLE_SEAT(my_cur_car, -1, false) == players.user_ped() then
                 VEHICLE.SET_VEHICLE_FORWARD_SPEED(my_cur_car, ENTITY.GET_ENTITY_SPEED(my_cur_car) / quickBrakeLvL)
                 util.yield(250)
             end
         end)
 
-        JSlang.slider_float(speedHandling_root, 'Quick brake force', {'JSquickBrakeForce'}, '1.00 is ordinary brakes.', 100, 999, 150, 1,  function(value)
+        JSlang.slider_float(_LR['Speed and handling'], 'Quick brake force', {'JSquickBrakeForce'}, '1.00 is ordinary brakes.', 100, 999, 150, 1,  function(value)
             quickBrakeLvL = value / 100
         end)
 
     -----------------------------------
     -- Boosts
     -----------------------------------
-        local boosts_root = JSlang.list(my_vehicle_root, 'Boosts', {'JSboosts'}, '')
+        JSlang.list(_LR['Vehicle'], 'Boosts', {'JSboosts'}, '')
 
-        JSlang.toggle_loop(boosts_root, 'Horn boost', {'JShornBoost'}, 'Makes your car speed up when you honking your horn or activating your siren.', function()
+        JSlang.toggle_loop(_LR['Boosts'], 'Horn boost', {'JShornBoost'}, 'Makes your car speed up when you honking your horn or activating your siren.', function()
             if not (AUDIO.IS_HORN_ACTIVE(my_cur_car) or VEHICLE.IS_VEHICLE_SIREN_ON(my_cur_car)) then return end
             VEHICLE.SET_VEHICLE_FORWARD_SPEED(my_cur_car, ENTITY.GET_ENTITY_SPEED(my_cur_car) + hornBoostMultiplier)
         end)
 
-        JSlang.toggle_loop(boosts_root, 'Vehicle jump', {'JSVehJump'}, 'Lets you jump with your car if you double tap "W".', function()
+        JSlang.toggle_loop(_LR['Boosts'], 'Vehicle jump', {'JSVehJump'}, 'Lets you jump with your car if you double tap "W".', function()
             if not is_user_driving_vehicle() then return end
 
             local prevPress = JSkey.get_ms_since_control_last_pressed(2, 'INPUT_MOVE_UP_ONLY')
@@ -2466,12 +2480,12 @@ local whitelistedName = false
         -----------------------------------
         -- Nitro
         -----------------------------------
-            JSlang.divider(boosts_root, 'Nitro')
+            JSlang.divider(_LR['Boosts'], 'Nitro')
 
             local nitroSettings = {level = new.delay(500, 2, 0), power = 1, rechargeTime = new.delay(200, 1, 0)}
 
             local nitroBoostActive = false
-            JSlang.toggle(boosts_root, 'Enable nitro', {'JSnitro'}, 'Enable nitro boost on any vehicle, use it by pressing "X".', function(toggle)
+            JSlang.toggle(_LR['Boosts'], 'Enable nitro', {'JSnitro'}, 'Enable nitro boost on any vehicle, use it by pressing "X".', function(toggle)
                 nitroBoostActive = toggle
 
                 --request the nitro ptfx because _SET_VEHICLE_NITRO_ENABLED does not load it
@@ -2507,16 +2521,16 @@ local whitelistedName = false
                 end
             end)
 
-            local nitro_duration_root = menu.list(boosts_root, JSlang.str_trans('Duration'), {'JSnitroDuration'}, JSlang.str_trans('Lets you set a customize how long the nitro lasts.'))
-            generateDelaySettings(nitro_duration_root, JSlang.str_trans('Duration'), nitroSettings.level)
+            JSlang.list(_LR['Boosts'], 'Duration', {'JSnitroDuration'}, 'Lets you set a customize how long the nitro lasts.')
+            generateDelaySettings(_LR['Duration'], 'Duration', nitroSettings.level)
 
-            local nitro_recharge_root = menu.list(boosts_root, JSlang.str_trans('Recharge time'), {'JSnitroRecharge'}, JSlang.str_trans('Lets you set a custom delay of how long it takes for nitro to recharge.'))
-            generateDelaySettings(nitro_recharge_root, JSlang.str_trans('Recharge time'), nitroSettings.rechargeTime)
+            JSlang.list(_LR['Boosts'], 'Recharge time', {'JSnitroRecharge'}, 'Lets you set a custom delay of how long it takes for nitro to recharge.')
+            generateDelaySettings(_LR['Recharge time'], 'Recharge time', nitroSettings.rechargeTime)
 
         -----------------------------------
         -- Shunt boost
         -----------------------------------
-            JSlang.divider(boosts_root, 'Shunt boost')
+            JSlang.divider(_LR['Boosts'], 'Shunt boost')
 
             local shuntSettings = {
                 maxForce = 30, force = 30, disableRecharge = false,
@@ -2542,7 +2556,7 @@ local whitelistedName = false
                 forceRecharge()
             end
 
-            JSlang.toggle_loop(boosts_root, 'Shunt boost', {'JSshuntBoost'}, 'Lets you shunt boost in any vehicle by double tapping "A" or "D".', function()
+            JSlang.toggle_loop(_LR['Boosts'], 'Shunt boost', {'JSshuntBoost'}, 'Lets you shunt boost in any vehicle by double tapping "A" or "D".', function()
                 util.create_thread(function()
                     if not is_user_driving_vehicle() then return end
 
@@ -2562,21 +2576,21 @@ local whitelistedName = false
                 end)
             end)
 
-            JSlang.toggle(boosts_root, 'Disable recharge', {'JSnoShutRecharge'}, 'Removes the force build-up of the shunt boost.', function(toggle)
+            JSlang.toggle(_LR['Boosts'], 'Disable recharge', {'JSnoShutRecharge'}, 'Removes the force build-up of the shunt boost.', function(toggle)
                 shuntSettings.disableRecharge = toggle
             end)
-            JSlang.slider(boosts_root, 'Force', {'JSshuntForce'}, 'How much force is applied to your car.', 0, 1000, 30, 1, function(value)
+            JSlang.slider(_LR['Boosts'], 'Force', {'JSshuntForce'}, 'How much force is applied to your car.', 0, 1000, 30, 1, function(value)
                 shuntSettings.maxForce = value
             end)
 
     -----------------------------------
     -- Shunt boost
     -----------------------------------
-        JSlang.divider(boosts_root, 'Veh bounce')
+        JSlang.divider(_LR['Boosts'], 'Veh bounce')
 
         local wasInAir
         local bouncy = 50
-        JSlang.toggle_loop(boosts_root, 'Veh bounce', {'JSvehBounce'}, 'Adds some bounciness to your vehicle when it falls to the ground.', function()
+        JSlang.toggle_loop(_LR['Boosts'], 'Veh bounce', {'JSvehBounce'}, 'Adds some bounciness to your vehicle when it falls to the ground.', function()
             local isInAir = ENTITY.IS_ENTITY_IN_AIR(entities.get_user_vehicle_as_handle())
             if wasInAir and not isInAir then
                 local vec = ENTITY.GET_ENTITY_VELOCITY(entities.get_user_vehicle_as_handle())
@@ -2585,16 +2599,16 @@ local whitelistedName = false
             wasInAir = isInAir
         end)
 
-        JSlang.slider_float(boosts_root, 'Bounciness multiplier', {'JSbounceMult'}, '', 1, 1000, bouncy, 1, function(value)
+        JSlang.slider_float(_LR['Boosts'], 'Bounciness multiplier', {'JSbounceMult'}, '', 1, 1000, bouncy, 1, function(value)
             bouncy = value
         end)
 
     -----------------------------------
     -- Vehicle doors
     -----------------------------------
-        local veh_door_root = JSlang.list(my_vehicle_root, 'Vehicle doors', {'JSvehDoors'}, '')
+        JSlang.list(_LR['Vehicle'], 'Vehicle doors', {'JSvehDoors'}, '')
 
-        JSlang.toggle(veh_door_root, 'Indestructible doors', {'JSinvincibleDoors'}, 'Makes it so your vehicle doors can\'t break off.', function(toggle)
+        JSlang.toggle(_LR['Vehicle doors'], 'Indestructible doors', {'JSinvincibleDoors'}, 'Makes it so your vehicle doors can\'t break off.', function(toggle)
             carSettings.indestructibleDoors.on = toggle
             local vehicleDoorCount =  VEHICLE._GET_NUMBER_OF_VEHICLE_DOORS(my_cur_car)
             for i = -1, vehicleDoorCount do
@@ -2602,7 +2616,7 @@ local whitelistedName = false
             end
         end)
 
-        JSlang.toggle_loop(veh_door_root, 'Shut doors when driving', {'JSautoClose'}, 'Closes all the vehicle doors when you start driving.', function()
+        JSlang.toggle_loop(_LR['Vehicle doors'], 'Shut doors when driving', {'JSautoClose'}, 'Closes all the vehicle doors when you start driving.', function()
             if not (is_user_driving_vehicle() and ENTITY.GET_ENTITY_SPEED(my_cur_car) > 1) then return end  --over a speed of 1 because car registers as moving then doors move
 
             if ENTITY.GET_ENTITY_SPEED(my_cur_car) < 10 then
@@ -2624,23 +2638,23 @@ local whitelistedName = false
         end)
 
         --credit to Wiri, I couldn't get the trunk to close/open so I copied him
-        JSlang.action(veh_door_root, 'Open all doors', {'JScarDoorsOpen'}, 'Made this to test door stuff.', function()
+        JSlang.action(_LR['Vehicle doors'], 'Open all doors', {'JScarDoorsOpen'}, 'Made this to test door stuff.', function()
             for i, door in ipairs(carDoors) do
                 VEHICLE.SET_VEHICLE_DOOR_OPEN(my_cur_car, i - 1, false, false)
             end
         end)
 
-        JSlang.action(veh_door_root, 'Close all doors', {'JScarDoorsClosed'}, 'Made this to test door stuff.', function()
+        JSlang.action(_LR['Vehicle doors'], 'Close all doors', {'JScarDoorsClosed'}, 'Made this to test door stuff.', function()
             VEHICLE.SET_VEHICLE_DOORS_SHUT(my_cur_car, false)
         end)
 
     -----------------------------------
     -- Plane options
     -----------------------------------
-        local plane_root = JSlang.list(my_vehicle_root, 'Plane options', {'JSplane'}, '')
+        JSlang.list(_LR['Vehicle'], 'Plane options', {'JSplane'}, '')
 
         local afterBurnerState = false
-        JSlang.toggle_loop(plane_root, 'Toggle plane afterburner', {'JSafterburner'}, 'Makes you able to toggle afterburner on planes by pressing "left shift".', function()
+        JSlang.toggle_loop(_LR['Plane options'], 'Toggle plane afterburner', {'JSafterburner'}, 'Makes you able to toggle afterburner on planes by pressing "left shift".', function()
             if JSkey.is_key_just_down('VK_LSHIFT') then
                 afterBurnerState = not afterBurnerState
                 VEHICLE.SET_VEHICLE_FORCE_AFTERBURNER(my_cur_car, afterBurnerState)
@@ -2652,12 +2666,12 @@ local whitelistedName = false
             VEHICLE.SET_VEHICLE_FORCE_AFTERBURNER(my_cur_car, false)
         end)
 
-        JSlang.toggle(plane_root, 'Lock vtol', {'JSlockVtol'}, 'Locks the angle of planes vtol propellers.', function(toggle)
+        JSlang.toggle(_LR['Plane options'], 'Lock vtol', {'JSlockVtol'}, 'Locks the angle of planes vtol propellers.', function(toggle)
             VEHICLE._SET_DISABLE_VEHICLE_FLIGHT_NOZZLE_POSITION(my_cur_car, toggle)
         end)
     -----------------------------------
 
-    local ghost_vehicle_option = JSlang.slider(my_vehicle_root, 'Ghost vehicle', {'JSghostVeh'}, 'Makes your vehicle different levels off see through.', 0 , 100, 100, 25, function(value)
+    local ghost_vehicle_option = JSlang.slider(_LR['Vehicle'], 'Ghost vehicle', {'JSghostVeh'}, 'Makes your vehicle different levels off see through.', 0 , 100, 100, 25, function(value)
         carSettings.ghostCar.on = value != 100
         carSettings.ghostCar.value = value / 25
         carSettings.ghostCar.setOption(value != 100)
@@ -2667,9 +2681,9 @@ local whitelistedName = false
     -----------------------------------
     -- Vehicle sounds
     -----------------------------------
-        local vehicle_sounds_root = JSlang.list(my_vehicle_root, 'Vehicle sounds', {'JSvehSounds'}, '')
+        JSlang.list(_LR['Vehicle'], 'Vehicle sounds', {'JSvehSounds'}, '')
 
-        JSlang.toggle(vehicle_sounds_root, 'Disable exhaust pops', {'JSdisablePops'}, 'Disables those annoying exhaust pops that your car makes if it has a non-stock exhaust option.', function(toggle)
+        JSlang.toggle(_LR['Vehicle sounds'], 'Disable exhaust pops', {'JSdisablePops'}, 'Disables those annoying exhaust pops that your car makes if it has a non-stock exhaust option.', function(toggle)
             carSettings.disableExhaustPops.on = toggle
             carSettings.disableExhaustPops.setOption(toggle)
         end)
@@ -2681,47 +2695,49 @@ local whitelistedName = false
             ['Silent'] = 'MINITANK',
             ['Electric'] = 'CYCLONE',
         }
-        JSlang.slider_text(vehicle_sounds_root, 'Engine sound', {'JSengineSound'}, '', {'Default', 'Silent', 'Electric'}, function(index, value)
+        JSlang.slider_text(_LR['Vehicle sounds'], 'Engine sound', {'JSengineSound'}, '', {'Default', 'Silent', 'Electric'}, function(index, value)
             AUDIO._FORCE_VEHICLE_ENGINE_AUDIO(entities.get_user_vehicle_as_handle(), if type(car_sounds[value]) == 'string' then car_sounds[value] else car_sounds[value]())
         end)
 
-        JSlang.toggle_loop(vehicle_sounds_root, 'Immersive radio', {'JSemersiveRadio'}, 'Lowers the radio volume when you\'re not in first person mode.', function()
+        JSlang.toggle_loop(_LR['Vehicle sounds'], 'Immersive radio', {'JSemersiveRadio'}, 'Lowers the radio volume when you\'re not in first person mode.', function()
             AUDIO.SET_FRONTEND_RADIO_ACTIVE(CAM.GET_CAM_VIEW_MODE_FOR_CONTEXT(context) == 4)
         end, function()
             AUDIO.SET_FRONTEND_RADIO_ACTIVE(true)
         end)
 
-        JSlang.toggle(vehicle_sounds_root, 'Npc horn', {'JSnpcHorn'}, 'Makes you horn like a npc. Also makes your car doors silent.', function(toggle)
+        JSlang.toggle(_LR['Vehicle sounds'], 'Npc horn', {'JSnpcHorn'}, 'Makes you horn like a npc. Also makes your car doors silent.', function(toggle)
             carSettings.npcHorn.on = toggle
             VEHICLE._SET_VEHICLE_SILENT(my_cur_car, toggle)
         end)
     -----------------------------------
 
-    JSlang.toggle(my_vehicle_root, 'Stance', {'JSstance'}, 'Activates stance on vehicles that support it.', function(toggle)
+    JSlang.toggle(_LR['Vehicle'], 'Stance', {'JSstance'}, 'Activates stance on vehicles that support it.', function(toggle)
         VEHICLE._SET_REDUCE_DRIFT_VEHICLE_SUSPENSION(my_cur_car, toggle)
     end)
 
-    JSlang.toggle_loop(my_vehicle_root, 'To the moon', {'JStoMoon'}, 'Forces you into the sky if you\'re in a vehicle.', function(toggle)
+    JSlang.toggle_loop(_LR['Vehicle'], 'To the moon', {'JStoMoon'}, 'Forces you into the sky if you\'re in a vehicle.', function(toggle)
         NETWORK.NETWORK_REQUEST_CONTROL_OF_ENTITY(my_cur_car)
         ENTITY.APPLY_FORCE_TO_ENTITY(my_cur_car, 1, 0, 0, 100, 0, 0, 0.5, 0, false, false, true)
     end)
 
-    JSlang.toggle_loop(my_vehicle_root, 'Anchor', {'JSanchor'}, 'Forces you into the ground if you\'re in a air born vehicle.', function(toggle)
+    JSlang.toggle_loop(_LR['Vehicle'], 'Anchor', {'JSanchor'}, 'Forces you into the ground if you\'re in a air born vehicle.', function(toggle)
         if ENTITY.IS_ENTITY_IN_AIR(my_cur_car) then
             NETWORK.NETWORK_REQUEST_CONTROL_OF_ENTITY(my_cur_car)
             ENTITY.APPLY_FORCE_TO_ENTITY(my_cur_car, 1, 0, 0, -100, 0, 0, 0.5, 0, false, false, true)
         end
     end)
+end
 
 -----------------------------------
 -- Online
 -----------------------------------
-    local online_root = JSlang.list(menu_root, 'Online', {'JSonline'}, '')
+do
+    JSlang.list(menu_root, 'Online', {'JSonline'}, '')
 
     -----------------------------------
     -- Fake money
     -----------------------------------
-        local fake_money_root = JSlang.list(online_root, 'Fake money', {'JSfakeMoney'}, 'Adds fake money, it is only a visual thing and you can\'t spend it.')
+        JSlang.list(_LR['Online'], 'Fake money', {'JSfakeMoney'}, 'Adds fake money, it is only a visual thing and you can\'t spend it.')
 
         local cashFakeMoney = 0
         local bankFakeMoney = 0
@@ -2735,40 +2751,39 @@ local whitelistedName = false
             HUD.BUSYSPINNER_OFF()
         end
 
-        JSlang.action(fake_money_root, 'Add fake money', {'JSaddFakeMoney'}, 'Adds money once.', function()
+        JSlang.action(_LR['Fake money'], 'Add fake money', {'JSaddFakeMoney'}, 'Adds money once.', function()
             HUD._SET_PLAYER_CASH_CHANGE(cashFakeMoney, bankFakeMoney)
             transactionPending()
         end)
 
-        JSlang.toggle_loop(fake_money_root, 'Loop fake money', {'JSloopFakeMoney'}, 'Adds loops money with your chosen delay.', function()
+        JSlang.toggle_loop(_LR['Fake money'], 'Loop fake money', {'JSloopFakeMoney'}, 'Adds loops money with your chosen delay.', function()
             HUD._SET_PLAYER_CASH_CHANGE(cashFakeMoney, bankFakeMoney)
             transactionPending()
             util.yield(getTotalDelay(fakeMoneyLoopDelay))
         end)
 
-        JSlang.toggle(fake_money_root, 'Show transaction pending', {'JSfakeTransaction'}, 'Adds a loading transaction pending message when adding fake money.', function(toggle)
+        JSlang.toggle(_LR['Fake money'], 'Show transaction pending', {'JSfakeTransaction'}, 'Adds a loading transaction pending message when adding fake money.', function(toggle)
             fakeMoneyTransactionPending = toggle
         end, fakeMoneyTransactionPending)
 
-        local fake_money_loop_delay_root = menu.list(fake_money_root, JSlang.str_trans('Fake money loop delay'), {'JSexpDelay'}, JSlang.str_trans('Lets you set a custom delay to the fake money loop.'))
+        JSlang.list(_LR['Fake money'], 'Fake money loop delay', {'JSexpDelay'}, 'Lets you set a custom delay to the fake money loop.')
+        generateDelaySettings(_LR['Fake money loop delay'], 'Fake money loop delay', fakeMoneyLoopDelay)
 
-        generateDelaySettings(fake_money_loop_delay_root, JSlang.str_trans('Fake money loop delay'), fakeMoneyLoopDelay)
-
-        JSlang.slider(fake_money_root, 'Bank fake money', {'JSbankFakeMoney'}, 'How much fake money that gets added into your bank.', -2000000000, 2000000000, bankFakeMoney, 1, function(value)
+        JSlang.slider(_LR['Fake money'], 'Bank fake money', {'JSbankFakeMoney'}, 'How much fake money that gets added into your bank.', -2000000000, 2000000000, bankFakeMoney, 1, function(value)
             bankFakeMoney = value
         end)
 
-        JSlang.slider(fake_money_root, 'Cash fake money', {'JScashFakeMoney'}, 'How much fake money that gets added in cash.', -2000000000, 2000000000, cashFakeMoney, 1, function(value)
+        JSlang.slider(_LR['Fake money'], 'Cash fake money', {'JScashFakeMoney'}, 'How much fake money that gets added in cash.', -2000000000, 2000000000, cashFakeMoney, 1, function(value)
             cashFakeMoney = value
         end)
 
     -----------------------------------
     -- Safe monitor
     -----------------------------------
-        local SM_root = JSlang.list(online_root, 'Safe monitor', {'JSsm'}, 'Safe monitor allows you to monitor your safes. It does NOT affect the money being generated.')
+        JSlang.list(_LR['Online'], 'Safe monitor', {'JSsm'}, 'Safe monitor allows you to monitor your safes. It does NOT affect the money being generated.')
 
         local toggleSafeMonitor = false
-        JSlang.toggle(SM_root, 'Toggle all selected', {'SMtoggleAllSelected'}, 'Toggles every option.', function(toggle)
+        JSlang.toggle(_LR['Safe monitor'], 'Toggle all selected', {'SMtoggleAllSelected'}, 'Toggles every option.', function(toggle)
             toggleSafeMonitor = toggle
         end)
 
@@ -2837,15 +2852,15 @@ local whitelistedName = false
                 end
             },
         }
-        generateToggles(safeManagerToggles, SM_root, false)
+        generateToggles(safeManagerToggles, _LR['Safe monitor'], false)
 
         local first_open_SM_earnings = {true}
-        SM_earnings_root = JSlang.list(SM_root, 'Increase safe earnings', {'SMearnings'}, 'Might be risky.', function()
-            listWarning(SM_earnings_root, first_open_SM_earnings)
+        JSlang.list(_LR['Safe monitor'], 'Increase safe earnings', {'SMearnings'}, 'Might be risky.', function()
+            listWarning(_LR['Increase safe earnings'], first_open_SM_earnings)
         end)
 
         local nightclubpopularity_command = menu.ref_by_path('Online>Quick Progress>Set Nightclub Popularity', 37)
-        JSlang.toggle_loop(SM_earnings_root, 'Auto nightclub popularity', {'SMautoClubPop'}, 'Automatically sets the nightclubs popularity to 100 if it results in less than max daily income.', function(toggle)
+        JSlang.toggle_loop(_LR['Increase safe earnings'], 'Auto nightclub popularity', {'SMautoClubPop'}, 'Automatically sets the nightclubs popularity to 100 if it results in less than max daily income.', function(toggle)
             if getNightclubDailyEarnings() < 50000 then
                 menu.trigger_command(nightclubpopularity_command, 100)
             end
@@ -2853,7 +2868,7 @@ local whitelistedName = false
 
         local fixer_count_cooldown = false
         local soloPublic_command = menu.ref_by_path('Online>New Session>Create Public Session', 37)
-        JSlang.action(SM_earnings_root, 'Increment security contracts completed', {'SMsecurityComplete'}, 'Will put you in a new lobby to make the increase stick.\nI added a cooldown to this button so you cant spam it.\nAlso doesn\'t work past 200', function()
+        JSlang.action(_LR['Increase safe earnings'], 'Increment security contracts completed', {'SMsecurityComplete'}, 'Will put you in a new lobby to make the increase stick.\nI added a cooldown to this button so you cant spam it.\nAlso doesn\'t work past 200', function()
             if fixer_count_cooldown then JSlang.toast('Cooldown active') return end
             if util.is_session_transition_active() then JSlang.toast('You can only use this while in a session.') return end
             if STAT_GET_INT('FIXER_COUNT') >= 200 then JSlang.toast('You already reached 200 completions.') return end
@@ -2943,19 +2958,19 @@ local whitelistedName = false
             end
         end
 
-        local property_tp_list property_tp_list = JSlang.list(online_root, 'Property tp\'s', {'JSpropertyTp'}, 'Lets you teleport to the properties you own.', function()
-            regenerateTpLocations(property_tp_list)
+        JSlang.list(_LR['Online'], 'Property tp\'s', {'JSpropertyTp'}, 'Lets you teleport to the properties you own.', function()
+            regenerateTpLocations(_LR['Property tp\'s'])
         end)
 
-        propertyTpRefs['tmp'] = menu.action(property_tp_list, '', {}, '', function()end)
+        propertyTpRefs['tmp'] = menu.action(_LR['Property tp\'s'], '', {}, '', function()end)
 
     ----------------------------------
     -- Casino
     ----------------------------------
-        local casino_root = JSlang.list(online_root, 'Casino', {'JScasino'}, 'No theres no recoveries here.')
+        JSlang.list(_LR['Online'], 'Casino', {'JScasino'}, 'No theres no recoveries here.')
 
         local last_LW_seconds = 0
-        JSlang.toggle_loop(casino_root, 'Lucky wheel cooldown', {'JSlwCool'}, 'Tells you if the lucky wheel is available or how much time is left until it is.', function()
+        JSlang.toggle_loop(_LR['Casino'], 'Lucky wheel cooldown', {'JSlwCool'}, 'Tells you if the lucky wheel is available or how much time is left until it is.', function()
             if STAT_GET_INT_MPPLY('mpply_lucky_wheel_usage') < util.current_unix_time_seconds() then JSlang.toast('Lucky wheel is available.') return end
             local secondsLeft = STAT_GET_INT_MPPLY('mpply_lucky_wheel_usage') - util.current_unix_time_seconds()
             local hours = math.floor(secondsLeft / 3600)
@@ -2967,7 +2982,7 @@ local whitelistedName = false
             end
         end)
 
-        JSlang.action(casino_root, 'Casino loss/profit', {'JScasinoLP'}, 'Tells you how much you made or lost in the casino.', function()
+        JSlang.action(_LR['Casino'], 'Casino loss/profit', {'JScasinoLP'}, 'Tells you how much you made or lost in the casino.', function()
             local chips = STAT_GET_INT_MPPLY('mpply_casino_chips_won_gd')
             if chips > 0 then
                 util.toast(JSlang.str_trans('You\'ve made') ..' '.. chips ..' '.. JSlang.str_trans('chips.'))
@@ -2981,7 +2996,7 @@ local whitelistedName = false
     ----------------------------------
     -- Time trial
     ----------------------------------
-        local tt_root = JSlang.list(online_root, 'Time trials', {'JStt'}, '')
+        JSlang.list(_LR['Online'], 'Time trials', {'JStt'}, '')
 
         local function ttTimeToString(time)
             local min = math.floor(time / 60000)
@@ -2989,14 +3004,14 @@ local whitelistedName = false
             return (min == 0 and '' or min ..'min ') .. sec ..'s'
         end
 
-        JSlang.divider(tt_root, 'Time trial')
+        JSlang.divider(_LR['Time trials'], 'Time trial')
 
-        JSlang.toggle_loop(tt_root, 'Best time trial time', {'JSbestTT'}, '', function()
+        JSlang.toggle_loop(_LR['Time trials'], 'Best time trial time', {'JSbestTT'}, '', function()
             util.toast(JSlang.str_trans('Best Time') ..': '.. ttTimeToString((STAT_GET_INT_MPPLY('mpply_timetrialbesttime'))))
             util.yield(100)
         end)
 
-        JSlang.action(tt_root, 'Teleport to time trial', {'JStpToTT'}, '', function()
+        JSlang.action(_LR['Time trials'], 'Teleport to time trial', {'JStpToTT'}, '', function()
             local ttBlip = HUD._GET_CLOSEST_BLIP_OF_TYPE(430)
             if not HUD.DOES_BLIP_EXIST(ttBlip) then
                 JSlang.toast('Couldn\'t find time trial.')
@@ -3005,14 +3020,14 @@ local whitelistedName = false
             tpToBlip(ttBlip)
         end)
 
-        JSlang.divider(tt_root, 'Rc time trial')
+        JSlang.divider(_LR['Time trials'], 'Rc time trial')
 
-        JSlang.toggle_loop(tt_root, 'Best rc time trial time', {'JSbestRcTT'}, '', function()
+        JSlang.toggle_loop(_LR['Time trials'], 'Best rc time trial time', {'JSbestRcTT'}, '', function()
             util.toast(JSlang.str_trans('Best Time') ..': '.. ttTimeToString(STAT_GET_INT_MPPLY('mpply_rcttbesttime')))
             util.yield(100)
         end)
 
-        JSlang.action(tt_root, 'Teleport to rc time trial', {'JStpToRcTT'}, '', function()
+        JSlang.action(_LR['Time trials'], 'Teleport to rc time trial', {'JStpToRcTT'}, '', function()
             local ttBlip = HUD._GET_CLOSEST_BLIP_OF_TYPE(673)
             if not HUD.DOES_BLIP_EXIST(ttBlip) then
                 JSlang.toast('Couldn\'t find rc time trial.')
@@ -3048,7 +3063,7 @@ local whitelistedName = false
             ENTITY.SET_ENTITY_VISIBLE(entity, false, 0)
         end
 
-        function block(cord)
+        local function block(cord)
             local hash = 309416120
             loadModel(hash)
             for i = 0, 180, 8 do
@@ -3060,7 +3075,7 @@ local whitelistedName = false
             STREAMING.SET_MODEL_AS_NO_LONGER_NEEDED(hash)
         end
 
-        local block_root = JSlang.list(online_root, 'Block areas', {'JSblock'}, 'Block areas in online with invisible walls, but if you over use it it will crash you lol.')
+        JSlang.list(_LR['Online'], 'Block areas', {'JSblock'}, 'Block areas in online with invisible walls, but if you over use it it will crash you lol.')
 
         local blockInProgress = false
         local function blockAvailable(areaBlocked, areaName)
@@ -3080,7 +3095,7 @@ local whitelistedName = false
             blockInProgress = false
         end
 
-        JSlang.toggle_loop(block_root, 'Custom block', {}, 'Makes you able to block an area in front of you by pressing "B".', function()
+        JSlang.toggle_loop(_LR['Block areas'], 'Custom block', {}, 'Makes you able to block an area in front of you by pressing "B".', function()
             local dir, c1 = direction()
             GRAPHICS._DRAW_SPHERE(c1.x, c1.y, c1.z, 0.3, 52, 144, 233, 0.5)
             if JSkey.is_key_down('VK_B') then
@@ -3091,31 +3106,31 @@ local whitelistedName = false
             end
         end)
 
-        local block_lsc_root = JSlang.list(block_root, 'Block LSC', {'JSblockLSC'}, 'Block lsc from being accessed.')
-        local block_casino_root = JSlang.list(block_root, 'Block casino', {'JSblockCasino'}, 'Block casino from being accessed.')
-        local block_maze_root = JSlang.list(block_root, 'Block maze bank', {'JSblockCasino'}, 'Block maze bank from being accessed.')
+        JSlang.list(_LR['Block areas'], 'Block LSC', {'JSblockLSC'}, 'Block lsc from being accessed.')
+        JSlang.list(_LR['Block areas'], 'Block casino', {'JSblockCasino'}, 'Block casino from being accessed.')
+        JSlang.list(_LR['Block areas'], 'Block maze bank', {'JSblockCasino'}, 'Block maze bank from being accessed.')
 
         local blockAreasActions = {
             --Orbital block
-            {root = block_root, name = 'orbital room', coordinates = {{335.95837, 4834.216, -60.99977}}, blocked = false},
+            {root = _LR['Block areas'], name = 'orbital room', coordinates = {{335.95837, 4834.216, -60.99977}}, blocked = false},
             -- Lsc blocks
-            {root = block_lsc_root, name = 'burton', coordinates = {{-357.66544, -134.26419, 38.23775}}, blocked = false},
-            {root = block_lsc_root, name = 'LSIA', coordinates = {{-1144.0569, -1989.5784, 12.9626}}, blocked = false},
-            {root = block_lsc_root, name = 'la meza', coordinates = {{721.08496, -1088.8752, 22.046721}}, blocked = false},
-            {root = block_lsc_root, name = 'blaine county', coordinates = {{115.59574, 6621.5693, 31.646144}, {110.460236, 6615.827, 31.660228}}, blocked = false},
-            {root = block_lsc_root, name = 'paleto bay', coordinates = {{115.59574, 6621.5693, 31.646144}, {110.460236, 6615.827, 31.660228}}, blocked = false},
-            {root = block_lsc_root, name = 'benny\'s', coordinates = {{-205.6571, -1309.4313, 31.093222}}, blocked = false},
+            {root = _LR['Block LSC'], name = 'burton', coordinates = {{-357.66544, -134.26419, 38.23775}}, blocked = false},
+            {root = _LR['Block LSC'], name = 'LSIA', coordinates = {{-1144.0569, -1989.5784, 12.9626}}, blocked = false},
+            {root = _LR['Block LSC'], name = 'la meza', coordinates = {{721.08496, -1088.8752, 22.046721}}, blocked = false},
+            {root = _LR['Block LSC'], name = 'blaine county', coordinates = {{115.59574, 6621.5693, 31.646144}, {110.460236, 6615.827, 31.660228}}, blocked = false},
+            {root = _LR['Block LSC'], name = 'paleto bay', coordinates = {{115.59574, 6621.5693, 31.646144}, {110.460236, 6615.827, 31.660228}}, blocked = false},
+            {root = _LR['Block LSC'], name = 'benny\'s', coordinates = {{-205.6571, -1309.4313, 31.093222}}, blocked = false},
             -- Casino blocks
-            {root = block_casino_root, name = 'casino entrance', coordinates = {{924.3438, 49.19933, 81.10636}, {922.5348, 45.917263, 81.10635}}, blocked = false},
-            {root = block_casino_root, name = 'casino garage', coordinates = {{935.29553, -0.5328601, 78.56404}}, blocked = false},
-            {root = block_casino_root, name = 'lucky wheel', coordinates = {{1110.1014, 228.71582, -49.935845}}, blocked = false},
+            {root = _LR['Block casino'], name = 'casino entrance', coordinates = {{924.3438, 49.19933, 81.10636}, {922.5348, 45.917263, 81.10635}}, blocked = false},
+            {root = _LR['Block casino'], name = 'casino garage', coordinates = {{935.29553, -0.5328601, 78.56404}}, blocked = false},
+            {root = _LR['Block casino'], name = 'lucky wheel', coordinates = {{1110.1014, 228.71582, -49.935845}}, blocked = false},
             --Maze bank block
-            {root = block_maze_root, name = 'maze bank entrance', coordinates = {{-81.18775, -795.82874, 44.227295}}, blocked = false},
-            {root = block_maze_root, name = 'maze bank garage', coordinates = {{-77.96956, -780.9376, 38.473335}, {-82.82901, -781.81635, 38.50093}}, blocked = false},
+            {root = _LR['Block maze bank'], name = 'maze bank entrance', coordinates = {{-81.18775, -795.82874, 44.227295}}, blocked = false},
+            {root = _LR['Block maze bank'], name = 'maze bank garage', coordinates = {{-77.96956, -780.9376, 38.473335}, {-82.82901, -781.81635, 38.50093}}, blocked = false},
             --Mc block
-            {root = block_root, name = 'hawick clubhouse', coordinates = {{-17.48541, -195.7588, 52.370953}, {-23.452509, -193.01324, 52.36245}}, blocked = false},
+            {root = _LR['Block areas'], name = 'hawick clubhouse', coordinates = {{-17.48541, -195.7588, 52.370953}, {-23.452509, -193.01324, 52.36245}}, blocked = false},
             --Arena war garages
-            {root = block_root, name = 'arena war garages', coordinates = {
+            {root = _LR['Block areas'], name = 'arena war garages', coordinates = {
                 {-362.912, -1870.2249, 20.527836}, {-367.41855, -1872.5348, 20.527836},
                 {-375.58344, -1874.6719, 20.527828},  {-379.9853, -1876.0894, 20.527828},
                 {-386.49762, -1880.2793, 20.527842},  {-390.3558, -1883.0833, 20.527842},
@@ -3135,39 +3150,41 @@ local whitelistedName = false
                 setBlockStatus(false, areaName)
             end)
         end
+end
 
 -----------------------------------
 -- Players options
 -----------------------------------
-    local players_root = JSlang.list(menu_root, 'Players', {'JSplayers'}, '')
+do
+    JSlang.list(menu_root, 'Players', {'JSplayers'}, '')
 
     -----------------------------------
     -- Whitelist
     -----------------------------------
-        local whitelist_settings_root = JSlang.list(players_root, 'Whitelist', {'JSwhitelist'}, 'Applies to most options in this section.')
+        JSlang.list(_LR['Players'], 'Whitelist', {'JSwhitelist'}, 'Applies to most options in this section.')
 
-        JSlang.toggle(whitelist_settings_root, 'Exclude self', {'JSWhitelistSelf'}, 'Will make you not explode yourself. Pretty cool option if you ask me ;P', function(toggle)
+        JSlang.toggle(_LR['Whitelist'], 'Exclude self', {'JSWhitelistSelf'}, 'Will make you not explode yourself. Pretty cool option if you ask me ;P', function(toggle)
             whitelistGroups.user = not toggle
         end)
 
-        JSlang.toggle(whitelist_settings_root, 'Exclude friends', {'JSWhitelistFriends'}, 'Will make you not explode your friends... if you have any. (;-;)', function(toggle)
+        JSlang.toggle(_LR['Whitelist'], 'Exclude friends', {'JSWhitelistFriends'}, 'Will make you not explode your friends... if you have any. (;-;)', function(toggle)
             whitelistGroups.friends = not toggle
         end)
 
-        JSlang.toggle(whitelist_settings_root, 'Exclude strangers', {'JSWhitelistStrangers'}, 'If you only want to explode your friends I guess.', function(toggle)
+        JSlang.toggle(_LR['Whitelist'], 'Exclude strangers', {'JSWhitelistStrangers'}, 'If you only want to explode your friends I guess.', function(toggle)
             whitelistGroups.strangers = not toggle
         end)
 
-        JSlang.text_input(whitelist_settings_root, 'Whitelist player', {'JSWhitelistPlayer'}, 'Lets you whitelist a single player by name.', function(input)
+        JSlang.text_input(_LR['Whitelist'], 'Whitelist player', {'JSWhitelistPlayer'}, 'Lets you whitelist a single player by name.', function(input)
             whitelistedName = input
         end, '')
 
-        local whitelist_list_root = JSlang.list(whitelist_settings_root, 'Whitelist player list', {'JSwhitelistList'}, 'Custom player list for selecting  players you wanna whitelist.')
+        JSlang.list(_LR['Whitelist'], 'Whitelist player list', {'JSwhitelistList'}, 'Custom player list for selecting  players you wanna whitelist.')
 
         local whitelistTogglesTable = {}
         players.on_join(function(pid)
             local playerName = players.get_name(pid)
-            whitelistTogglesTable[pid] = menu.toggle(whitelist_list_root, playerName, {'JSwhitelist'.. playerName}, JSlang.str_trans('Whitelist') ..' '.. playerName ..' '.. JSlang.str_trans('from options that affect all players.'), function(toggle)
+            whitelistTogglesTable[pid] = menu.toggle(_LR['Whitelist player list'], playerName, {'JSwhitelist'.. playerName}, JSlang.str_trans('Whitelist') ..' '.. playerName ..' '.. JSlang.str_trans('from options that affect all players.'), function(toggle)
                 if toggle then
                     whitelistListTable[pid] = pid
                     if notifications then
@@ -3187,7 +3204,7 @@ local whitelistedName = false
     -----------------------------------
     -- Anti chat spam
     -----------------------------------
-        local anti_spam_root = JSlang.list(players_root, 'Anti chat spam', {}, '')
+        JSlang.list(_LR['Players'], 'Anti chat spam', {}, '')
 
         local chatSpamSettings = {
             enabled = false,
@@ -3220,22 +3237,22 @@ local whitelistedName = false
             end
         end)
 
-        JSlang.toggle(anti_spam_root, 'Anti chat spam', {'JSantiChatSpam'}, 'Kicks people if they spam chat.', function(toggle)
+        JSlang.toggle(_LR['Anti chat spam'], 'Anti chat spam', {'JSantiChatSpam'}, 'Kicks people if they spam chat.', function(toggle)
             chatSpamSettings.enabled = toggle
         end)
 
-        JSlang.toggle(anti_spam_root, 'Ignore team chat', {'JSignoreTeamSpam'}, '', function(toggle)
+        JSlang.toggle(_LR['Anti chat spam'], 'Ignore team chat', {'JSignoreTeamSpam'}, '', function(toggle)
             chatSpamSettings.enabled = toggle
         end, chatSpamSettings.ignoreTeam)
 
-        JSlang.slider(anti_spam_root, 'Identical messages', {'JSidenticalChatMessages'}, 'How many identical chat messages a player can send before getting kicked.', 2, 9999, chatSpamSettings.identicalMessages, 1, function(value)
+        JSlang.slider(_LR['Anti chat spam'], 'Identical messages', {'JSidenticalChatMessages'}, 'How many identical chat messages a player can send before getting kicked.', 2, 9999, chatSpamSettings.identicalMessages, 1, function(value)
             chatSpamSettings.identicalMessages = value
         end)
 
     -----------------------------------
     -- Explosions
     -----------------------------------
-        JSlang.action(players_root, 'Explode all', {'JSexplodeAll'}, 'Makes everyone explode.', function()
+        JSlang.action(_LR['Players'], 'Explode all', {'JSexplodeAll'}, 'Makes everyone explode.', function()
             local playerList = getNonWhitelistedPlayers(whitelistListTable, whitelistGroups, whitelistedName)
             for _, pid in pairs(playerList) do
                 local playerPed = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
@@ -3243,7 +3260,7 @@ local whitelistedName = false
             end
         end)
 
-        explodeLoopAll = JSlang.toggle_loop(players_root, 'Explode all loop', {'JSexplodeAllLoop'}, 'Constantly explodes everyone.', function()
+        explodeLoopAll = JSlang.toggle_loop(_LR['Players'], 'Explode all loop', {'JSexplodeAllLoop'}, 'Constantly explodes everyone.', function()
             local playerList = getNonWhitelistedPlayers(whitelistListTable, whitelistGroups, whitelistedName)
             for _, pid in pairs(playerList) do
                 local playerPed = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
@@ -3267,7 +3284,7 @@ local whitelistedName = false
         [4] = { x = 327.79208, y = 4831.288, z = -59.368515 },
         [5] = { x = 330.61765, y = 4830.225, z = -59.368515 },
     }
-    JSlang.toggle_loop(players_root, 'Orbital cannon detection', {'JSorbDetection'}, 'Tells you when anyone starts using the orbital cannon', function()
+    JSlang.toggle_loop(_LR['Players'], 'Orbital cannon detection', {'JSorbDetection'}, 'Tells you when anyone starts using the orbital cannon', function()
         local playerList = players.list(false, true, true)
         for i = 1, #playerList do
             local ped = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(playerList[i])
@@ -3285,11 +3302,11 @@ local whitelistedName = false
     -----------------------------------
     -- Coloured otr reveal
     -----------------------------------
-        local coloured_otr_root = JSlang.list(players_root, 'Coloured otr reveal', {}, '')
+        JSlang.list(_LR['Players'], 'Coloured otr reveal', {}, '')
 
         local markedPlayers = {}
         local otrBlipColour = 58
-        JSlang.toggle_loop(coloured_otr_root, 'Coloured otr reveal', {'JScolouredOtrReveal'}, 'Marks otr players with coloured blips.', function()
+        JSlang.toggle_loop(_LR['Coloured otr reveal'], 'Coloured otr reveal', {'JScolouredOtrReveal'}, 'Marks otr players with coloured blips.', function()
             local playerList = players.list(false, true, true)
             for i, pid in pairs(playerList) do
                 if players.is_otr(pid) and not markedPlayers[pid] then
@@ -3314,11 +3331,11 @@ local whitelistedName = false
             end
         end)
 
-        local otr_colour_slider = JSlang.slider(coloured_otr_root, 'otr reveal colour', {'JSortRevealColour'}, '',1, 81, otrBlipColour, 1, function(value)
+        local otr_colour_slider = JSlang.slider(_LR['Coloured otr reveal'], 'otr reveal colour', {'JSortRevealColour'}, '',1, 81, otrBlipColour, 1, function(value)
             otrBlipColour = value + (value > 71 and 1 or 0) + (value > 77 and 2 or 0)
         end)
 
-        JSlang.toggle_loop(coloured_otr_root, 'Otr rgb reveal', {'JSortRgbReveal'}, '', function()
+        JSlang.toggle_loop(_LR['Coloured otr reveal'], 'Otr rgb reveal', {'JSortRgbReveal'}, '', function()
             menu.set_value(otr_colour_slider, (otrBlipColour == 84 and 1 or otrBlipColour + 1))
             util.yield(250)
         end)
@@ -3326,9 +3343,9 @@ local whitelistedName = false
     -----------------------------------
     -- Vehicle
     -----------------------------------
-        local players_veh_root = JSlang.list(players_root, 'Vehicles', {'JSplayersVeh'}, 'Do stuff to all players vehicles.')
+        JSlang.list(_LR['Players'], 'Vehicles', {'JSplayersVeh'}, 'Do stuff to all players vehicles.')
 
-        JSlang.toggle(players_veh_root, 'Lock burnout', {'JSlockBurnout'}, 'Locks all player cars in burnout.', function(toggle)
+        JSlang.toggle(_LR['Vehicles'], 'Lock burnout', {'JSlockBurnout'}, 'Locks all player cars in burnout.', function(toggle)
             local playerList = getNonWhitelistedPlayers(whitelistListTable, whitelistGroups, whitelistedName)
             for k, playerPid in ipairs(playerList) do
                 local playerPed = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(playerPid)
@@ -3341,7 +3358,7 @@ local whitelistedName = false
         end)
 
         local all_torque = 1000
-        JSlang.slider(players_veh_root, 'Set torque', {'JSsetAllTorque'}, 'Modifies the speed of all player vehicles.', -1000000, 1000000, all_torque, 1, function(value)
+        JSlang.slider(_LR['Vehicles'], 'Set torque', {'JSsetAllTorque'}, 'Modifies the speed of all player vehicles.', -1000000, 1000000, all_torque, 1, function(value)
             all_torque = value
             util.create_tick_handler(function()
                 local playerList = getNonWhitelistedPlayers(whitelistListTable, whitelistGroups, whitelistedName)
@@ -3357,7 +3374,7 @@ local whitelistedName = false
             end)
         end)
 
-        JSlang.toggle(players_veh_root, 'Force surface all subs', {'JSforceSurfaceAll'}, 'Forces all Kosatkas to the surface.\nNot compatible with the whitelist.', function(toggle)
+        JSlang.toggle(_LR['Vehicles'], 'Force surface all subs', {'JSforceSurfaceAll'}, 'Forces all Kosatkas to the surface.\nNot compatible with the whitelist.', function(toggle)
             local vehHandles = entities.get_all_vehicles_as_handles()
             local surfaced = 0
             for i = 1, #vehHandles do
@@ -3371,7 +3388,7 @@ local whitelistedName = false
     -----------------------------------
 
 
-    JSlang.toggle_loop(players_root, 'No fly zone', {'JSnoFly'}, 'Forces all players in air born vehicles into the ground.', function()
+    JSlang.toggle_loop(_LR['Players'], 'No fly zone', {'JSnoFly'}, 'Forces all players in air born vehicles into the ground.', function()
         local playerList = getNonWhitelistedPlayers(whitelistListTable, whitelistGroups, whitelistedName)
         for _, pid in pairs(playerList) do
             local playerPed = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
@@ -3386,7 +3403,7 @@ local whitelistedName = false
         end
     end)
 
-    JSlang.toggle_loop(players_root, 'Shoot gods', {'JSshootGods'}, 'Disables godmode for other players when aiming at them. Mostly works on trash menus.', function()
+    JSlang.toggle_loop(_LR['Players'], 'Shoot gods', {'JSshootGods'}, 'Disables godmode for other players when aiming at them. Mostly works on trash menus.', function()
         local playerList = getNonWhitelistedPlayers(whitelistListTable, whitelistGroups, whitelistedName)
         for k, playerPid in ipairs(playerList) do
             local playerPed = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(playerPid)
@@ -3399,10 +3416,10 @@ local whitelistedName = false
     -----------------------------------
     -- Aim karma
     -----------------------------------
-        local aim_karma_root = JSlang.list(players_root, 'Aim karma', {'JSaimKarma'}, 'Do stuff to players that aim at you.')
+        JSlang.list(_LR['Players'], 'Aim karma', {'JSaimKarma'}, 'Do stuff to players that aim at you.')
 
         local karma = {}
-        function playerIsTargetingEntity(playerPed)
+        local function playerIsTargetingEntity(playerPed)
             local playerList = getNonWhitelistedPlayers(whitelistListTable, whitelistGroups, whitelistedName)
             for k, playerPid in pairs(playerList) do
                 if PLAYER.IS_PLAYER_TARGETTING_ENTITY(playerPid, playerPed) or PLAYER.IS_PLAYER_FREE_AIMING_AT_ENTITY(playerPid, playerPed) then
@@ -3417,7 +3434,7 @@ local whitelistedName = false
             return false
         end
 
-        JSlang.toggle_loop(aim_karma_root, 'Shoot', {'JSbulletAimKarma'}, 'Shoots players that aim at you.', function()
+        JSlang.toggle_loop(_LR['Aim karma'], 'Shoot', {'JSbulletAimKarma'}, 'Shoots players that aim at you.', function()
             local userPed = players.user_ped()
             if playerIsTargetingEntity(userPed) and karma[userPed] then
                 local pos = ENTITY.GET_ENTITY_COORDS(karma[userPed].ped)
@@ -3426,14 +3443,14 @@ local whitelistedName = false
             end
         end)
 
-        JSlang.toggle_loop(aim_karma_root, 'Explode', {'JSexpAimKarma'}, 'Explodes the player with your custom explosion settings.', function()
+        JSlang.toggle_loop(_LR['Aim karma'], 'Explode', {'JSexpAimKarma'}, 'Explodes the player with your custom explosion settings.', function()
             local userPed = players.user_ped()
             if playerIsTargetingEntity(userPed) and karma[userPed] then
                 explodePlayer(karma[userPed].ped, true, expSettings)
             end
         end)
 
-        JSlang.toggle_loop(aim_karma_root, 'Disable godmode', {'JSgodAimKarma'}, 'If a god mode player aims at you this disables their god mode by pushing their camera forwards.', function()
+        JSlang.toggle_loop(_LR['Aim karma'], 'Disable godmode', {'JSgodAimKarma'}, 'If a god mode player aims at you this disables their god mode by pushing their camera forwards.', function()
             local userPed = players.user_ped()
             if playerIsTargetingEntity(userPed) and karma[userPed] and players.is_godmode(karma[userPed].pid) then
                 local karmaPid = karma[userPed].pid
@@ -3442,19 +3459,21 @@ local whitelistedName = false
         end)
 
         local stand_player_aim_punish =  menu.ref_by_path('World>Inhabitants>Player Aim Punishments>Anonymous Explosion', 37)
-        JSlang.action(aim_karma_root, 'Stands player aim punishments', {}, 'Link to stands player aim punishments.', function()
+        JSlang.action(_LR['Aim karma'], 'Stands player aim punishments', {}, 'Link to stands player aim punishments.', function()
             menu.focus(stand_player_aim_punish)
         end)
+end
 
 -----------------------------------
 -- World
 -----------------------------------
-    local world_root = JSlang.list(menu_root, 'World', {'JSworld'}, '')
+do
+    JSlang.list(menu_root, 'World', {'JSworld'}, '')
 
     local irlTime = false
     local setClockCommand = menu.ref_by_path('World>Atmosphere>Clock>Time', 37)
     local smoothTransitionCommand = menu.ref_by_path('World>Atmosphere>Clock>Smooth Transition', 37)
-    JSlang.toggle(world_root, 'irl time', {'JSirlTime'}, 'Makes the in game time match your irl time. Disables stands "Smooth Transition".', function(toggle)
+    JSlang.toggle(_LR['World'], 'irl time', {'JSirlTime'}, 'Makes the in game time match your irl time. Disables stands "Smooth Transition".', function(toggle)
         irlTime = toggle
         if menu.get_value(smoothTransitionCommand) then menu.trigger_command(smoothTransitionCommand) end
         util.create_tick_handler(function()
@@ -3481,7 +3500,7 @@ local whitelistedName = false
             127,
             128,
     }
-    JSlang.toggle_loop(world_root, 'Disable numpad', {'JSdisableNumpad'}, 'Disables numpad so you don\'t rotate your plane/submarine while navigating stand', function()
+    JSlang.toggle_loop(_LR['World'], 'Disable numpad', {'JSdisableNumpad'}, 'Disables numpad so you don\'t rotate your plane/submarine while navigating stand', function()
         if not menu.is_open() or JSkey.is_key_down('VK_LBUTTON') or JSkey.is_key_down('VK_RBUTTON') then return end
         for _, control in pairs(numpadControls) do
             PAD.DISABLE_CONTROL_ACTION(2, control, true)
@@ -3489,7 +3508,7 @@ local whitelistedName = false
     end)
 
     local mapZoom = 83
-    JSlang.slider(world_root, 'Map zoom level', {'JSmapZoom'}, '', 1, 100, mapZoom, 1, function(value)
+    JSlang.slider(_LR['World'], 'Map zoom level', {'JSmapZoom'}, '', 1, 100, mapZoom, 1, function(value)
         mapZoom = 83
         mapZoom = value
         util.create_tick_handler(function()
@@ -3498,35 +3517,35 @@ local whitelistedName = false
         end)
     end)
 
-    JSlang.toggle(world_root, 'Enable footsteps', {'JSfootSteps'}, 'Enables foot prints on all surfaces.', function(toggle)
+    JSlang.toggle(_LR['World'], 'Enable footsteps', {'JSfootSteps'}, 'Enables foot prints on all surfaces.', function(toggle)
         GRAPHICS._SET_FORCE_PED_FOOTSTEPS_TRACKS(toggle)
     end)
 
-    JSlang.toggle(world_root, 'Enable vehicle trails', {'JSvehicleTrails'}, 'Enables vehicle trails on all surfaces.', function(toggle)
+    JSlang.toggle(_LR['World'], 'Enable vehicle trails', {'JSvehicleTrails'}, 'Enables vehicle trails on all surfaces.', function(toggle)
         GRAPHICS._SET_FORCE_VEHICLE_TRAILS(toggle)
     end)
 
-    JSlang.toggle_loop(world_root, 'Disable all map notifications', {'JSnoMapNotifications'}, 'Removes that constant spam.', function()
+    JSlang.toggle_loop(_LR['World'], 'Disable all map notifications', {'JSnoMapNotifications'}, 'Removes that constant spam.', function()
         HUD.THEFEED_HIDE_THIS_FRAME()
     end)
 
 
-    local colour_overlay_root = JSlang.list(world_root, 'Colour overlay', {}, '')
+    JSlang.list(_LR['World'], 'Colour overlay', {}, '')
 
     local colourOverlay = new.colour( 0, 0, 10, 0.1 )
 
-    JSlang.toggle_loop(colour_overlay_root, 'Colour overlay', {'JScolourOverlay'}, 'Applies a colour filter on the game.', function()
+    JSlang.toggle_loop(_LR['Colour overlay'], 'Colour overlay', {'JScolourOverlay'}, 'Applies a colour filter on the game.', function()
         directx.draw_rect(0, 0, 1, 1, colourOverlay)
     end)
 
-    menu.rainbow(JSlang.colour(colour_overlay_root   , 'Set overlay colour', {'JSoverlayColour'}, '', colourOverlay, true, function(colour)
+    menu.rainbow(JSlang.colour(_LR['Colour overlay']   , 'Set overlay colour', {'JSoverlayColour'}, '', colourOverlay, true, function(colour)
         colourOverlay = colour
     end))
 
     -----------------------------------
     -- Trains
     -----------------------------------
-        local trains_root = JSlang.list(world_root, 'Trains', {'JStrains'}, '')
+        JSlang.list(_LR['World'], 'Trains', {'JStrains'}, '')
 
         local trainsStopped = false
         local function stopTrain(train)
@@ -3539,7 +3558,7 @@ local whitelistedName = false
             end)
         end
 
-        JSlang.toggle(trains_root, 'Derail trains', {'JSderail'}, 'Derails and stops all trains.', function(toggle)
+        JSlang.toggle(_LR['Trains'], 'Derail trains', {'JSderail'}, 'Derails and stops all trains.', function(toggle)
             local vehPointers = entities.get_all_vehicles_as_pointers()
             trainsStopped = toggle
             for i = 1, #vehPointers do
@@ -3553,13 +3572,13 @@ local whitelistedName = false
             end
         end)
 
-        JSlang.action(trains_root, 'Delete trains', {'JSdeleteTrain'}, 'Just because every script has train options, I gotta have an anti train option.', function()
+        JSlang.action(_LR['Trains'], 'Delete trains', {'JSdeleteTrain'}, 'Just because every script has train options, I gotta have an anti train option.', function()
             VEHICLE.DELETE_ALL_TRAINS()
         end)
 
         local markedTrains = {}
         local markedTrainBlips = {}
-        JSlang.toggle_loop(trains_root, 'Mark nearby trains', {'JSnoMapNotifications'}, 'Marks nearby trains with purple blips.', function()
+        JSlang.toggle_loop(_LR['Trains'], 'Mark nearby trains', {'JSnoMapNotifications'}, 'Marks nearby trains with purple blips.', function()
             local vehPointers = entities.get_all_vehicles_as_pointers()
             removeValues(vehPointers, markedTrains)
 
@@ -3587,7 +3606,7 @@ local whitelistedName = false
     -----------------------------------
     -- Peds
     -----------------------------------
-        local peds_root = JSlang.list(world_root, 'Peds', {'JSpeds'}, '')
+        JSlang.list(_LR['World'], 'Peds', {'JSpeds'}, '')
 
         local pedToggleLoops = {
             {name = 'Ragdoll peds', command = 'JSragdollPeds', description = 'Makes all nearby peds fall over lol.', action = function(ped)
@@ -3626,7 +3645,7 @@ local whitelistedName = false
             end},
         }
         for i = 1, #pedToggleLoops do
-            JSlang.toggle_loop(peds_root, pedToggleLoops[i].name, {pedToggleLoops[i].command}, pedToggleLoops[i].description, function()
+            JSlang.toggle_loop(_LR['Peds'], pedToggleLoops[i].name, {pedToggleLoops[i].command}, pedToggleLoops[i].description, function()
                 local pedHandles = entities.get_all_peds_as_handles()
                 for j = 1, #pedHandles do
                     pedToggleLoops[i].action(pedHandles[j])
@@ -3637,16 +3656,17 @@ local whitelistedName = false
             end)
         end
 
-        JSlang.toggle_loop(peds_root, 'Kill jacked peds', {'JSkillJackedPeds'}, 'Automatically kills peds when stealing their car.', function(toggle)
+        JSlang.toggle_loop(_LR['Peds'], 'Kill jacked peds', {'JSkillJackedPeds'}, 'Automatically kills peds when stealing their car.', function(toggle)
             if not PED.IS_PED_JACKING(players.user_ped()) then return end
             local jackedPed = PED.GET_JACK_TARGET(players.user_ped())
             util.yield(100)
             ENTITY.SET_ENTITY_HEALTH(jackedPed, 0, 0)
         end)
 
-        JSlang.toggle(peds_root, 'Riot mode', {'JSriot'}, 'Makes peds hostile.', function(toggle)
+        JSlang.toggle(_LR['Peds'], 'Riot mode', {'JSriot'}, 'Makes peds hostile.', function(toggle)
             MISC.SET_RIOT_MODE_ENABLED(toggle)
         end)
+end
 
 
 JSlang.hyperlink(menu_root, 'Join the discord server', 'https://discord.gg/QzqBdHQC9S', 'Join the JerryScript discord server to suggest features, report bugs and test upcoming features.')
@@ -3745,9 +3765,14 @@ local playerInfoToggles = {}
 -- Player options
 ----------------------------------
     players.on_join(function(pid)
+
+        JSlang.list = function(root, name, tableCommands, description, ...)
+            return menu.list(root, JSlang.trans(name), if tableCommands then tableCommands else {}, JSlang.trans(description), ...)
+        end
+
         JSlang.divider(menu.player_root(pid), 'JerryScript') --added a divider here because Holy#9756 was bitching about it in vc
         local player_root = JSlang.list(menu.player_root(pid), 'JS player options')
-        local playerPed = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
+        local playerPed = || -> PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(pid)
         local playerName = players.get_name(pid)
 
         ----------------------------------
@@ -3767,11 +3792,11 @@ local playerInfoToggles = {}
             local trolling_root = JSlang.list(player_root, 'Trolling', {'JStrolling'}, '')
 
             JSlang.action(trolling_root, 'Explode player', {'JSexplode'}, 'Explodes this player with your selected options.', function()
-                explodePlayer(playerPed, false, expSettings)
+                explodePlayer(playerPed(), false, expSettings)
             end)
 
             JSlang.toggle_loop(trolling_root, 'Explode loop player', {'JSexplodeLoop'}, 'Loops explosions on them with your selected options.', function()
-                explodePlayer(playerPed, true, expSettings)
+                explodePlayer(playerPed(), true, expSettings)
                 util.yield(getTotalDelay(expLoopDelay))
                 if not players.exists(pid) then util.stop_thread() end
             end)
@@ -3869,8 +3894,8 @@ local playerInfoToggles = {}
                 yeetMultiplier = value
             end)
 
-            local strom_delay_root = menu.list(trolling_root, JSlang.str_trans('Storm delay'), {'JSentStormDelay'}, JSlang.str_trans('Lets you set the delay for how often entities are pushed in entity storm.'))
-            generateDelaySettings(strom_delay_root, JSlang.str_trans('Storm delay'), stormDelay)
+            local strom_delay_root = JSlang.list(trolling_root, 'Storm delay', {'JSentStormDelay'}, 'Lets you set the delay for how often entities are pushed in entity storm.')
+            generateDelaySettings(strom_delay_root, 'Storm delay', stormDelay)
         -----------------------------------
 
         JSlang.toggle_loop(player_root, 'Give shoot gods', {'JSgiveShootGods'}, 'Grants this player the ability to disable players god mode when shooting them.', function()
@@ -3885,7 +3910,7 @@ local playerInfoToggles = {}
         end)
 
         JSlang.toggle_loop(player_root, 'Give horn boost', {'JSgiveHornBoost'}, 'Gives them the ability to speed up their car by pressing honking their horn or activating the siren.', function()
-            local vehicle = PED.GET_VEHICLE_PED_IS_IN(playerPed, false)
+            local vehicle = PED.GET_VEHICLE_PED_IS_IN(playerPed(), false)
             if not (AUDIO.IS_HORN_ACTIVE(vehicle) or VEHICLE.IS_VEHICLE_SIREN_ON(vehicle)) then return end
             NETWORK.NETWORK_REQUEST_CONTROL_OF_ENTITY(vehicle)
             if AUDIO.IS_HORN_ACTIVE(vehicle) then
@@ -3901,23 +3926,23 @@ local playerInfoToggles = {}
 
             --dosnt work on yourself
             JSlang.toggle_loop(give_karma_root, 'Shoot', {'JSgiveBulletAimKarma'}, 'Shoots players that aim at them.', function()
-                if playerIsTargetingEntity(playerPed) and karma[playerPed] then
-                    local pos = ENTITY.GET_ENTITY_COORDS(karma[playerPed].ped)
+                if playerIsTargetingEntity(playerPed()) and karma[playerPed()] then
+                    local pos = ENTITY.GET_ENTITY_COORDS(karma[playerPed()].ped)
                     MISC.SHOOT_SINGLE_BULLET_BETWEEN_COORDS(pos.x, pos.y, pos.z, pos.x, pos.y, pos.z +0.1, 100, true, 100416529, players.user_ped(), true, false, 100.0)
                     util.yield(getTotalDelay(expLoopDelay))
                 end
             end)
 
             JSlang.toggle_loop(give_karma_root, 'Explode', {'JSgiveExpAimKarma'}, 'Explosions with your custom explosion settings.', function()
-                if playerIsTargetingEntity(playerPed) and karma[playerPed] then
-                    explodePlayer(karma[playerPed].ped, true, expSettings)
+                if playerIsTargetingEntity(playerPed()) and karma[playerPed()] then
+                    explodePlayer(karma[playerPed()].ped, true, expSettings)
                 end
                 if not players.exists(pid) then util.stop_thread() end
             end)
 
             JSlang.toggle_loop(give_karma_root, 'Disable godmode', {'JSgiveGodAimKarma'}, 'If a god mode player aims at them this disables the aimers god mode by pushing their camera forwards.', function()
-                if playerIsTargetingEntity(playerPed) and karma[playerPed] and players.is_godmode(karma[playerPed].pid) then
-                    util.trigger_script_event(1 << karma[playerPed].pid, {-1388926377, karma[playerPed].pid, -1762807505, math.random(0, 9999)})
+                if playerIsTargetingEntity(playerPed()) and karma[playerPed()] and players.is_godmode(karma[playerPed()].pid) then
+                    util.trigger_script_event(1 << karma[playerPed()].pid, {-1388926377, karma[playerPed()].pid, -1762807505, math.random(0, 9999)})
                 end
                 if not players.exists(pid) then util.stop_thread() end
             end)
@@ -3928,8 +3953,8 @@ local playerInfoToggles = {}
             local player_veh_root = JSlang.list(player_root, 'Vehicle')
 
             JSlang.toggle(player_veh_root, 'Lock burnout', {'JSlockBurnout'}, 'Locks their car in a burnout.', function(toggle)
-                if PED.IS_PED_IN_ANY_VEHICLE(playerPed, true) then
-                    local playerVehicle = PED.GET_VEHICLE_PED_IS_IN(playerPed, false)
+                if PED.IS_PED_IN_ANY_VEHICLE(playerPed(), true) then
+                    local playerVehicle = PED.GET_VEHICLE_PED_IS_IN(playerPed(), false)
                     NETWORK.NETWORK_REQUEST_CONTROL_OF_ENTITY(playerVehicle)
                     VEHICLE.SET_VEHICLE_BURNOUT(playerVehicle, toggle)
                 end
@@ -3939,8 +3964,8 @@ local playerInfoToggles = {}
             JSlang.slider(player_veh_root, 'Set torque', {'JSsetTorque'}, 'Modifies the speed of their vehicle.', -1000000, 1000000, player_torque, 1, function(value)
                 player_torque = value
                 util.create_tick_handler(function()
-                    if PED.IS_PED_IN_ANY_VEHICLE(playerPed, true) then
-                        local playerVehicle = PED.GET_VEHICLE_PED_IS_IN(playerPed, false)
+                    if PED.IS_PED_IN_ANY_VEHICLE(playerPed(), true) then
+                        local playerVehicle = PED.GET_VEHICLE_PED_IS_IN(playerPed(), false)
                         NETWORK.NETWORK_REQUEST_CONTROL_OF_ENTITY(playerVehicle)
                         VEHICLE.SET_VEHICLE_CHEAT_POWER_INCREASE(playerVehicle, player_torque/1000)
                     end
@@ -3959,8 +3984,8 @@ local playerInfoToggles = {}
             end)
 
             JSlang.toggle_loop(player_veh_root, 'To the moon', {'JStoMoon'}, 'Forces their vehicle into the sky.', function()
-                if PED.IS_PED_IN_ANY_VEHICLE(playerPed, true) then
-                    local playerVehicle = PED.GET_VEHICLE_PED_IS_IN(playerPed, false)
+                if PED.IS_PED_IN_ANY_VEHICLE(playerPed(), true) then
+                    local playerVehicle = PED.GET_VEHICLE_PED_IS_IN(playerPed(), false)
                     NETWORK.NETWORK_REQUEST_CONTROL_OF_ENTITY(playerVehicle)
                     ENTITY.APPLY_FORCE_TO_ENTITY(playerVehicle, 1, 0, 0, 100, 0, 0, 0.5, 0, false, false, true)
                     util.yield(10)
@@ -3969,8 +3994,8 @@ local playerInfoToggles = {}
             end)
 
             JSlang.toggle_loop(player_veh_root, 'Anchor', {'JSanchor'}, 'Forces their vehicle info the ground if its in the air.', function()
-                if PED.IS_PED_IN_ANY_VEHICLE(playerPed, true) then
-                    local playerVehicle = PED.GET_VEHICLE_PED_IS_IN(playerPed, false)
+                if PED.IS_PED_IN_ANY_VEHICLE(playerPed(), true) then
+                    local playerVehicle = PED.GET_VEHICLE_PED_IS_IN(playerPed(), false)
                     if ENTITY.IS_ENTITY_IN_AIR(playerVehicle) then
                         NETWORK.NETWORK_REQUEST_CONTROL_OF_ENTITY(playerVehicle)
                         ENTITY.APPLY_FORCE_TO_ENTITY(playerVehicle, 1, 0, 0, -100, 0, 0, 0, 0, false, false, true)
@@ -4077,5 +4102,7 @@ util.create_tick_handler(function()
         end
     end
 end)
+
+util.log('Loaded JerryScript main file in '.. util.current_time_millis() - LOADING_START ..' ms.')
 
 LOADING_SCRIPT = false
