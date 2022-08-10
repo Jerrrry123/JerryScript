@@ -35,6 +35,13 @@ end
 ----------------------------------
 local JS_tbls = {}
 do
+    --Transition points
+    -- 49  -> 50
+    -- 87  -> 88
+    -- 159 -> 160
+    -- 207 -> 208
+    JS_tbls.alphaPoints = {0, 87, 159, 207, 255}
+
     local joaat = util.joaat
     JS_tbls.effects = {
         ['Clown Explosion'] = {
@@ -1815,14 +1822,8 @@ do
         menu.set_help_text(custom_respawn_location,  JSlang.str_trans('Current location') ..':\n'.. pos)
     end)
 
-    --Transition points
-    -- 49  -> 50
-    -- 87  -> 88
-    -- 159 -> 160
-    -- 207 -> 208
-    local alphaPoints = {0, 87, 159, 207, 255}
     JSlang.slider(_LR['Self'], 'Ghost', {'JSghost'}, 'Makes your player different levels off see through.', 0, 100, 100, 25, function(value)
-        ENTITY.SET_ENTITY_ALPHA(players.user_ped(),alphaPoints[value / 25 + 1], false)
+        ENTITY.SET_ENTITY_ALPHA(players.user_ped(), JS_tbls.alphaPoints[value / 25 + 1], false)
     end)
 
     JSlang.toggle_loop(_LR['Self'], 'Full regen', {'JSfullRegen'}, 'Makes your hp regenerate until you\'re at full health.', function()
@@ -2363,10 +2364,10 @@ end
 -----------------------------------
 -- Vehicle
 -----------------------------------
+local my_cur_car = entities.get_user_vehicle_as_handle() --gets updated in the tick loop at the bottom of the script
 do
     JSlang.list(menu_root, 'Vehicle', {'JSVeh'}, '')
 
-    local my_cur_car = entities.get_user_vehicle_as_handle() --gets updated in the tick loop at the bottom of the script
 
     local carDoors = {
         'Driver Door',
@@ -2389,7 +2390,7 @@ do
         end},
         ghostCar = {on = true, value = 4, setOption = function(toggle)
             local index = toggle and carSettings.ghostCar.value + 1 or 5
-            ENTITY.SET_ENTITY_ALPHA(my_cur_car, alphaPoints[index], true)
+            ENTITY.SET_ENTITY_ALPHA(my_cur_car, JS_tbls.alphaPoints[index], true)
         end},
         indestructibleDoors = {on = false, setOption = function(toggle)
             local vehicleDoorCount =  VEHICLE._GET_NUMBER_OF_VEHICLE_DOORS(my_cur_car)
