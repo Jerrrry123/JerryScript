@@ -599,7 +599,7 @@ end
         }
         return destination
     end
-    
+
     local function raycast_gameplay_cam(distance)
         local result = {}
         local didHit = memory.alloc(1)
@@ -632,7 +632,7 @@ end
         local res = raycast_gameplay_cam(1000)
         local c2
 
-        if res.didHit != 0 then
+        if res.didHit then
             c2 = res.endCoords
         else
             c2 = get_offset_from_gameplay_camera(1000)
