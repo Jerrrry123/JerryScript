@@ -33,10 +33,10 @@ end
 ----------------------------------
 -- Tables
 ----------------------------------
-local JS_tables = {}
+local JS_tbls = {}
 do
     local joaat = util.joaat
-    JS_tables.effects = {
+    JS_tbls.effects = {
         ['Clown Explosion'] = {
             asset  	= 'scr_rcbarry2',
             name	= 'scr_exp_clown',
@@ -95,7 +95,7 @@ do
         [joaat('AMMO_RIFLE_ARMORPIERCING')] = 'WCT_CLIP_AP',
         [joaat('AMMO_RIFLE_FMJ')]           = 'WCT_CLIP_FMJ',
     }
-    JS_tables.mkIIammoTable = {
+    JS_tbls.mkIIammoTable = {
         [joaat('weapon_pistol_mk2')] = pistolMk2Ammo,
         [joaat('weapon_snspistol_mk2')] = pistolMk2Ammo,
         [joaat('weapon_revolver_mk2')] = pistolMk2Ammo,
@@ -156,7 +156,7 @@ do
         mine = 'WT_VEHMINE',
     }
     --i assume many of these are accurate, but many of them aren't tested
-    JS_tables.vehicleWeaponHashToLabel = {
+    JS_tbls.vehicleWeaponHashToLabel = {
         [joaat('vehicle_weapon_cannon_blazer')] = vehWeaponLabels.machineGun2, --tested
         [joaat('vehicle_weapon_enemy_laser')] = 'WT_A_ENMYLSR',
         [joaat('vehicle_weapon_plane_rocket')] = vehWeaponLabels.missiles,
@@ -329,7 +329,7 @@ do
         [joaat('vehicle_weapon_bruiser_50cal')] = vehWeaponLabels.dual50cal,
         [joaat('vehicle_weapon_bruiser2_50cal_laser')] = vehWeaponLabels.dualLasers,
     }
-    JS_tables.vehicleWeaponHashToString = {
+    JS_tbls.vehicleWeaponHashToString = {
         [joaat('vehicle_weapon_bomb')] = 'Bomb',
         [joaat('vehicle_weapon_bomb_cluster')] = 'Cluster Bomb',
         [joaat('vehicle_weapon_bomb_gas')] = 'Gas Bomb',
@@ -729,12 +729,12 @@ end
 ----------------------------------
     function getMk2Rounds(ped, weaponHash)
         local ammoType = WEAPON.GET_PED_AMMO_TYPE_FROM_WEAPON(ped, weaponHash)
-        if JS_tables.mkIIammoTable[weaponHash] and JS_tables.mkIIammoTable[weaponHash][ammoType] then
-            return util.get_label_text(JS_tables.mkIIammoTable[weaponHash][ammoType])
+        if JS_tbls.mkIIammoTable[weaponHash] and JS_tbls.mkIIammoTable[weaponHash][ammoType] then
+            return util.get_label_text(JS_tbls.mkIIammoTable[weaponHash][ammoType])
         end
     end
 
-    JS_tables.weaponTypes = {
+    JS_tbls.weaponTypes = {
         [0] = 'Unknown',
         [1] = 'No damage',
         [2] = 'Melee',
@@ -755,7 +755,7 @@ end
     local function getDamageType(ped, weaponHash)
         local damageType = WEAPON.GET_WEAPON_DAMAGE_TYPE(weaponHash)
 
-        local final = JS_tables.weaponTypes[damageType]
+        local final = JS_tbls.weaponTypes[damageType]
         return type(final) == 'string' and final or final(ped, weaponHash)
     end
 
@@ -768,10 +768,10 @@ end
     end
 
     local function getWeaponName(weaponHash)
-        if JS_tables.vehicleWeaponHashToLabel[weaponHash] then
-            return util.get_label_text(JS_tables.vehicleWeaponHashToLabel[weaponHash])
-        elseif JS_tables.vehicleWeaponHashToString[weaponHash] then
-            return JS_tables.vehicleWeaponHashToString[weaponHash]
+        if JS_tbls.vehicleWeaponHashToLabel[weaponHash] then
+            return util.get_label_text(JS_tbls.vehicleWeaponHashToLabel[weaponHash])
+        elseif JS_tbls.vehicleWeaponHashToString[weaponHash] then
+            return JS_tbls.vehicleWeaponHashToString[weaponHash]
         else
             for k, v in pairs(util.get_weapons()) do
                 if v.hash == weaponHash then
@@ -1150,7 +1150,7 @@ local whitelistedName = false
             local expSettings = {
                 camShake = 0, invisible = false, audible = true, noDamage = false, owned = false, blamed = false, blamedPlayer = false, expType = 0,
                 --stuff for fx explosions
-                currentFx = JS_tables.effects['Clown_Explosion'],
+                currentFx = JS_tbls.effects['Clown_Explosion'],
                 colour = new.colour( 255, 0, 255 )
             }
 
@@ -1254,7 +1254,7 @@ local whitelistedName = false
                 local labelTable = {}
                 for k, v in pairsByKeys(keyTable) do
                     local helpText = ''
-                    if keyTable[k].colour and not JS_tables.effects[k].exp then
+                    if keyTable[k].colour and not JS_tbls.effects[k].exp then
                         helpText ..= JSlang.str_trans('Colour can be changed.') ..'\n'.. JSlang.str_trans('Can\'t be silenced.')
                     elseif keyTable[k].colour then
                         helpText ..=  JSlang.str_trans('Colour can be changed.')
@@ -1266,8 +1266,8 @@ local whitelistedName = false
                 return labelTable
             end
 
-            exp_fx_type_root = menu.list_action(_LR['FX explosions'], JSlang.str_trans('FX type') ..': '.. JSlang.str_trans('none'), {'JSfxExpType'}, JSlang.str_trans('Choose a fx explosion type.'), getEffectLabelTableFromKeys(JS_tables.effects), function(index, name)
-                expSettings.currentFx = JS_tables.effects[name]
+            exp_fx_type_root = menu.list_action(_LR['FX explosions'], JSlang.str_trans('FX type') ..': '.. JSlang.str_trans('none'), {'JSfxExpType'}, JSlang.str_trans('Choose a fx explosion type.'), getEffectLabelTableFromKeys(JS_tbls.effects), function(index, name)
+                expSettings.currentFx = JS_tbls.effects[name]
                 menu.set_menu_name(exp_type_root, JSlang.str_trans('Explosion type') ..': '.. JSlang.str_trans('Fx active'))
                 menu.set_menu_name(exp_fx_type_root, JSlang.str_trans('FX type') ..': '.. name)
             end)
@@ -2774,12 +2774,12 @@ do
     -----------------------------------
         JSlang.list(_LR['Online'], 'Safe monitor', {'JSsm'}, 'Safe monitor allows you to monitor your safes. It does NOT affect the money being generated.')
 
-        local toggleSafeMonitor = false
+        safeMonitorToggle = false
         JSlang.toggle(_LR['Safe monitor'], 'Toggle all selected', {'SMtoggleAllSelected'}, 'Toggles every option.', function(toggle)
-            toggleSafeMonitor = toggle
+            safeMonitorToggle = toggle
         end)
 
-        local safeManagerToggles = {
+        JS_tbls.safeManagerToggles = {
             {
                 name = 'Nightclub Safe',
                 command = 'SMclub',
@@ -2844,7 +2844,7 @@ do
                 end
             },
         }
-        generateToggles(safeManagerToggles, _LR['Safe monitor'], false)
+        generateToggles(JS_tbls.safeManagerToggles, _LR['Safe monitor'], false)
 
         local first_open_SM_earnings = {true}
         JSlang.list(_LR['Safe monitor'], 'Increase safe earnings', {'SMearnings'}, 'Might be risky.', function()
@@ -4083,13 +4083,13 @@ util.create_tick_handler(function()
     end
 
     -- Safe monitor
-    if toggleSafeMonitor then
+    if safeMonitorToggle then
         local ct = 0
         local spacing = 0.015 + smSettings.scale * smSettings.scale / 50
-        for i = 1, #safeManagerToggles do
-            if safeManagerToggles[i].toggle then
+        for i = 1, #JS_tbls.safeManagerToggles do
+            if JS_tbls.safeManagerToggles[i].toggle then
                 ct += spacing
-                directx.draw_text(1 + smSettings.xOffset / 200, ct + smSettings.yOffset / 200, safeManagerToggles[i].displayText(), smSettings.alignment, smSettings.scale, smSettings.textColour, false)
+                directx.draw_text(1 + smSettings.xOffset / 200, ct + smSettings.yOffset / 200, JS_tbls.safeManagerToggles[i].displayText(), smSettings.alignment, smSettings.scale, smSettings.textColour, false)
             end
         end
     end
