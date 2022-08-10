@@ -656,7 +656,7 @@ end
         end
         GRAPHICS.START_NETWORKED_PARTICLE_FX_NON_LOOPED_AT_COORD(
             currentFx.name,
-            pos,
+            pos.x, pos.y, pos.z,
             0,
             0,
             0,
