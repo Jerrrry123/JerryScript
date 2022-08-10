@@ -2368,7 +2368,6 @@ local my_cur_car = entities.get_user_vehicle_as_handle() --gets updated in the t
 do
     JSlang.list(menu_root, 'Vehicle', {'JSVeh'}, '')
 
-
     local carDoors = {
         'Driver Door',
         'Passenger Door',
@@ -3668,7 +3667,9 @@ local credTxt = {}
 
 credTxt[#credTxt + 1]  = {line = JSlang.str_trans('Coded by') ..' Jerry123#4508', bold = true, wait = 85}
 credTxt[#credTxt + 1]  = {line = JSlang.str_trans('Some contributions made by'), bold = false, wait = 25}
-credTxt[#credTxt + 1]  = {line = 'scriptcat#6566', bold = true, wait = 110}
+credTxt[#credTxt + 1]  = {line = 'scriptcat#6566', bold = true, wait = 90}
+
+credTxt[#credTxt + 1] = {line = JSlang.str_trans('Thanks to') ..' zjz#9999 '.. JSlang.str_trans('for helping me with the discord and also donating $5 of BTC'), bold = true, wait = 100}
 
 credTxt[#credTxt + 1] = {line = JSlang.str_trans('Translations made possible with help from:'), bold = true, wait = 35}
 credTxt[#credTxt + 1] = {line = 'zzzz#5116', bold = false, wait = 25}
@@ -3688,9 +3689,10 @@ credTxt[#credTxt + 1] = {line = JSlang.str_trans('for reviewing my code'), bold 
 credTxt[#credTxt + 1] = {line = JSlang.str_trans('Big thanks to all the cool people who helped me in #programming in the stand discord'), bold = false, wait = 25}
 credTxt[#credTxt + 1] = {line = 'Sapphire#1053', bold = false, wait = 25}
 credTxt[#credTxt + 1] = {line = 'aaronlink127#0127', bold = false, wait = 25}
-credTxt[#credTxt + 1] = {line = 'Fwishky#4980', bold = false, wait = 100}
+credTxt[#credTxt + 1] = {line = 'Fwishky#4980', bold = false, wait = 25}
+credTxt[#credTxt + 1] = {line = 'Prism#7717', bold = false, wait = 100}
 
-credTxt[#credTxt + 1] = {line = 'Goddess Sainan#0001', bold = true, wait = 25}
+credTxt[#credTxt + 1] = {line = 'Goddess Sainan#0001', bold = true, wait = 35}
 credTxt[#credTxt + 1] = {line = JSlang.str_trans('For making stand and providing such a great api and documentation'), bold = false, wait = 25}
 
 local playingCredits = false
