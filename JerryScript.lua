@@ -2921,7 +2921,7 @@ do
             end
             for i = 1, #propertyBlips do
                 local propertyBlip = getUserPropertyBlip(propertyBlips[i].sprite)
-                if propertyBlip ~= nil then continue end
+                if propertyBlip == nil then continue end
 
                 propertyTpRefs[propertyBlips[i].name] = menu.action(root, propertyBlips[i].name, {}, '', function()
                     if not HUD.DOES_BLIP_EXIST(propertyBlip) then
@@ -2936,7 +2936,7 @@ do
                     propertyTpRefs[listName] = menu.list(root, listName, {}, '')
                     for j = 1, #subProperties.properties do
                         local subPropertyBlip = getUserPropertyBlip(subProperties.properties[j].sprite)
-                        if propertyBlip ~= nil then continue end
+                        if propertyBlip == nil then continue end
 
                         menu.action(propertyTpRefs[listName], subProperties.properties[j].name, {}, '', function() --no need to have refs to these because they get deleted with the sublist
                             if not HUD.DOES_BLIP_EXIST(propertyBlip) then
