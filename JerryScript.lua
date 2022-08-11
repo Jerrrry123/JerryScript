@@ -4015,33 +4015,39 @@ local playerInfoToggles = {}
                 loadModel(hash)
                 local animal = entities.create_ped(28, hash, pos, 0)
                 STREAMING.SET_MODEL_AS_NO_LONGER_NEEDED(hash)
-                -- ENTITY.SET_ENTITY_INVINCIBLE(animal, true)
+                ENTITY.SET_ENTITY_INVINCIBLE(animal, true)
+                return animal
             end
 
             local rainOptions = {
-                { name = 'Meow rain',    description = 'UWU',                                          animals = {'a_c_cat_01'}                                 },
-                { name = 'Sea rain',     description = '<º)))><',                                      animals = {'a_c_fish', 'a_c_dolphin', 'a_c_killerwhale'} },
-                { name = 'Dog rain',     description = 'Wooof',                                        animals = {'a_c_retriever', 'a_c_pug', 'a_c_rottweiler'} },
-                { name = 'Chicken rain', description = '*clucking*',                                   animals = {'a_c_hen'}                                    },
-                { name = 'Monkey rain',  description = 'Idk what sound a monkey does',                 animals = {'a_c_chimp'}                                  },
-                { name = 'Pig rain',     description = '(> (00) <)',                                   animals = {'a_c_pig'}                                    },
-                { name = 'Rat rain',     description = 'Puts a Remote access trojan in your pc. (JK)', animals = {'a_c_rat'}                                    }
+                { name = 'Meow rain',    description = 'UWU',                                          animals = {'a_c_cat_01'},                                 spawned = {} },
+                { name = 'Sea rain',     description = '<º)))><',                                      animals = {'a_c_fish', 'a_c_dolphin', 'a_c_killerwhale'}, spawned = {} },
+                { name = 'Dog rain',     description = 'Wooof',                                        animals = {'a_c_retriever', 'a_c_pug', 'a_c_rottweiler'}, spawned = {} },
+                { name = 'Chicken rain', description = '*clucking*',                                   animals = {'a_c_hen'},                                    spawned = {} },
+                { name = 'Monkey rain',  description = 'Idk what sound a monkey does',                 animals = {'a_c_chimp'},                                  spawned = {} },
+                { name = 'Pig rain',     description = '(> (00) <)',                                   animals = {'a_c_pig'},                                    spawned = {} },
+                { name = 'Rat rain',     description = 'Puts a Remote access trojan in your pc. (JK)', animals = {'a_c_rat'},                                    spawned = {} }
             }
             for i = 1, #rainOptions do
                 JSlang.toggle_loop(rain_root, rainOptions[i].name, {'JS'.. rainOptions[i].name}, rainOptions[i].description, function()
                     for _, animal in pairs(rainOptions[i].animals) do
-                        rain(pid, animal)
+                        rainOptions[i].spawned[#rainOptions[i].spawned + 1] = rain(pid, animal)
                         util.yield(500)
                     end
                     if not players.exists(pid) then util.stop_thread() end
+                end, function()
+                    for j, spawned in ipairs(rainOptions[i].spawned) do
+                        entities.delete_by_handle(spawned)
+                        rainOptions[i].spawned[j] = nil
+                    end
                 end)
             end
 
             JSlang.action(rain_root, 'Clear rain', {'JSclear'}, 'Deletes rained entities.', function()
-                local pedPointers = entities.get_all_peds_as_pointers()
-                for i = 1, #pedPointers do
-                    if not PED.IS_PED_A_PLAYER(entities.pointer_to_handle(pedPointers[i])) then
-                        entities.delete_by_pointer(pedPointers[i])
+                for i = 1, #rainOptions do
+                    for j, spawned in ipairs(rainOptions[i].spawned) do
+                        entities.delete_by_handle(spawned)
+                        rainOptions[i].spawned[j] = nil
                     end
                 end
             end)
