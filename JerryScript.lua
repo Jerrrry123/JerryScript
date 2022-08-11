@@ -2277,6 +2277,7 @@ do
             end
             util.yield(200)
         end
+        disable_firing = false
     end)
 
     local animalsTable = {
