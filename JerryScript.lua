@@ -3674,7 +3674,7 @@ credTxt[#credTxt + 1] = {line = JSlang.str_trans('Thanks to') ..' zjz#9999 '.. J
 credTxt[#credTxt + 1] = {line = JSlang.str_trans('Translations made possible with help from:'), bold = true, wait = 35}
 credTxt[#credTxt + 1] = {line = 'zzzz#5116', bold = false, wait = 25}
 credTxt[#credTxt + 1] = {line = 'DumbBird#9143', bold = false, wait = 25}
-credTxt[#credTxt + 1] = {line = 'ΗΙΡΑSS#4090', bold = false, wait = 100}
+credTxt[#credTxt + 1] = {line = 'HIPASS#4090', bold = false, wait = 100}
 
 credTxt[#credTxt + 1]  = {line = JSlang.str_trans('Skids from:'), bold = true, wait = 35}
 credTxt[#credTxt + 1]  = {line = 'LanceScript '.. JSlang.str_trans('by') ..' lance#8213', bold = false, wait = 25}
