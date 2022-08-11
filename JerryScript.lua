@@ -3147,6 +3147,7 @@ end
 -----------------------------------
 -- Players options
 -----------------------------------
+local karma
 do
     JSlang.list(menu_root, 'Players', {'JSplayers'}, '')
 
@@ -3410,8 +3411,8 @@ do
     -----------------------------------
         JSlang.list(_LR['Players'], 'Aim karma', {'JSaimKarma'}, 'Do stuff to players that aim at you.')
 
-        local karma = {}
-        local function playerIsTargetingEntity(playerPed)
+        karma = {}
+        function isAnyPlayerTargetingEntity(playerPed)
             local playerList = getNonWhitelistedPlayers(whitelistListTable, whitelistGroups, whitelistedName)
             for k, playerPid in pairs(playerList) do
                 if PLAYER.IS_PLAYER_TARGETTING_ENTITY(playerPid, playerPed) or PLAYER.IS_PLAYER_FREE_AIMING_AT_ENTITY(playerPid, playerPed) then
@@ -3428,7 +3429,7 @@ do
 
         JSlang.toggle_loop(_LR['Aim karma'], 'Shoot', {'JSbulletAimKarma'}, 'Shoots players that aim at you.', function()
             local userPed = players.user_ped()
-            if playerIsTargetingEntity(userPed) and karma[userPed] then
+            if isAnyPlayerTargetingEntity(userPed) and karma[userPed] then
                 local pos = ENTITY.GET_ENTITY_COORDS(karma[userPed].ped)
                 MISC.SHOOT_SINGLE_BULLET_BETWEEN_COORDS(pos.x, pos.y, pos.z, pos.x, pos.y, pos.z + 0.1, 100, true, 100416529, userPed, true, false, 100.0)
                 util.yield(getTotalDelay(expLoopDelay))
@@ -3437,14 +3438,14 @@ do
 
         JSlang.toggle_loop(_LR['Aim karma'], 'Explode', {'JSexpAimKarma'}, 'Explodes the player with your custom explosion settings.', function()
             local userPed = players.user_ped()
-            if playerIsTargetingEntity(userPed) and karma[userPed] then
+            if isAnyPlayerTargetingEntity(userPed) and karma[userPed] then
                 explodePlayer(karma[userPed].ped, true, expSettings)
             end
         end)
 
         JSlang.toggle_loop(_LR['Aim karma'], 'Disable godmode', {'JSgodAimKarma'}, 'If a god mode player aims at you this disables their god mode by pushing their camera forwards.', function()
             local userPed = players.user_ped()
-            if playerIsTargetingEntity(userPed) and karma[userPed] and players.is_godmode(karma[userPed].pid) then
+            if isAnyPlayerTargetingEntity(userPed) and karma[userPed] and players.is_godmode(karma[userPed].pid) then
                 local karmaPid = karma[userPed].pid
                 util.trigger_script_event(1 << karmaPid, {-1388926377, karmaPid, -1762807505, math.random(0, 9999)})
             end
@@ -3922,7 +3923,7 @@ local playerInfoToggles = {}
 
             --dosnt work on yourself
             JSlang.toggle_loop(give_karma_root, 'Shoot', {'JSgiveBulletAimKarma'}, 'Shoots players that aim at them.', function()
-                if playerIsTargetingEntity(playerPed()) and karma[playerPed()] then
+                if isAnyPlayerTargetingEntity(playerPed()) and karma[playerPed()] then
                     local pos = ENTITY.GET_ENTITY_COORDS(karma[playerPed()].ped)
                     MISC.SHOOT_SINGLE_BULLET_BETWEEN_COORDS(pos.x, pos.y, pos.z, pos.x, pos.y, pos.z +0.1, 100, true, 100416529, players.user_ped(), true, false, 100.0)
                     util.yield(getTotalDelay(expLoopDelay))
@@ -3930,14 +3931,14 @@ local playerInfoToggles = {}
             end)
 
             JSlang.toggle_loop(give_karma_root, 'Explode', {'JSgiveExpAimKarma'}, 'Explosions with your custom explosion settings.', function()
-                if playerIsTargetingEntity(playerPed()) and karma[playerPed()] then
+                if isAnyPlayerTargetingEntity(playerPed()) and karma[playerPed()] then
                     explodePlayer(karma[playerPed()].ped, true, expSettings)
                 end
                 if not players.exists(pid) then util.stop_thread() end
             end)
 
             JSlang.toggle_loop(give_karma_root, 'Disable godmode', {'JSgiveGodAimKarma'}, 'If a god mode player aims at them this disables the aimers god mode by pushing their camera forwards.', function()
-                if playerIsTargetingEntity(playerPed()) and karma[playerPed()] and players.is_godmode(karma[playerPed()].pid) then
+                if isAnyPlayerTargetingEntity(playerPed()) and karma[playerPed()] and players.is_godmode(karma[playerPed()].pid) then
                     util.trigger_script_event(1 << karma[playerPed()].pid, {-1388926377, karma[playerPed()].pid, -1762807505, math.random(0, 9999)})
                 end
                 if not players.exists(pid) then util.stop_thread() end
