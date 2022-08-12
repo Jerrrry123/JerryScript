@@ -114,7 +114,6 @@ Weapons — Command: JSweapons
 		Remove spin-up time — Removes the spin-up from both the minigun and the widowmaker. — Command: JSnoSpinUp [on/off]
 		Bullet force multiplier — Works best when shooting vehicles from the front. Displayed value is in percent. — Command: JSbulletForceMultiplier [on/off]
 		Enable aim fov — Lets you modify the fov you have while you're aiming. — Command: JSenableAimFov [on/off]
-		Aim fov (-40 to 100) — Command: JSaimFov  [-40 to 100]
 		Enable zoom fov — Lets you modify the fov you have while you're aiming and has zoomed in. — Command: JSenableZoomFov [on/off]
 		Zoom aim fov (1.00 to 99999999.99) — Command: JSzoomAimFov  [1.00 to 99999999.99]
 	Proxy stickys

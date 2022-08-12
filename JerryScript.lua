@@ -1991,15 +1991,27 @@ do
         local extraZoom2 = 0
         local modifiedAimFov = {}
         JSlang.toggle_loop(_LR['Weapon settings'], 'Enable aim fov', {'JSenableAimFov'}, 'Lets you modify the fov you have while you\'re aiming.', function()
+            JSkey.disable_control_action(0, 'INPUT_SNIPER_ZOOM_IN_ONLY')
+            JSkey.disable_control_action(0, 'INPUT_SNIPER_ZOOM_OUT_ONLY')
+
+            if not JSkey.is_control_pressed(0, 'INPUT_AIM') then
+                extraZoom2 = 0
+                return
+            end
+
+            local step = if extraZoom2 > 60 or extraZoom2 < -5 then 3 else 6
+
+            if not (extraZoom2 <= -35) and JSkey.is_disabled_control_just_pressed(0, 'INPUT_SNIPER_ZOOM_IN_ONLY') then
+                extraZoom2 -= step
+            elseif not (extraZoom2 >= 100) and JSkey.is_disabled_control_just_pressed(0, 'INPUT_SNIPER_ZOOM_OUT_ONLY') then
+                extraZoom2 += step
+            end
+
             local weaponHash = readWeaponAddress(modifiedAimFov, 0x2FC, false)
             if weaponHash == 0 then return end
-            memory.write_float(modifiedAimFov[weaponHash].address,  modifiedAimFov[weaponHash].original + extraZoom2)
+            memory.write_float(modifiedAimFov[weaponHash].address, modifiedAimFov[weaponHash].original + extraZoom2)
         end, function()
             resetWeapons(modifiedAimFov)
-        end)
-
-        JSlang.slider(_LR['Weapon settings'], 'Aim fov', {'JSaimFov'}, '',-40, 100, 0, 1, function(value)
-            extraZoom2 = value
         end)
 
         JSlang.divider(_LR['Weapon settings'], 'Zoom aim fov')
