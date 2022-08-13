@@ -1793,7 +1793,7 @@ do
     local wasDead = false
     local respawnPos
     local respawnRot
-    local custom_respawn_toggle = menu.toggle_loop(_LR['Custom respawn'], JSlang.str_trans('Custom respawn') ..': '.. JSlang.str_trans('none'), {}, 'Set a location that you respawn at when you die.', function()
+    local custom_respawn_toggle = menu.toggle_loop(_LR['Custom respawn'], JSlang.str_trans('Custom respawn') ..': '.. JSlang.str_trans('none'), {}, JSlang.str_trans('Set a location that you respawn at when you die.'), function()
         if respawnPos == nil then return end
         local isDead = PLAYER.IS_PLAYER_DEAD(players.user())
         if wasDead and not isDead then
