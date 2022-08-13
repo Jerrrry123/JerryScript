@@ -27,7 +27,7 @@ Settings
 		Text alignment (1 to 3) — 1 is center, 2 is left and 3 is right. — Command: SMalignment  [1 to 3]
 		Text colour — Sets the colour of the text overlay. — Command: SMcolour
 	Explosion settings — Settings for the different options that explode players in this script. — Command: JSexpSettings
-		Loop delay: 250ms — Lets you set a custom delay between looped explosions. — Command: JSexpDelay
+		Loop delay — Lets you set a custom delay between looped explosions. — Command: JSexpDelay
 			Ms (1 to 999) — The delay is the added total of ms, sec and min values. — Command: JSLoop delayDelayMs  [1 to 999]
 			Seconds (0 to 59) — The delay is the added total of ms, sec and min values. — Command: JSLoop delayDelaySec  [0 to 59]
 			Minutes (0 to 60) — The delay is the added total of ms, sec and min values. — Command: JSLoop delayDelayMin  [0 to 60]
@@ -41,7 +41,6 @@ Settings
 		Disable explosion damage — Command: JSnoExpDamage [on/off]
 		Blame settings — Lets you blame yourself or other players for your explosions, go to the player list to chose a specific player to blame. — Command: JSblameSettings
 			Owned explosions — Will overwrite "Disable explosion damage". — Command: JSownExp [on/off]
-			Blame: Random — Will overwrite "Disable explosion damage" and if you haven't chosen a player random players will be blamed for each explosion. — Command: JSblameExp [on/off]
 			Blame player list — Custom player list for selecting blames. — Command: JSblameList
 			Random blames — Switches blamed explosions back to random if you already chose a player to blame. — Command: JSblameRandomExp
 	Horn boost multiplier (-100000 to 100000) — Set the force applied to the car when you or another player uses horn boost. — Command: JShornBoostMultiplier  [-100000 to 100000]
@@ -136,7 +135,7 @@ Weapons — Command: JSweapons
 		Minecraft gun — Spawns blocks where you shoot. — Command: JSminecraftGun [on/off]
 		Delete last block — Command: JSdeleteLastBlock
 		Delete all blocks — Command: JSdeleteBlocks
-	Flamethrower — Makes the minigun into a flamethrower. — Command: JSflamethrower [on/off]
+	Flamethrower — Converts the minigun into a flamethrower. — Command: JSflamethrower [on/off]
 	Friendly fire — Makes you able to shoot peds the game count as your friends. — Command: JSfriendlyFire [on/off]
 	Reload when rolling — Reloads your weapon when doing a roll. — Command: JSrollReload [on/off]
 Vehicle — Command: JSVeh
@@ -150,11 +149,11 @@ Vehicle — Command: JSVeh
 		Horn boost — Makes your car speed up when you honking your horn or activating your siren. — Command: JShornBoost [on/off]
 		Vehicle jump — Lets you jump with your car if you double tap "W". — Command: JSVehJump [on/off]
 		Enable nitro — Enable nitro boost on any vehicle, use it by pressing "X". — Command: JSnitro [on/off]
-		Duration: 2.5s — Lets you set a customize how long the nitro lasts. — Command: JSnitroDuration
+		Duration — Lets you set a customize how long the nitro lasts. — Command: JSnitroDuration
 			Ms (1 to 999) — The delay is the added total of ms, sec and min values. — Command: JSDurationDelayMs  [1 to 999]
 			Seconds (0 to 59) — The delay is the added total of ms, sec and min values. — Command: JSDurationDelaySec  [0 to 59]
 			Minutes (0 to 60) — The delay is the added total of ms, sec and min values. — Command: JSDurationDelayMin  [0 to 60]
-		Recharge time: 1.2s — Lets you set a custom delay of how long it takes for nitro to recharge. — Command: JSnitroRecharge
+		Recharge time — Lets you set a custom delay of how long it takes for nitro to recharge. — Command: JSnitroRecharge
 			Ms (1 to 999) — The delay is the added total of ms, sec and min values. — Command: JSRecharge timeDelayMs  [1 to 999]
 			Seconds (0 to 59) — The delay is the added total of ms, sec and min values. — Command: JSRecharge timeDelaySec  [0 to 59]
 			Minutes (0 to 60) — The delay is the added total of ms, sec and min values. — Command: JSRecharge timeDelayMin  [0 to 60]
@@ -175,7 +174,7 @@ Vehicle — Command: JSVeh
 	Vehicle sounds — Command: JSvehSounds
 		Disable exhaust pops — Disables those annoying exhaust pops that your car makes if it has a non-stock exhaust option. — Command: JSdisablePops [on/off]
 		Engine sound — Command: JSengineSound
-		Emmersive radio — Lowers the radio when you're not in first person mode. — Command: JSemersiveRadio [on/off]
+		Immersive radio — Lowers the radio volume when you're not in first person mode. — Command: JSemersiveRadio [on/off]
 		Npc horn — Makes you horn like a npc. Also makes your car doors silent. — Command: JSnpcHorn [on/off]
 	Stance — Activates stance on vehicles that support it. — Command: JSstance [on/off]
 	To the moon — Forces you into the sky if you're in a vehicle. — Command: JStoMoon [on/off]
@@ -185,7 +184,7 @@ Online — Command: JSonline
 		Add fake money — Adds money once. — Command: JSaddFakeMoney
 		Loop fake money — Adds loops money with your chosen delay. — Command: JSloopFakeMoney [on/off]
 		Show transaction pending — Adds a loading transaction pending message when adding fake money. — Command: JSfakeTransaction [on/off]
-		Fake money loop delay: 250ms — Lets you set a custom delay to the fake money loop. — Command: JSexpDelay
+		Fake money loop delay — Lets you set a custom delay to the fake money loop. — Command: JSexpDelay
 			Ms (1 to 999) — The delay is the added total of ms, sec and min values. — Command: JSFake money loop delayDelayMs  [1 to 999]
 			Seconds (0 to 59) — The delay is the added total of ms, sec and min values. — Command: JSFake money loop delayDelaySec  [0 to 59]
 			Minutes (0 to 60) — The delay is the added total of ms, sec and min values. — Command: JSFake money loop delayDelayMin  [0 to 60]
@@ -300,7 +299,7 @@ JS player options
 		Entity Storm — Constantly pushes all peds and vehicles near them.. into them :p Requires you to be near them or spectating them. — Command: JSentityStorm [on/off]
 		Range for YEET/Storm (1 to 1000) — How close nearby entities have to be to get pushed the targeted player. — Command: JSpushRange  [1 to 1000]
 		Multiplier for YEET/Storm (1 to 1000) — Multiplier for how much force is applied to entities when they get pushed towards them. — Command: JSpushMultiplier  [1 to 1000]
-		Storm delay: 250ms — Lets you set the delay for how often entities are pushed in entity storm. — Command: JSentStormDelay
+		Storm delay — Lets you set the delay for how often entities are pushed in entity storm. — Command: JSentStormDelay
 			Ms (1 to 999) — The delay is the added total of ms, sec and min values. — Command: JSStorm delayDelayMs  [1 to 999]
 			Seconds (0 to 59) — The delay is the added total of ms, sec and min values. — Command: JSStorm delayDelaySec  [0 to 59]
 			Minutes (0 to 60) — The delay is the added total of ms, sec and min values. — Command: JSStorm delayDelayMin  [0 to 60]
