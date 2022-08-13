@@ -71,7 +71,7 @@ t(f('Blames your explosions on them.'), 'Patlamalarından onları sorumlu tutuyo
 t(f('Beam'), 'Kiriş')
 t(f('Barrage'), 'Baraj')
 t(f('Custom respawn'), 'Özel yeniden doğma')
-t(f('Set a location that you respawn at when you die.'), '')
+t(f('Set a location that you respawn at when you die.'), 'Öldüğünüzde yeniden doğacağınız bir yer belirleyin.')
 t(f('Current location'), 'Mevcut konum')
 t(f('Current throwable'), 'Mevcut atılabilir')
 t(f('Current animal'), 'Mevcut hayvan')

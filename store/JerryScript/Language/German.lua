@@ -71,7 +71,7 @@ t(f('Blames your explosions on them.'), 'Macht sie für deine Explosionen verant
 t(f('Beam'), 'Strahl')
 t(f('Barrage'), 'Sperrfeuer')
 t(f('Custom respawn'), 'Benutzerdefinierter Respawn')
-t(f('Set a location that you respawn at when you die.'), '')
+t(f('Set a location that you respawn at when you die.'), 'Legen Sie einen Ort fest, an dem Sie nach Ihrem Tod respawnen.')
 t(f('Current location'), 'Aktueller Standort')
 t(f('Current throwable'), 'Aktueller Wurf')
 t(f('Current animal'), 'Aktuelles Tier')

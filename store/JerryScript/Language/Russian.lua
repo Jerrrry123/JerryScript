@@ -71,7 +71,7 @@ t(f('Blames your explosions on them.'), 'Обвиняет ваши взрывы 
 t(f('Beam'), 'Луч')
 t(f('Barrage'), 'Заградительный огонь')
 t(f('Custom respawn'), 'Пользовательский респаун')
-t(f('Set a location that you respawn at when you die.'), '')
+t(f('Set a location that you respawn at when you die.'), 'Установите место, где вы возродитесь, когда умрете.')
 t(f('Current location'), 'Текущее местоположение')
 t(f('Current throwable'), 'Текущий метательный')
 t(f('Current animal'), 'Текущее животное')
