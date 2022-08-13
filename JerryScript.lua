@@ -16,6 +16,83 @@ LOADING_SCRIPT = true
 util.ensure_package_is_installed("lua/ScaleformLib")
 util.require_natives(1651208000)
 
+local nativeNameSpaces = {
+	"SYSTEM",
+    "APP",
+    "AUDIO",
+    "BRAIN",
+    "CAM",
+    "CLOCK",
+    "CUTSCENE",
+    "DATAFILE",
+    "DECORATOR",
+    "DLC",
+    "ENTITY",
+    "EVENT",
+    "FILES",
+    "FIRE",
+    "GRAPHICS",
+    "HUD",
+    "INTERIOR",
+    "ITEMSET",
+    "LOADINGSCREEN",
+    "LOCALIZATION",
+    "MISC",
+    "MOBILE",
+    "MONEY",
+    "NETSHOPPING",
+    "NETWORK",
+    "OBJECT",
+    "PAD",
+    "PATHFIND",
+    "PED",
+    "PHYSICS",
+    "PLAYER",
+    "RECORDING",
+    "REPLAY",
+    "SAVEMIGRATION",
+    "SCRIPT",
+    "SECURITY",
+    "SHAPETEST",
+    "SOCIALCLUB",
+    "STATS",
+    "STREAMING",
+    "TASK",
+    "VEHICLE",
+    "WATER",
+    "WEAPON",
+    "ZONE"
+}
+local nativesIntact = true
+for _, nameSpace in ipairs(nativeNameSpaces) do
+    if not _G[nameSpace] then
+        nativesIntact = false
+        util.toast('Detected bad natives, stating fix.')
+        break
+    end
+end
+if not (nativesIntact and menu.get_value(menu.ref_by_path('Stand>Lua Scripts>Settings>Disable Internet Access', 38))) then
+    local done
+    async_http.init('raw.githubusercontent.com', '/Jerrrry123/JerryScript/main/lib/natives-1651208000.lua', function(fileContent)
+        local f = assert(io.open(filesystem.scripts_dir() ..'/lib/natives-1651208000.lua', 'w'))
+        f:write(fileContent)
+        f:close()
+
+        local loadNatives, err = load(fileContent)
+        if not err then
+            loadNatives()
+        end
+
+        done = true
+    end, function()
+        done = true
+    end)
+    async_http.dispatch()
+    while not done do
+        util.yield()
+    end
+end
+
 JSlang = require 'JSlangLib'
 local JSkey = require 'JSkeyLib'
 
