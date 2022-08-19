@@ -93,7 +93,16 @@ if not (nativesIntact and menu.get_value(menu.ref_by_path('Stand>Lua Scripts>Set
     end
 end
 
+LANG_SETTINGS = {}
+
+LANG_SETTINGS.LANG_DIR = filesystem.store_dir() .. 'JerryScript\\Language\\'
+
+LANG_SETTINGS.STRING_FILES = {
+    filesystem.scripts_dir() ..'JerryScript.lua',
+}
+
 local JSlang = require 'JSlangLib'
+
 local JSkey = require 'JSkeyLib'
 
 local scaleForm = require("ScaleformLib")

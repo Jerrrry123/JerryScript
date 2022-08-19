@@ -1,18 +1,34 @@
---if the lib should generate a template.lua in your LANG_DIR for translation templates on startup, this will log all the menu options, and after the main script had loaded the lib will check your STRING_FILES for unregistered strings
-local GENERATE_TEMPLATE = false
+--[[
+    example use of JSlangLib:
 
---the dir lang files are stored in
-local LANG_DIR = filesystem.store_dir() .. 'JerryScript\\Language\\'
+    -- needs to be a global
+    LANG_SETTINGS = {}
 
---files to search for JSlang.toast and JSlang.str_trans in when generating a template
-local STRING_FILES = {
-    filesystem.scripts_dir() ..'JerryScript.lua',
-}
+    -- if the lib should generate a template.lua in your LANG_DIR for translation templates on startup, this will log all the menu options, and after the main script had loaded the lib will check your STRING_FILES for unregistered strings
+    LANG_SETTINGS.GENERATE_TEMPLATE = true
 
---if you have a template file and a translated file with just plaintext of your translation, this will help you merge those files into translations
-local FILE_MERGE = false
+    -- the dir lang files are stored in
+    LANG_SETTINGS.LANG_DIR = filesystem.store_dir() .. 'JerryScript\\Language\\'
 
---require translations
+    -- files to search for JSlang.toast and JSlang.str_trans in when generating a template
+    LANG_SETTINGS.STRING_FILES = {
+        filesystem.scripts_dir() ..'JerryScript.lua',
+    }
+
+    -- make this a local if you only have one file
+    local JSlang = require 'JSlangLib'
+]]
+
+
+local GENERATE_TEMPLATE = LANG_SETTINGS.GENERATE_TEMPLATE
+local LANG_DIR = LANG_SETTINGS.LANG_DIR
+local STRING_FILES = LANG_SETTINGS.STRING_FILES
+
+if not LANG_SETTINGS then
+    util.toast('You have to define the LANG_SETTINGS table in your main script in order to use JSlangLib')
+    return
+end
+
 if not filesystem.is_dir(LANG_DIR) then
     filesystem.mkdirs(LANG_DIR)
 end
@@ -83,31 +99,6 @@ if GENERATE_TEMPLATE then
         end
         return label
     end
-end
-
-if FILE_MERGE then
-    local mergeTable = {}
-    menu.action(menu.my_root(), 'merge template', {}, '', function()
-        local res = assert(io.open(LANG_DIR .. 'result.lua', 'a'))
-
-        local i = 1
-        for line in io.lines(LANG_DIR .."template.lua") do
-            mergeTable[i][1] = line
-            i += 1
-        end
-        local j = 1
-        for line in io.lines(LANG_DIR .."translated.lua") do
-            mergeTable[i][2] = line
-            j += 1
-        end
-        for i = 1, #mergeTable do
-            local fileTxt = string.gsub(mergeTable[i][2], '\'', '\\\'')
-            fileTxt = string.gsub(fileTxt, '\\\\', '\\')
-            res:write(string.gsub(mergeTable[i][1], "''", "'"..fileTxt .."'") .. "\n")
-        end
-
-        res:close()
-    end)
 end
 
 -- register strings that aren't in menu options
