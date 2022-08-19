@@ -93,7 +93,7 @@ if not (nativesIntact and menu.get_value(menu.ref_by_path('Stand>Lua Scripts>Set
     end
 end
 
-JSlang = require 'JSlangLib'
+local JSlang = require 'JSlangLib'
 local JSkey = require 'JSkeyLib'
 
 local scaleForm = require("ScaleformLib")
