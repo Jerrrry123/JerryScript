@@ -1,6 +1,8 @@
 --[[
     example use of JSlangLib:
 
+    LOADING_SCRIPT = true
+
     -- needs to be a global
     LANG_SETTINGS = {}
 
@@ -15,14 +17,21 @@
         filesystem.scripts_dir() ..'JerryScript.lua',
     }
 
+    -- what you call of the variable that contains the scripts lang functions
+    LANG_SETTINGS.VAR_NAME = 'JSlang'
+
     -- make this a local if you only have one file
     local JSlang = require 'JSlangLib'
-]]
 
+    -- insert script code
+
+    LOADING_SCRIPT = false
+]]
 
 local GENERATE_TEMPLATE = LANG_SETTINGS.GENERATE_TEMPLATE
 local LANG_DIR = LANG_SETTINGS.LANG_DIR
 local STRING_FILES = LANG_SETTINGS.STRING_FILES
+local VAR_NAME = LANG_SETTINGS.VAR_NAME
 
 if not LANG_SETTINGS then
     util.toast('You have to define the LANG_SETTINGS table in your main script in order to use JSlangLib')
@@ -47,7 +56,7 @@ util.create_thread(function()
     local lang_load = util.current_time_millis()
 
     for _, profilePath in pairs(filesystem.list_files(LANG_DIR)) do
-        if string.find(profilePath, 'template') == nil and string.find(profilePath, 'translated') == nil and string.find(profilePath, 'result') == nil then
+        if string.find(profilePath, 'template') == nil then
             util.require_no_lag(getPathPart(profilePath, filesystem.scripts_dir()))
         end
     end
@@ -107,10 +116,12 @@ for _, filePath in pairs(STRING_FILES) do
     local script_file = readAll(filePath)
 
 
-    for text in string.gmatch(script_file, 'JSlang.toast%(\'.-\'%)') do
-        text = string.gsub(text, 'JSlang.toast%(\'', '')
+    for text in string.gmatch(script_file, VAR_NAME ..'.toast%(.-%)') do
+        text = string.gsub(text, VAR_NAME ..'.toast%(.', '')
         text = string.gsub(text, '\'%)', '')
+        text = string.gsub(text, '"%)', '')
         text = string.gsub(text, '\\\'', '\'')
+        text = string.gsub(text, '\\"', '\"')
         text = string.gsub(text, '\\\n', '\n')
         if registeredStrings[text] == nil then
             registeredStrings[text] = true
@@ -118,10 +129,12 @@ for _, filePath in pairs(STRING_FILES) do
         end
     end
 
-    for text in string.gmatch(script_file, 'JSlang.str_trans%(\'.-\'%)') do
-        text = string.gsub(text, 'JSlang.str_trans%(\'', '')
+    for text in string.gmatch(script_file, VAR_NAME ..'.str_trans%(.-%)') do
+        text = string.gsub(text, VAR_NAME ..'.str_trans%(.', '')
         text = string.gsub(text, '\'%)', '')
+        text = string.gsub(text, '"%)', '')
         text = string.gsub(text, '\\\'', '\'')
+        text = string.gsub(text, '\\"', '\"')
         text = string.gsub(text, '\\\n', '\n')
         if registeredStrings[text] == nil then
             registeredStrings[text] = true

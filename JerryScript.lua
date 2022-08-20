@@ -101,6 +101,8 @@ LANG_SETTINGS.STRING_FILES = {
     filesystem.scripts_dir() ..'JerryScript.lua',
 }
 
+LANG_SETTINGS.VAR_NAME = 'JSlang'
+
 local JSlang = require 'JSlangLib'
 
 local JSkey = require 'JSkeyLib'
