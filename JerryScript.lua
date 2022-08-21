@@ -67,7 +67,7 @@ local nativesIntact = true
 for _, nameSpace in ipairs(nativeNameSpaces) do
     if not _G[nameSpace] then
         nativesIntact = false
-        util.toast('Detected bad natives, stating fix.')
+        util.toast('Detected bad natives, staring fix.')
         break
     end
 end
