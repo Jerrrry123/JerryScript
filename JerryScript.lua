@@ -14,7 +14,7 @@ local LOADING_START = util.current_time_millis()
 LOADING_SCRIPT = true
 
 util.ensure_package_is_installed("lua/ScaleformLib")
-util.require_natives(1651208000)
+util.require_natives(1660775568)
 
 local nativeNameSpaces = {
 	"SYSTEM",
@@ -73,8 +73,8 @@ for _, nameSpace in ipairs(nativeNameSpaces) do
 end
 if not (nativesIntact and menu.get_value(menu.ref_by_path('Stand>Lua Scripts>Settings>Disable Internet Access', 38))) then
     local done
-    async_http.init('raw.githubusercontent.com', '/Jerrrry123/JerryScript/main/lib/natives-1651208000.lua', function(fileContent)
-        local f = assert(io.open(filesystem.scripts_dir() ..'/lib/natives-1651208000.lua', 'w'))
+    async_http.init('raw.githubusercontent.com', '/Jerrrry123/JerryScript/main/lib/natives-1660775568.lua', function(fileContent)
+        local f = assert(io.open(filesystem.scripts_dir() ..'/lib/natives-1660775568.lua', 'w'))
         f:write(fileContent)
         f:close()
 
@@ -2845,12 +2845,12 @@ do
         end
 
         JSlang.action(_LR['Fake money'], 'Add fake money', {'JSaddFakeMoney'}, 'Adds money once.', function()
-            HUD._SET_PLAYER_CASH_CHANGE(cashFakeMoney, bankFakeMoney)
+            HUD.CHANGE_FAKE_MP_CASH(cashFakeMoney, bankFakeMoney)
             transactionPending()
         end)
 
         JSlang.toggle_loop(_LR['Fake money'], 'Loop fake money', {'JSloopFakeMoney'}, 'Adds loops money with your chosen delay.', function()
-            HUD._SET_PLAYER_CASH_CHANGE(cashFakeMoney, bankFakeMoney)
+            HUD.CHANGE_FAKE_MP_CASH(cashFakeMoney, bankFakeMoney)
             transactionPending()
             util.yield(getTotalDelay(fakeMoneyLoopDelay))
         end)
