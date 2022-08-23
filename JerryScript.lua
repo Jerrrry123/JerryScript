@@ -90,7 +90,7 @@ if not nativesIntact and not menu.get_value(menu.ref_by_path('Stand>Lua Scripts>
     end)
     async_http.dispatch()
     while not done do
-        util.yield()
+        util.yield_once()
     end
 end
 
@@ -485,7 +485,7 @@ end
             version = ''
         end)
         async_http.dispatch()
-        while version == nil do util.yield() end
+        while version == nil do util.yield_once() end
         return version
     end
 
@@ -496,7 +496,7 @@ end
 
     local function loadModel(hash)
         STREAMING.REQUEST_MODEL(hash)
-        while not STREAMING.HAS_MODEL_LOADED(hash) do util.yield() end
+        while not STREAMING.HAS_MODEL_LOADED(hash) do util.yield_once() end
     end
 
     local function getTotalDelay(delayTable)
@@ -745,7 +745,7 @@ end
 ----------------------------------
     local function addFx(pos, currentFx, colour)
         STREAMING.REQUEST_NAMED_PTFX_ASSET(currentFx.asset)
-        while not STREAMING.HAS_NAMED_PTFX_ASSET_LOADED(currentFx.asset) do util.yield() end
+        while not STREAMING.HAS_NAMED_PTFX_ASSET_LOADED(currentFx.asset) do util.yield_once() end
         GRAPHICS.USE_PARTICLE_FX_ASSET(currentFx.asset)
         if currentFx.colour then
             GRAPHICS.SET_PARTICLE_FX_NON_LOOPED_COLOUR(colour.r, colour.g, colour.b)
@@ -1035,7 +1035,7 @@ local levitationCommand = menu.ref_by_path('Self>Movement>Levitation>Levitation'
             local l = 1
             while l < 50 do
                 directx.draw_texture(JS_logo, js_size, js_size, 0.5, 0.5, 0.5, (1 - l / 250) + 0.03, 0, {r = 1, g = 1, b = 1, a = l / 50})
-                util.yield()
+                util.yield_once()
                 l += 5 - math.abs(math.floor(l / 10))
             end
 
@@ -1043,7 +1043,7 @@ local levitationCommand = menu.ref_by_path('Self>Movement>Levitation>Levitation'
             while l < 50 do
                 directx.draw_rect_with_rounded_corner(0.5 - l / 500, 0.8, l / 250, 0.06, darkBlue)
                 directx.draw_texture(JS_logo, js_size, js_size, 0.5, 0.5, 0.5 - l / 500, 0.83, 0, white)
-                util.yield()
+                util.yield_once()
                 l += 5 - math.abs(math.floor(l / 10))
             end
 
@@ -1057,21 +1057,21 @@ local levitationCommand = menu.ref_by_path('Self>Movement>Levitation>Levitation'
                 elseif i > 170 then
                     directx.draw_text(0.5, 0.81 + ((i - 150) / 25000), JSlang.str_trans('Load JerryScript'), ALIGN_TOP_CENTRE, 0.6, white, false)
                 end
-                util.yield()
+                util.yield_once()
             end
 
             l = 50
             while l >= 0 do
                 directx.draw_rect_with_rounded_corner(0.5 - l / 500, 0.8, l / 250, 0.06, darkBlue)
                 directx.draw_texture(JS_logo, js_size, js_size, 0.5, 0.5, 0.5 - l / 500, 0.83, 0, white)
-                util.yield()
+                util.yield_once()
                 l -= 6 - math.abs(math.floor(l / 10))
             end
 
             l = 50
             while l >= 0 do
                 directx.draw_texture(JS_logo, js_size, js_size, 0.5, 0.5, 0.5, (1 - l / 250) + 0.03, 0, {r = 1, g = 1, b = 1, a = l / 50})
-                util.yield()
+                util.yield_once()
                 l -= 6 - math.abs(math.floor(l / 10))
             end
         end)
@@ -1396,7 +1396,7 @@ local whitelistedName = false
             if menu.get_value(toggle) then
                 runningToggling = true
                 menu.trigger_command(toggle)
-                util.yield()
+                util.yield_once()
                 runningToggling = false
             end
         end
@@ -1538,7 +1538,7 @@ do
             if not WEAPON.HAS_WEAPON_ASSET_LOADED(hash) then
                 WEAPON.REQUEST_WEAPON_ASSET(hash, 31, 26)
                 while not WEAPON.HAS_WEAPON_ASSET_LOADED(hash) do
-                    util.yield()
+                    util.yield_once()
                 end
             end
         elseif JSkey.is_disabled_control_pressed(0, 'INPUT_AIM') then
@@ -1576,7 +1576,7 @@ do
         memory.write_int(pScaleform, scope_scaleform)
         GRAPHICS.SET_SCALEFORM_MOVIE_AS_NO_LONGER_NEEDED(pScaleform)
         menu.trigger_command(levitationCommand, 'off')
-        util.yield()
+        util.yield_once()
         CAM.SET_CAM_VIEW_MODE_FOR_CONTEXT(CAM._GET_CAM_ACTIVE_VIEW_MODE_CONTEXT(), startViewMode)
         startViewMode = nil
     end)
@@ -1618,7 +1618,7 @@ do
                 for i = 1, #fireWings do
                     while not STREAMING.HAS_NAMED_PTFX_ASSET_LOADED('weap_xs_vehicle_weapons') do
                         STREAMING.REQUEST_NAMED_PTFX_ASSET('weap_xs_vehicle_weapons')
-                        util.yield()
+                        util.yield_once()
                     end
                     GRAPHICS.USE_PARTICLE_FX_ASSET('weap_xs_vehicle_weapons')
                     fireWings[i].ptfx = GRAPHICS.START_NETWORKED_PARTICLE_FX_LOOPED_ON_ENTITY('muz_xs_turret_flamethrower_looping', ptfxEgg, 0, 0, 0.1, fireWings[i].pos[1], 0, fireWings[i].pos[2], fireWingsSettings.scale, false, false, false)
@@ -1687,7 +1687,7 @@ do
             if toggle then
                 while not STREAMING.HAS_NAMED_PTFX_ASSET_LOADED('weap_xs_vehicle_weapons') do
                     STREAMING.REQUEST_NAMED_PTFX_ASSET('weap_xs_vehicle_weapons')
-                    util.yield()
+                    util.yield_once()
                 end
                 GRAPHICS.USE_PARTICLE_FX_ASSET('weap_xs_vehicle_weapons')
                 fireBreathSettings.ptfx = GRAPHICS.START_NETWORKED_PARTICLE_FX_LOOPED_ON_ENTITY_BONE('muz_xs_turret_flamethrower_looping', players.user_ped(), 0, 0.12, 0.58, 30, 0, 0, 0x8b93, fireBreathSettings.scale, false, false, false)
@@ -1867,7 +1867,7 @@ do
             fallTimeout = toggle
             while fallTimeout do
                 PED.RESET_PED_RAGDOLL_TIMER(players.user_ped())
-                util.yield()
+                util.yield_once()
             end
         end)
 
@@ -1887,12 +1887,12 @@ do
         local isDead = PLAYER.IS_PLAYER_DEAD(players.user())
         if wasDead and not isDead then
             while PLAYER.IS_PLAYER_DEAD(players.user()) do
-                util.yield()
+                util.yield_once()
             end
             for i = 0, 30 do
                 ENTITY.SET_ENTITY_COORDS_NO_OFFSET(players.user_ped(), respawnPos.x, respawnPos.y, respawnPos.z, false, false, false)
                 ENTITY.SET_ENTITY_ROTATION(players.user_ped(), respawnRot.x, respawnRot.y, respawnRot.z, 2, true)
-                util.yield()
+                util.yield_once()
             end
         end
         wasDead = isDead
@@ -2218,7 +2218,7 @@ do
                         ENTITY.SET_ENTITY_ROTATION(bomb, cam_rot.x, cam_rot.y, cam_rot.z, 1, true)
 
                         while not ENTITY.HAS_ENTITY_COLLIDED_WITH_ANYTHING(bomb) do
-                            util.yield()
+                            util.yield_once()
                         end
                         local nukePos = ENTITY.GET_ENTITY_COORDS(bomb, true)
                         entities.delete_by_handle(bomb)
@@ -2245,7 +2245,7 @@ do
             while not success or tries <= 100 do
                 success, Zcoord = util.get_ground_z(waypoint_pos.x, waypoint_pos.y)
                 tries += 1
-                util.yield()
+                util.yield_once()
             end
             if success then
                 waypoint_pos.z = Zcoord
@@ -2271,7 +2271,7 @@ do
             STREAMING.SET_MODEL_AS_NO_LONGER_NEEDED(hash)
 
             while not ENTITY.HAS_ENTITY_COLLIDED_WITH_ANYTHING(bomb) do
-                util.yield()
+                util.yield_once()
             end
             entities.delete_by_handle(bomb)
             executeNuke(waypointPos)
@@ -2303,7 +2303,7 @@ do
                         if not WEAPON.HAS_PED_GOT_WEAPON(players.user_ped(), launcherThrowable, false) then
                             WEAPON.GIVE_WEAPON_TO_PED(players.user_ped(), launcherThrowable, 9999, false, false)
                         end
-                        util.yield()
+                        util.yield_once()
                         MISC.SHOOT_SINGLE_BULLET_BETWEEN_COORDS(pos1.x, pos1.y, pos1.z, pos2.x, pos2.y, pos2.z, 200, true, launcherThrowable, players.user_ped(), true, false, 2000.0)
                     end)
                 else
@@ -2366,7 +2366,7 @@ do
                         ENTITY.SET_ENTITY_ROTATION(animal, cam_rot.x, cam_rot.y, cam_rot.z, 1, true)
 
                         while not ENTITY.HAS_ENTITY_COLLIDED_WITH_ANYTHING(animal) do
-                            util.yield()
+                            util.yield_once()
                         end
                         local animalPos = ENTITY.GET_ENTITY_COORDS(animal, true)
                         entities.delete_by_handle(animal)
@@ -2442,7 +2442,7 @@ do
 
         while not STREAMING.HAS_NAMED_PTFX_ASSET_LOADED('weap_xs_vehicle_weapons') do
             STREAMING.REQUEST_NAMED_PTFX_ASSET('weap_xs_vehicle_weapons')
-            util.yield()
+            util.yield_once()
         end
         GRAPHICS.USE_PARTICLE_FX_ASSET('weap_xs_vehicle_weapons')
         if flameThrower.ptfx == nil then
@@ -2586,14 +2586,14 @@ do
                 if not STREAMING.HAS_NAMED_PTFX_ASSET_LOADED('veh_xs_vehicle_mods') then
                     STREAMING.REQUEST_NAMED_PTFX_ASSET('veh_xs_vehicle_mods')
                     while not STREAMING.HAS_NAMED_PTFX_ASSET_LOADED('veh_xs_vehicle_mods') do
-                        util.yield()
+                        util.yield_once()
                     end
                 end
 
                 while nitroBoostActive do
                     if JSkey.is_control_just_pressed(2, 'INPUT_VEH_TRANSFORM') and PED.IS_PED_IN_ANY_VEHICLE(players.user_ped(), true) then
                         repeat
-                            util.yield()
+                            util.yield_once()
                         until not JSkey.is_control_just_pressed(2, 'INPUT_VEH_TRANSFORM')
 
                         VEHICLE._SET_VEHICLE_NITRO_ENABLED(my_cur_car, true, getTotalDelay(nitroSettings.level) / 10, nitroSettings.power, 999999999999999999, false)
@@ -2603,15 +2603,15 @@ do
                             if JSkey.is_control_just_pressed(2, 'INPUT_VEH_TRANSFORM') then
                                 break
                             end
-                            util.yield()
+                            util.yield_once()
                         end
                         VEHICLE._SET_VEHICLE_NITRO_ENABLED(my_cur_car, false, getTotalDelay(nitroSettings.level) / 10, nitroSettings.power, 999999999999999999, false)
                         startTime = util.current_time_millis()
                         while util.current_time_millis() < startTime + getTotalDelay(nitroSettings.rechargeTime) do
-                            util.yield()
+                            util.yield_once()
                         end
                     end
-                    util.yield()
+                    util.yield_once()
                 end
             end)
 
@@ -3647,7 +3647,7 @@ do
             util.create_thread(function()
                 while trainsStopped do
                     VEHICLE.SET_TRAIN_SPEED(train, -0.05)
-                    util.yield()
+                    util.yield_once()
                 end
                 VEHICLE.SET_RENDER_TRAIN_AS_DERAILED(train, false)
             end)
@@ -3829,12 +3829,12 @@ local function scrollCreditsLine(textTable, index)
         if not playingCredits then return end
         i += creditsSpeed
         directx.draw_text(0.5, 1  - i / 1000, textTable.line, 1, textTable.bold and  0.7 or 0.5, white, false)
-        util.yield()
+        util.yield_once()
     end
     if index == #credTxt then
         for i = 0, 500 do
             directx.draw_text(0.5, 0.5, JSlang.str_trans('And thank you') ..' '.. players.get_name(players.user()) ..' '.. JSlang.str_trans('for using JerryScript'), 1, 0.7, white, false)
-            util.yield()
+            util.yield_once()
         end
         util.yield(750)
         menu.trigger_command(play_credits_toggle, 'off')
@@ -3931,7 +3931,7 @@ local playerInfoToggles = {}
                     local money = entities.create_object(hash, pos)
                     ENTITY.APPLY_FORCE_TO_ENTITY(money, 3, 0, 0, -0.5, 0.0, 0.0, 0.0, true, true)
                     while not ENTITY.HAS_ENTITY_COLLIDED_WITH_ANYTHING(money) do
-                        util.yield()
+                        util.yield_once()
                     end
                     AUDIO.PLAY_SOUND_FROM_COORD(-1, 'LOCAL_PLYR_CASH_COUNTER_COMPLETE', pos.x, pos.y, pos.z, 'DLC_HEISTS_GENERAL_FRONTEND_SOUNDS', true, 2, false)
                     entities.delete_by_handle(money)
