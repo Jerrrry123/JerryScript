@@ -703,15 +703,15 @@ end
     local function raycast_gameplay_cam(distance)
         local result = {}
         local didHit = memory.alloc(1)
-        local endCoords = v3.new()
-        local surfaceNormal = v3.new()
+        local endCoords = v3()
+        local surfaceNormal = v3()
         local hitEntity = memory.alloc_int()
 
         local cam_rot = CAM.GET_GAMEPLAY_CAM_ROT(2)
         local cam_pos = CAM.GET_GAMEPLAY_CAM_COORD()
         local direction = v3.toDir(cam_rot)
 
-        local destination = v3.new(direction)
+        local destination = v3(direction)
         destination:mul(distance)
         destination:add(cam_pos)
 
@@ -2405,7 +2405,7 @@ do
 
     JSlang.list(_LR['Weapons'], 'Minecraft gun', {}, '')
 
-    local impactCords = v3.new()
+    local impactCords = v3()
     local blocks = {}
     JSlang.toggle_loop(_LR['Minecraft gun'], 'Minecraft gun', {'JSminecraftGun'}, 'Spawns blocks where you shoot.', function()
         if WEAPON.GET_PED_LAST_WEAPON_IMPACT_COORD(players.user_ped(), impactCords) then
