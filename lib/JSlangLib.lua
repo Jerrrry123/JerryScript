@@ -56,8 +56,10 @@ util.create_thread(function()
     local lang_load = util.current_time_millis()
 
     for _, profilePath in pairs(filesystem.list_files(LANG_DIR)) do
-        if string.find(profilePath, 'template') == nil then
+        local load_string = SCRIPT_NAME ..' loaded '.. getPathPart(profilePath, LANG_DIR)
+        if not string.contains(profilePath, 'template') and lang.find(load_string) == 0 then
             util.require_no_lag(getPathPart(profilePath, filesystem.scripts_dir()))
+            lang.register(load_string)
         end
     end
 
