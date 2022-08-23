@@ -71,7 +71,8 @@ for _, nameSpace in ipairs(nativeNameSpaces) do
         break
     end
 end
-if not (nativesIntact and menu.get_value(menu.ref_by_path('Stand>Lua Scripts>Settings>Disable Internet Access', 38))) then
+
+if not nativesIntact and not menu.get_value(menu.ref_by_path('Stand>Lua Scripts>Settings>Disable Internet Access', 38)) then
     local done
     async_http.init('raw.githubusercontent.com', '/Jerrrry123/JerryScript/main/lib/natives-1660775568.lua', function(fileContent)
         local f = assert(io.open(filesystem.scripts_dir() ..'/lib/natives-1660775568.lua', 'w'))
@@ -723,7 +724,7 @@ end
     end
 
     local function direction()
-        local c1 = ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(PLAYER.PLAYER_PED_ID(), 0, 5, 0)
+        local c1 = ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(players.user_ped(), 0, 5, 0)
         local res = raycast_gameplay_cam(1000)
         local c2
 
@@ -795,7 +796,7 @@ end
     local function explodePlayer(ped, loop, expSettings)
         local pos = ENTITY.GET_ENTITY_COORDS(ped)
         --if any blame is enabled this decides who should be blamed
-        local blamedPlayer = PLAYER.PLAYER_PED_ID()
+        local blamedPlayer = players.user_ped()
         if expSettings.blamedPlayer and expSettings.blamed then
             blamedPlayer = PLAYER.GET_PLAYER_PED_SCRIPT_INDEX(expSettings.blamedPlayer)
         elseif expSettings.blamed then
@@ -1528,7 +1529,7 @@ do
 
         if not (JSkey.is_disabled_control_pressed(0, 'INPUT_ATTACK') or JSkey.is_disabled_control_pressed(0, 'INPUT_AIM') or JSkey.is_disabled_control_pressed(0, barrageInput)) then return end
 
-        local a = ENTITY.GET_ENTITY_COORDS(PLAYER.PLAYER_PED_ID())
+        local a = players.get_position(players.user())
         local b = getOffsetFromCam(80)
 
         local hash
@@ -1562,7 +1563,7 @@ do
             200,
             true,
             hash,
-            PLAYER.PLAYER_PED_ID(),
+            players.user_ped(),
             true, true, -1.0
         )
     end, function()
