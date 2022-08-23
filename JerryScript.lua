@@ -14,7 +14,7 @@ local LOADING_START = util.current_time_millis()
 LOADING_SCRIPT = true
 
 util.ensure_package_is_installed("lua/ScaleformLib")
-util.require_natives(1660775568)
+util.require_natives('1660775568-uno')
 
 local nativeNameSpaces = {
 	"SYSTEM",
@@ -74,8 +74,8 @@ end
 
 if not nativesIntact and not menu.get_value(menu.ref_by_path('Stand>Lua Scripts>Settings>Disable Internet Access', 38)) then
     local done
-    async_http.init('raw.githubusercontent.com', '/Jerrrry123/JerryScript/main/lib/natives-1660775568.lua', function(fileContent)
-        local f = assert(io.open(filesystem.scripts_dir() ..'/lib/natives-1660775568.lua', 'w'))
+    async_http.init('raw.githubusercontent.com', '/Jerrrry123/JerryScript/main/lib/natives-1660775568-uno.lua', function(fileContent)
+        local f = assert(io.open(filesystem.scripts_dir() ..'/lib/natives-1660775568-uno.lua', 'w'))
         f:write(fileContent)
         f:close()
 
@@ -441,6 +441,10 @@ end
 ----------------------------------
 -- table functions
 ----------------------------------
+    local function toFloat(num)
+        return (num / 10) * 10
+    end
+
     --og function written by me
     local function removeValues(t, removeT)
         for _, r in ipairs(removeT) do
@@ -706,15 +710,13 @@ end
         local cam_rot = CAM.GET_GAMEPLAY_CAM_ROT(2)
         local cam_pos = CAM.GET_GAMEPLAY_CAM_COORD()
         local direction = v3.toDir(cam_rot)
-        local destination =
-        {
-            x = cam_pos.x + direction.x * distance,
-            y = cam_pos.y + direction.y * distance,
-            z = cam_pos.z + direction.z * distance
-        }
 
-        local handle = SHAPETEST.START_EXPENSIVE_SYNCHRONOUS_SHAPE_TEST_LOS_PROBE(cam_pos.x, cam_pos.y, cam_pos.z, destination.x, destination.y, destination.z, -1, players.user_ped(), 4)
-	    SHAPETEST.GET_SHAPE_TEST_RESULT(handle, didHit, endCoords, surfaceNormal, hitEntity)
+        local destination = v3.new(direction)
+        destination:mul(distance)
+        destination:add(cam_pos)
+
+        local handle = SHAPETEST.START_EXPENSIVE_SYNCHRONOUS_SHAPE_TEST_LOS_PROBE(cam_pos, destination, -1, players.user_ped(), 4)
+        SHAPETEST.GET_SHAPE_TEST_RESULT(handle, didHit, memory.addrof(endCoords), memory.addrof(surfaceNormal), hitEntity)
 
         result.didHit = memory.read_byte(didHit) ~= 0
         result.endCoords = endCoords
@@ -752,7 +754,7 @@ end
         end
         GRAPHICS.START_NETWORKED_PARTICLE_FX_NON_LOOPED_AT_COORD(
             currentFx.name,
-            pos.x, pos.y, pos.z,
+            pos,
             0,
             0,
             0,
@@ -764,32 +766,32 @@ end
     local function explosion(pos, expSettings)
         if expSettings.currentFx then
             if expSettings.currentFx.exp then
-                FIRE.ADD_EXPLOSION(pos.x, pos.y, pos.z, expSettings.currentFx.exp, 10, expSettings.audible, true, 0, expSettings.noDamage)
-                FIRE.ADD_EXPLOSION(pos.x, pos.y, pos.z, 1, 10, false, true, expSettings.camShake, expSettings.noDamage)
+                FIRE.ADD_EXPLOSION(pos, expSettings.currentFx.exp, 10.0, expSettings.audible, true, 0, expSettings.noDamage)
+                FIRE.ADD_EXPLOSION(pos, 1, 10.0, false, true, expSettings.camShake, expSettings.noDamage)
             else
-                FIRE.ADD_EXPLOSION(pos.x, pos.y, pos.z, 1, 10, false, true, expSettings.camShake, expSettings.noDamage)
+                FIRE.ADD_EXPLOSION(pos, 1, 10.0, false, true, expSettings.camShake, expSettings.noDamage)
             end
             if not expSettings.invisible then
                 addFx(pos, expSettings.currentFx, expSettings.colour)
             end
         else
-            FIRE.ADD_EXPLOSION(pos.x, pos.y, pos.z, expSettings.expType, 10, expSettings.audible, expSettings.invisible, expSettings.camShake, expSettings.noDamage)
+            FIRE.ADD_EXPLOSION(pos, expSettings.expType, 10.0, expSettings.audible, expSettings.invisible, expSettings.camShake, expSettings.noDamage)
         end
     end
 
     local function ownedExplosion(ped, pos, expSettings)
         if expSettings.currentFx then
             if expSettings.currentFx.exp then
-                FIRE.ADD_OWNED_EXPLOSION(ped, pos.x, pos.y, pos.z, expSettings.currentFx.exp, 10, expSettings.audible, true, expSettings.camShake)
-                FIRE.ADD_OWNED_EXPLOSION(ped, pos.x, pos.y, pos.z, 1, 10, false, true, expSettings.camShake)
+                FIRE.ADD_OWNED_EXPLOSION(ped, pos, expSettings.currentFx.exp, 10.0, expSettings.audible, true, expSettings.camShake)
+                FIRE.ADD_OWNED_EXPLOSION(ped, pos, 1, 10.0, false, true, expSettings.camShake)
             else
-                FIRE.ADD_OWNED_EXPLOSION(ped, pos.x, pos.y, pos.z, 1, 10, false, true, expSettings.camShake)
+                FIRE.ADD_OWNED_EXPLOSION(ped, pos, 1, 10.0, false, true, expSettings.camShake)
             end
             if not expSettings.invisible then
                 addFx(pos, expSettings.currentFx, expSettings.colour)
             end
         else
-            FIRE.ADD_OWNED_EXPLOSION(ped, pos.x, pos.y, pos.z, expSettings.expType, 10, expSettings.audible, expSettings.invisible, expSettings.camShake)
+            FIRE.ADD_OWNED_EXPLOSION(ped, pos, expSettings.expType, 10.0, expSettings.audible, expSettings.invisible, expSettings.camShake)
         end
     end
 
@@ -1374,7 +1376,7 @@ local whitelistedName = false
         -----------------------------------
 
         JSlang.slider(_LR['Explosion settings'], 'Camera shake', {'JSexpCamShake'}, 'How much explosions shake the camera.', 0, 1000, expSettings.camShake, 1, function(value)
-            expSettings.camShake = value
+            expSettings.camShake = toFloat(value)
         end)
 
         JSlang.toggle(_LR['Explosion settings'], 'Invisible explosions', {'JSexpInvis'}, '', function(toggle)
@@ -1520,9 +1522,9 @@ do
         SF.SET_DATA_SLOT(0, JSkey.get_control_instructional_button(0, barrageInput), JSlang.str_trans('Barrage'))
         SF.DRAW_INSTRUCTIONAL_BUTTONS()
 
-        JSkey.disable_control_action(2, 'INPUT_VEH_MOUSE_CONTROL_OVERRIDE')
-        JSkey.disable_control_action(2, 'INPUT_VEH_FLY_MOUSE_CONTROL_OVERRIDE')
-        JSkey.disable_control_action(2, 'INPUT_VEH_SUB_MOUSE_CONTROL_OVERRIDE')
+        JSkey.disable_control_action(0, 'INPUT_VEH_MOUSE_CONTROL_OVERRIDE')
+        JSkey.disable_control_action(0, 'INPUT_VEH_FLY_MOUSE_CONTROL_OVERRIDE')
+        JSkey.disable_control_action(0, 'INPUT_VEH_SUB_MOUSE_CONTROL_OVERRIDE')
 
         JSkey.disable_control_action(0, 'INPUT_ATTACK')
         JSkey.disable_control_action(0, 'INPUT_AIM')
@@ -1587,14 +1589,14 @@ do
         JSlang.list(_LR['Self'], 'Fire wings', {}, '')
 
         local fireWings = {
-            [1] = {pos = {[1] = 120, [2] =  75}},
-            [2] = {pos = {[1] = 120, [2] = -75}},
-            [3] = {pos = {[1] = 135, [2] =  75}},
-            [4] = {pos = {[1] = 135, [2] = -75}},
-            [5] = {pos = {[1] = 180, [2] =  75}},
-            [6] = {pos = {[1] = 180, [2] = -75}},
-            [7] = {pos = {[1] = 195, [2] =  75}},
-            [8] = {pos = {[1] = 195, [2] = -75}},
+            [1] = {pos = {[1] = 120.0, [2] =  75.0}},
+            [2] = {pos = {[1] = 120.0, [2] = -75.0}},
+            [3] = {pos = {[1] = 135.0, [2] =  75.0}},
+            [4] = {pos = {[1] = 135.0, [2] = -75.0}},
+            [5] = {pos = {[1] = 180.0, [2] =  75.0}},
+            [6] = {pos = {[1] = 180.0, [2] = -75.0}},
+            [7] = {pos = {[1] = 195.0, [2] =  75.0}},
+            [8] = {pos = {[1] = 195.0, [2] = -75.0}},
         }
 
         local fireWingsSettings = {
@@ -1611,7 +1613,7 @@ do
                 if ptfxEgg == nil then
                     local eggHash = 1803116220
                     loadModel(eggHash)
-                    ptfxEgg = entities.create_object(eggHash, ENTITY.GET_ENTITY_COORDS(players.user_ped()))
+                    ptfxEgg = entities.create_object(eggHash, players.get_position(players.user()))
                     ENTITY.SET_ENTITY_COLLISION(ptfxEgg, false, false)
                     STREAMING.SET_MODEL_AS_NO_LONGER_NEEDED(eggHash)
                 end
@@ -1624,10 +1626,12 @@ do
                     fireWings[i].ptfx = GRAPHICS.START_NETWORKED_PARTICLE_FX_LOOPED_ON_ENTITY('muz_xs_turret_flamethrower_looping', ptfxEgg, 0, 0, 0.1, fireWings[i].pos[1], 0, fireWings[i].pos[2], fireWingsSettings.scale, false, false, false)
 
                     util.create_tick_handler(function()
+                        if not ptfxEgg then return end
                         local rot = ENTITY.GET_ENTITY_ROTATION(players.user_ped(), 2)
-                        ENTITY.ATTACH_ENTITY_TO_ENTITY(ptfxEgg, players.user_ped(), -1, 0, 0, 0, rot.x, rot.y, rot.z, false, false, false, false, 0, false)
-                        ENTITY.SET_ENTITY_ROTATION(ptfxEgg, rot.x, rot.y, rot.z, 2, true)
+                        ENTITY.ATTACH_ENTITY_TO_ENTITY(ptfxEgg, players.user_ped(), -1, 0, 0, 0, rot, false, false, false, false, 0, false)
+                        ENTITY.SET_ENTITY_ROTATION(ptfxEgg, rot, 2, true)
                         for i = 1, #fireWings do
+                            if not fireWings[i].ptfx then return end
                             GRAPHICS.SET_PARTICLE_FX_LOOPED_SCALE(fireWings[i].ptfx, fireWingsSettings.scale)
                             GRAPHICS.SET_PARTICLE_FX_LOOPED_COLOUR(fireWings[i].ptfx, fireWingsSettings.colour.r, fireWingsSettings.colour.g, fireWingsSettings.colour.b)
                         end
@@ -1691,43 +1695,43 @@ do
                 end
                 GRAPHICS.USE_PARTICLE_FX_ASSET('weap_xs_vehicle_weapons')
                 fireBreathSettings.ptfx = GRAPHICS.START_NETWORKED_PARTICLE_FX_LOOPED_ON_ENTITY_BONE('muz_xs_turret_flamethrower_looping', players.user_ped(), 0, 0.12, 0.58, 30, 0, 0, 0x8b93, fireBreathSettings.scale, false, false, false)
-                GRAPHICS.SET_PARTICLE_FX_LOOPED_COLOUR(fireBreathSettings.ptfx, fireBreathSettings.colour.r, fireBreathSettings.colour.g, fireBreathSettings.colour.b)
+                util.create_tick_handler(function()
+                    if not fireBreathSettings.ptfx then return end
+                    local user_ped = players.user_ped()
+                    if PED.GET_PED_PARACHUTE_STATE(user_ped) == 0 and ENTITY.IS_ENTITY_IN_AIR(user_ped) then
+                        GRAPHICS.SET_PARTICLE_FX_LOOPED_OFFSETS(fireBreathSettings.ptfx, 0, 0.81, 0, -10.0, 0, 0)
+                    elseif menu.get_value(levitationCommand) then
+                        GRAPHICS.SET_PARTICLE_FX_LOOPED_OFFSETS(fireBreathSettings.ptfx, 0, -0.12, 0.58, 150.0, 0, 0)
+                    else
+                        local movementType = 'still'
+                        if TASK.IS_PED_SPRINTING(user_ped) then
+                            movementType = 'sprint'
+                        elseif TASK.IS_PED_WALKING(user_ped) then
+                            movementType = 'walk'
+                        elseif PED.GET_PED_STEALTH_MOVEMENT(user_ped) then
+                            movementType = 'sneak'
+                        end
+    
+                        fireBreathSettings:changePos(movementType)
+                        GRAPHICS.SET_PARTICLE_FX_LOOPED_OFFSETS(fireBreathSettings.ptfx, 0, fireBreathSettings.y.value, fireBreathSettings.z.value, 30.0, 0, 0)
+                    end
+                    GRAPHICS.SET_PARTICLE_FX_LOOPED_SCALE(fireBreathSettings.ptfx, fireBreathSettings.scale)
+                    GRAPHICS.SET_PARTICLE_FX_LOOPED_COLOUR(fireBreathSettings.ptfx, fireBreathSettings.colour.r, fireBreathSettings.colour.g, fireBreathSettings.colour.b)
+                    return fireBreathSettings.on
+                end)
             else
                 GRAPHICS.REMOVE_PARTICLE_FX(fireBreathSettings.ptfx, true)
                 fireBreathSettings.ptfx = nil
                 STREAMING.REMOVE_NAMED_PTFX_ASSET('weap_xs_vehicle_weapons')
             end
-            util.create_tick_handler(function()
-                local user_ped = players.user_ped()
-                if PED.GET_PED_PARACHUTE_STATE(user_ped) == 0 and ENTITY.IS_ENTITY_IN_AIR(user_ped) then
-                    GRAPHICS.SET_PARTICLE_FX_LOOPED_OFFSETS(fireBreathSettings.ptfx, 0, 0.81, 0, -10, 0, 0)
-                elseif menu.get_value(levitationCommand) then
-                    GRAPHICS.SET_PARTICLE_FX_LOOPED_OFFSETS(fireBreathSettings.ptfx, 0, -0.12, 0.58, 150, 0, 0)
-                else
-                    local movementType = 'still'
-                    if TASK.IS_PED_SPRINTING(user_ped) then
-                        movementType = 'sprint'
-                    elseif TASK.IS_PED_WALKING(user_ped) then
-                        movementType = 'walk'
-                    elseif PED.GET_PED_STEALTH_MOVEMENT(user_ped) then
-                        movementType = 'sneak'
-                    end
-
-                    fireBreathSettings:changePos(movementType)
-                    GRAPHICS.SET_PARTICLE_FX_LOOPED_OFFSETS(fireBreathSettings.ptfx, 0, fireBreathSettings.y.value, fireBreathSettings.z.value, 30, 0, 0)
-                end
-                return fireBreathSettings.on
-            end)
         end)
 
         JSlang.slider(_LR['Fire breath'], 'Fire breath scale', {'JSfireBreathScale'}, '', 1, 100, fireBreathSettings.scale * 10, 1, function(value)
             fireBreathSettings.scale = value / 10
-            GRAPHICS.SET_PARTICLE_FX_LOOPED_SCALE(fireBreathSettings.ptfx, fireBreathSettings.scale)
         end)
 
         menu.rainbow(JSlang.colour(_LR['Fire breath'], 'Fire breath colour', {'JSfireBreathColour'}, '', fireBreathSettings.colour, false, function(colour)
             fireBreathSettings.colour = colour
-            GRAPHICS.SET_PARTICLE_FX_LOOPED_COLOUR(fireBreathSettings.ptfx, fireBreathSettings.colour.r, fireBreathSettings.colour.g, fireBreathSettings.colour.b)
         end))
 
     -----------------------------------
@@ -1890,8 +1894,8 @@ do
                 util.yield_once()
             end
             for i = 0, 30 do
-                ENTITY.SET_ENTITY_COORDS_NO_OFFSET(players.user_ped(), respawnPos.x, respawnPos.y, respawnPos.z, false, false, false)
-                ENTITY.SET_ENTITY_ROTATION(players.user_ped(), respawnRot.x, respawnRot.y, respawnRot.z, 2, true)
+                ENTITY.SET_ENTITY_COORDS_NO_OFFSET(players.user_ped(), respawnPos, false, false, false)
+                ENTITY.SET_ENTITY_ROTATION(players.user_ped(), respawnRot, 2, true)
                 util.yield_once()
             end
         end
@@ -1923,7 +1927,7 @@ do
     end)
 
     JSlang.toggle(_LR['Self'], 'Cold blooded', {'JScoldBlooded'}, 'Removes your thermal signature.\nOther players still see it tho.', function(toggle)
-        PED.SET_PED_HEATSCALE_OVERRIDE(players.user_ped(), (toggle and 0 or 1))
+        PED.SET_PED_HEATSCALE_OVERRIDE(players.user_ped(), (toggle and 0 or 1.0))
     end)
 
     JSlang.toggle(_LR['Self'], 'Quiet footsteps', {'JSquietSteps'}, 'Disables the sound of your footsteps.', function(toggle)
@@ -2125,10 +2129,10 @@ do
     -----------------------------------
         JSlang.list(_LR['Weapons'], 'Proxy stickys', {}, '')
 
-        local proxyStickySettings = {players = true, npcs = false, radius = 2}
+        local proxyStickySettings = {players = true, npcs = false, radius = 2.0}
         local function autoExplodeStickys(ped)
             local pos = ENTITY.GET_ENTITY_COORDS(ped, true)
-            if MISC.IS_PROJECTILE_TYPE_WITHIN_DISTANCE(pos.x, pos.y, pos.z, util.joaat('weapon_stickybomb'), proxyStickySettings.radius, true) then
+            if MISC.IS_PROJECTILE_TYPE_WITHIN_DISTANCE(pos, util.joaat('weapon_stickybomb'), proxyStickySettings.radius, true) then
                 WEAPON.EXPLODE_PROJECTILES(players.user_ped(), util.joaat('weapon_stickybomb'))
             end
         end
@@ -2161,7 +2165,7 @@ do
         end, proxyStickySettings.npcs)
 
         JSlang.slider(_LR['Proxy stickys'], 'Detonation radius', {'JSstickyRadius'}, 'How close the sticky bombs have to be to the target to detonate.', 1, 10, proxyStickySettings.radius, 1, function(value)
-            proxyStickySettings.radius = value
+            proxyStickySettings.radius = toFloat(value)
         end)
 
         JSlang.action(_LR['Proxy stickys'], 'Remove all sticky bombs', {'JSremoveStickys'}, 'Removes every single sticky bomb that exists (not only yours).', function()
@@ -2184,13 +2188,13 @@ do
     local nuke_height = 40
     local function executeNuke(pos)
         for a = 0, nuke_height, 4 do
-            FIRE.ADD_EXPLOSION(pos.x, pos.y, pos.z + a, 8, 10, true, false, 1, false)
+            FIRE.ADD_EXPLOSION(pos.x, pos.y, pos.z + a, 8, 10.0, true, false, 1.0, false)
             util.yield(50)
         end
-        FIRE.ADD_EXPLOSION(pos.x +8, pos.y +8, pos.z + nuke_height, 82, 10, true, false, 1, false)
-        FIRE.ADD_EXPLOSION(pos.x +8, pos.y -8, pos.z + nuke_height, 82, 10, true, false, 1, false)
-        FIRE.ADD_EXPLOSION(pos.x -8, pos.y +8, pos.z + nuke_height, 82, 10, true, false, 1, false)
-        FIRE.ADD_EXPLOSION(pos.x -8, pos.y -8, pos.z + nuke_height, 82, 10, true, false, 1, false)
+        FIRE.ADD_EXPLOSION(pos.x +8, pos.y +8, pos.z + nuke_height, 82, 10.0, true, false, 1.0, false)
+        FIRE.ADD_EXPLOSION(pos.x -8, pos.y +8, pos.z + nuke_height, 82, 10.0, true, false, 1.0, false)
+        FIRE.ADD_EXPLOSION(pos.x -8, pos.y -8, pos.z + nuke_height, 82, 10.0, true, false, 1.0, false)
+        FIRE.ADD_EXPLOSION(pos.x +8, pos.y -8, pos.z + nuke_height, 82, 10.0, true, false, 1.0, false)
     end
 
     --credit to lance for the entity gun, but i edited it a bit
@@ -2214,8 +2218,8 @@ do
                         local dir, pos = direction()
 
                         local bomb = entities.create_object(hash, pos)
-                        ENTITY.APPLY_FORCE_TO_ENTITY(bomb, 0, dir.x, dir.y, dir.z, 0.0, 0.0, 0.0, 0, true, false, true, false, true)
-                        ENTITY.SET_ENTITY_ROTATION(bomb, cam_rot.x, cam_rot.y, cam_rot.z, 1, true)
+                        ENTITY.APPLY_FORCE_TO_ENTITY(bomb, 0, dir, 0.0, 0.0, 0.0, 0, true, false, true, false, true)
+                        ENTITY.SET_ENTITY_ROTATION(bomb, cam_rot, 1, true)
 
                         while not ENTITY.HAS_ENTITY_COLLIDED_WITH_ANYTHING(bomb) do
                             util.yield_once()
@@ -2370,7 +2374,7 @@ do
                         end
                         local animalPos = ENTITY.GET_ENTITY_COORDS(animal, true)
                         entities.delete_by_handle(animal)
-                        FIRE.ADD_EXPLOSION(animalPos.x, animalPos.y,animalPos.z, 1, 10, true, false, 1, false)
+                        FIRE.ADD_EXPLOSION(animalPos.x, animalPos.y,animalPos.z, 1, 10.0, true, false, 1.0, false)
                     end)
                 end
             else
@@ -2446,7 +2450,7 @@ do
         end
         GRAPHICS.USE_PARTICLE_FX_ASSET('weap_xs_vehicle_weapons')
         if flameThrower.ptfx == nil then
-            flameThrower.ptfx = GRAPHICS.START_NETWORKED_PARTICLE_FX_LOOPED_ON_ENTITY_BONE('muz_xs_turret_flamethrower_looping', WEAPON.GET_CURRENT_PED_WEAPON_ENTITY_INDEX(players.user_ped()), 0.8, 0, 0, 0, 0, 270, ENTITY.GET_ENTITY_BONE_INDEX_BY_NAME(WEAPON.GET_CURRENT_PED_WEAPON_ENTITY_INDEX(players.user_ped()), 'Gun_Nuzzle'), 0.5, false, false, false)
+            flameThrower.ptfx = GRAPHICS.START_NETWORKED_PARTICLE_FX_LOOPED_ON_ENTITY_BONE('muz_xs_turret_flamethrower_looping', WEAPON.GET_CURRENT_PED_WEAPON_ENTITY_INDEX(players.user_ped()), 0.8, 0, 0, 0, 0, 270.0, ENTITY.GET_ENTITY_BONE_INDEX_BY_NAME(WEAPON.GET_CURRENT_PED_WEAPON_ENTITY_INDEX(players.user_ped()), 'Gun_Nuzzle'), 0.5, false, false, false)
             GRAPHICS.SET_PARTICLE_FX_LOOPED_COLOUR(flameThrower.ptfx, flameThrower.colour.r, flameThrower.colour.g, flameThrower.colour.b)
         end
     end)
@@ -2627,12 +2631,12 @@ do
             JSlang.divider(_LR['Boosts'], 'Shunt boost')
 
             local shuntSettings = {
-                maxForce = 30, force = 30, disableRecharge = false,
+                maxForce = 30.0, force = 30.0, disableRecharge = false,
             }
 
             local function forceRecharge()
                 util.create_thread(function()
-                    shuntSettings.force = 0
+                    shuntSettings.force = 0.0
                     while shuntSettings.force < shuntSettings.maxForce and not shuntSettings.disableRecharge do
                         shuntSettings.force += 1
                         util.yield(100)
@@ -2641,6 +2645,7 @@ do
                     if notifications and not shuntSettings.disableRecharge then
                         JSlang.toast('Shunt boost fully recharged')
                     end
+                    return false
                 end)
             end
 
@@ -2794,7 +2799,7 @@ do
         end)
 
         JSlang.toggle_loop(_LR['Vehicle sounds'], 'Immersive radio', {'JSemersiveRadio'}, 'Lowers the radio volume when you\'re not in first person mode.', function()
-            AUDIO.SET_FRONTEND_RADIO_ACTIVE(CAM.GET_CAM_VIEW_MODE_FOR_CONTEXT(context) == 4)
+            AUDIO.SET_FRONTEND_RADIO_ACTIVE(CAM.GET_CAM_VIEW_MODE_FOR_CONTEXT(1) == 4)
         end, function()
             AUDIO.SET_FRONTEND_RADIO_ACTIVE(true)
         end)
@@ -2811,13 +2816,13 @@ do
 
     JSlang.toggle_loop(_LR['Vehicle'], 'To the moon', {'JStoMoon'}, 'Forces you into the sky if you\'re in a vehicle.', function(toggle)
         NETWORK.NETWORK_REQUEST_CONTROL_OF_ENTITY(my_cur_car)
-        ENTITY.APPLY_FORCE_TO_ENTITY(my_cur_car, 1, 0, 0, 100, 0, 0, 0.5, 0, false, false, true)
+        ENTITY.APPLY_FORCE_TO_ENTITY(my_cur_car, 1, 0, 0, 100.0, 0, 0, 0.5, 0, false, false, true)
     end)
 
     JSlang.toggle_loop(_LR['Vehicle'], 'Anchor', {'JSanchor'}, 'Forces you into the ground if you\'re in a air born vehicle.', function(toggle)
         if ENTITY.IS_ENTITY_IN_AIR(my_cur_car) then
             NETWORK.NETWORK_REQUEST_CONTROL_OF_ENTITY(my_cur_car)
-            ENTITY.APPLY_FORCE_TO_ENTITY(my_cur_car, 1, 0, 0, -100, 0, 0, 0.5, 0, false, false, true)
+            ENTITY.APPLY_FORCE_TO_ENTITY(my_cur_car, 1, 0, 0, -100.0, 0, 0, 0.5, 0, false, false, true)
         end
     end)
 end
@@ -3012,7 +3017,7 @@ do
         local function tpToBlip(blip)
             local pos = HUD.GET_BLIP_COORDS(blip)
             local tpEntity = (PED.IS_PED_IN_ANY_VEHICLE(players.user_ped(), true) and my_cur_car or players.user_ped())
-            ENTITY.SET_ENTITY_COORDS(tpEntity, pos.x, pos.y, pos.z, false, false, false, false)
+            ENTITY.SET_ENTITY_COORDS(tpEntity, pos, false, false, false, false)
         end
 
         local propertyTpRefs = {}
@@ -3154,7 +3159,7 @@ do
             if ENTITY.IS_ENTITY_AN_OBJECT(entity) then
                 NETWORK.OBJ_TO_NET(entity)
             end
-            ENTITY.SET_ENTITY_VISIBLE(entity, false, 0)
+            ENTITY.SET_ENTITY_VISIBLE(entity, false)
         end
 
         local function block(cord)
@@ -3162,7 +3167,7 @@ do
             loadModel(hash)
             for i = 0, 180, 8 do
                 local wall = OBJECT.CREATE_OBJECT_NO_OFFSET(hash, cord[1], cord[2], cord[3], true, true, true)
-                ENTITY.SET_ENTITY_HEADING(wall, i)
+                ENTITY.SET_ENTITY_HEADING(wall, toFloat(i))
                 netItAll(wall)
                 util.yield(10)
             end
@@ -3190,12 +3195,12 @@ do
         end
 
         JSlang.toggle_loop(_LR['Block areas'], 'Custom block', {}, 'Makes you able to block an area in front of you by pressing "B".', function()
-            local dir, c1 = direction()
-            GRAPHICS._DRAW_SPHERE(c1.x, c1.y, c1.z, 0.3, 52, 144, 233, 0.5)
+            local dir = ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(players.user_ped(), 0, 5.0, 0)
+            GRAPHICS._DRAW_SPHERE(dir, 0.3, 52, 144, 233, 0.5)
             if JSkey.is_key_down('VK_B') then
                 if blockInProgress then JSlang.toast('A block is already being run.') return end
                 setBlockStatus(true)
-                block({c1.x, c1.y, c1.z - 0.6})
+                block({dir.x, dir.y, dir.z - 0.6})
                 setBlockStatus(false, 'area')
             end
         end)
@@ -3533,7 +3538,7 @@ do
             local userPed = players.user_ped()
             if isAnyPlayerTargetingEntity(userPed) and karma[userPed] then
                 local pos = ENTITY.GET_ENTITY_COORDS(karma[userPed].ped)
-                MISC.SHOOT_SINGLE_BULLET_BETWEEN_COORDS(pos.x, pos.y, pos.z, pos.x, pos.y, pos.z + 0.1, 100, true, 100416529, userPed, true, false, 100.0)
+                MISC.SHOOT_SINGLE_BULLET_BETWEEN_COORDS(pos, pos.x, pos.y, pos.z + 0.1, 100, true, 100416529, userPed, true, false, 100.0)
                 util.yield(getTotalDelay(expLoopDelay))
             end
         end)
@@ -3933,7 +3938,7 @@ local playerInfoToggles = {}
                     while not ENTITY.HAS_ENTITY_COLLIDED_WITH_ANYTHING(money) do
                         util.yield_once()
                     end
-                    AUDIO.PLAY_SOUND_FROM_COORD(-1, 'LOCAL_PLYR_CASH_COUNTER_COMPLETE', pos.x, pos.y, pos.z, 'DLC_HEISTS_GENERAL_FRONTEND_SOUNDS', true, 2, false)
+                    AUDIO.PLAY_SOUND_FROM_COORD(-1, 'LOCAL_PLYR_CASH_COUNTER_COMPLETE', pos, 'DLC_HEISTS_GENERAL_FRONTEND_SOUNDS', true, 2, false)
                     entities.delete_by_handle(money)
                 end)
             end)
@@ -4027,7 +4032,7 @@ local playerInfoToggles = {}
             JSlang.toggle_loop(give_karma_root, 'Shoot', {'JSgiveBulletAimKarma'}, 'Shoots players that aim at them.', function()
                 if isAnyPlayerTargetingEntity(playerPed()) and karma[playerPed()] then
                     local pos = ENTITY.GET_ENTITY_COORDS(karma[playerPed()].ped)
-                    MISC.SHOOT_SINGLE_BULLET_BETWEEN_COORDS(pos.x, pos.y, pos.z, pos.x, pos.y, pos.z +0.1, 100, true, 100416529, players.user_ped(), true, false, 100.0)
+                    MISC.SHOOT_SINGLE_BULLET_BETWEEN_COORDS(pos, pos.x, pos.y, pos.z +0.1, 100, true, 100416529, players.user_ped(), true, false, 100.0)
                     util.yield(getTotalDelay(expLoopDelay))
                 end
             end)
@@ -4086,7 +4091,7 @@ local playerInfoToggles = {}
                 if PED.IS_PED_IN_ANY_VEHICLE(playerPed(), true) then
                     local playerVehicle = PED.GET_VEHICLE_PED_IS_IN(playerPed(), false)
                     NETWORK.NETWORK_REQUEST_CONTROL_OF_ENTITY(playerVehicle)
-                    ENTITY.APPLY_FORCE_TO_ENTITY(playerVehicle, 1, 0, 0, 100, 0, 0, 0.5, 0, false, false, true)
+                    ENTITY.APPLY_FORCE_TO_ENTITY(playerVehicle, 1, 0, 0, 100.0, 0, 0, 0.5, 0, false, false, true)
                     util.yield(10)
                 end
                 if not players.exists(pid) then util.stop_thread() end
@@ -4097,7 +4102,7 @@ local playerInfoToggles = {}
                     local playerVehicle = PED.GET_VEHICLE_PED_IS_IN(playerPed(), false)
                     if ENTITY.IS_ENTITY_IN_AIR(playerVehicle) then
                         NETWORK.NETWORK_REQUEST_CONTROL_OF_ENTITY(playerVehicle)
-                        ENTITY.APPLY_FORCE_TO_ENTITY(playerVehicle, 1, 0, 0, -100, 0, 0, 0, 0, false, false, true)
+                        ENTITY.APPLY_FORCE_TO_ENTITY(playerVehicle, 1, 0, 0, -100.0, 0, 0, 0, 0, false, false, true)
                         util.yield(10)
                     end
                 end
