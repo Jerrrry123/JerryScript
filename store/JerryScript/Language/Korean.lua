@@ -71,7 +71,7 @@ t(f('Blames your explosions on them.'), '현재 세션의 플레이어 목록입
 t(f('Beam'), '충격파 빔')
 t(f('Barrage'), '미사일 폭격')
 t(f('Custom respawn'), '리스폰 위치 사용자 지정')
-t(f('Set a location that you respawn at when you die.'), '')
+t(f('Set a location that you respawn at when you die.'), '죽을 때 리스폰되는 위치를 설정합니다.')
 t(f('Current location'), '현재 위치')
 t(f('Current throwable'), '현재 투척 무기')
 t(f('Current animal'), '현재 동물')

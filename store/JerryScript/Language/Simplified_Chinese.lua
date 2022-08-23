@@ -1,4 +1,4 @@
-lang.set_translate('zh') --thank you zzzz#5116 for creating this translation ^-^
+lang.set_translate('zh') --thank you zzzz#5116 for creating this translation ^-^et location
 
 local f = lang.find
 local t = lang.translate
@@ -71,7 +71,7 @@ t(f('Blames your explosions on them.'), '把您的爆炸归咎于他.')
 t(f('Beam'), '光束')
 t(f('Barrage'), '弹幕')
 t(f('Custom respawn'), '自定义复活')
-t(f('Set a location that you respawn at when you die.'), '')
+t(f('Set a location that you respawn at when you die.'), '设置一个您死后复活的位置.')
 t(f('Current location'), '当前位置')
 t(f('Current throwable'), '当前投掷物')
 t(f('Current animal'), '当前动物')

@@ -71,7 +71,7 @@ t(f('Blames your explosions on them.'), 'Obwiń innych graczy za swoje wybuchy.'
 t(f('Beam'), 'Ściągnij')
 t(f('Barrage'), 'Zapora')
 t(f('Custom respawn'), 'Niestandardowe odradzanie')
-t(f('Set a location that you respawn at when you die.'), '')
+t(f('Set a location that you respawn at when you die.'), 'Ustaw miejsce odrodzenia.')
 t(f('Current location'), 'Aktualna lokacja')
 t(f('Current throwable'), 'Aktualna broń miotana')
 t(f('Current animal'), 'Aktualne zwierzę')
