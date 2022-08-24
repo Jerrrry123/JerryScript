@@ -691,12 +691,10 @@ end
         local cam_rot = CAM.GET_GAMEPLAY_CAM_ROT(2)
         local cam_pos = CAM.GET_GAMEPLAY_CAM_COORD()
         local direction = v3.toDir(cam_rot)
-        local destination =
-        {
-            x = cam_pos.x + direction.x * distance,
-            y = cam_pos.y + direction.y * distance,
-            z = cam_pos.z + direction.z * distance
-        }
+        local destination = v3(direction)
+        destination:mul(distance)
+        destination:add(cam_pos)
+
         return destination
     end
 
@@ -725,8 +723,8 @@ end
         return result
     end
 
-    local function direction()
-        local c1 = ENTITY.GET_OFFSET_FROM_ENTITY_IN_WORLD_COORDS(players.user_ped(), 0, 5, 0)
+    local function direction(offset)
+        local c1 = get_offset_from_gameplay_camera(offset or 5)
         local res = raycast_gameplay_cam(1000)
         local c2
 
@@ -735,10 +733,9 @@ end
         else
             c2 = get_offset_from_gameplay_camera(1000)
         end
+        c2:sub(c1)
+        c2:mul(1000)
 
-        c2.x = (c2.x - c1.x) * 1000
-        c2.y = (c2.y - c1.y) * 1000
-        c2.z = (c2.z - c1.z) * 1000
         return c2, c1
     end
 
@@ -1471,17 +1468,6 @@ local whitelistedName = false
 do
     JSlang.list(menu_root, 'Self', {'JSself'}, '')
 
-    local function getOffsetFromCam(dist)
-        local pos = CAM.GET_FINAL_RENDERED_CAM_COORD()
-        local dir = v3.toDir(CAM.GET_FINAL_RENDERED_CAM_ROT(2))
-        local offset = {
-            x = pos.x + dir.x * dist,
-            y = pos.y + dir.y * dist,
-            z = pos.z + dir.z * dist
-        }
-        return offset
-    end
-
     local startViewMode
     local scope_scaleform
     local gaveHelmet = false
@@ -1532,7 +1518,7 @@ do
         if not (JSkey.is_disabled_control_pressed(0, 'INPUT_ATTACK') or JSkey.is_disabled_control_pressed(0, 'INPUT_AIM') or JSkey.is_disabled_control_pressed(0, barrageInput)) then return end
 
         local a = players.get_position(players.user())
-        local b = getOffsetFromCam(80)
+        local b = get_offset_from_gameplay_camera(80)
 
         local hash
         if JSkey.is_disabled_control_pressed(0, 'INPUT_ATTACK') then
@@ -1560,8 +1546,8 @@ do
 
         WEAPON.SET_CURRENT_PED_WEAPON(players.user_ped(), util.joaat('WEAPON_UNARMED'), true)
         MISC.SHOOT_SINGLE_BULLET_BETWEEN_COORDS(
-            a.x, a.y, a.z,
-            b.x, b.y, b.z,
+            a,
+            b,
             200,
             true,
             hash,
@@ -1614,6 +1600,7 @@ do
                     local eggHash = 1803116220
                     loadModel(eggHash)
                     ptfxEgg = entities.create_object(eggHash, players.get_position(players.user()))
+                    ENTITY.SET_ENTITY_VISIBLE(ptfxEgg, false)
                     ENTITY.SET_ENTITY_COLLISION(ptfxEgg, false, false)
                     STREAMING.SET_MODEL_AS_NO_LONGER_NEEDED(eggHash)
                 end
@@ -1711,7 +1698,7 @@ do
                         elseif PED.GET_PED_STEALTH_MOVEMENT(user_ped) then
                             movementType = 'sneak'
                         end
-    
+
                         fireBreathSettings:changePos(movementType)
                         GRAPHICS.SET_PARTICLE_FX_LOOPED_OFFSETS(fireBreathSettings.ptfx, 0, fireBreathSettings.y.value, fireBreathSettings.z.value, 30.0, 0, 0)
                     end
@@ -2218,7 +2205,7 @@ do
                         local dir, pos = direction()
 
                         local bomb = entities.create_object(hash, pos)
-                        ENTITY.APPLY_FORCE_TO_ENTITY(bomb, 0, dir, 0.0, 0.0, 0.0, 0, true, false, true, false, true)
+                        ENTITY.APPLY_FORCE_TO_ENTITY(bomb, 0, dir, 0.0, 0.0, 0.0, 0.0, true, false, true, false, true)
                         ENTITY.SET_ENTITY_ROTATION(bomb, cam_rot, 1, true)
 
                         while not ENTITY.HAS_ENTITY_COLLIDED_WITH_ANYTHING(bomb) do
@@ -2308,7 +2295,7 @@ do
                             WEAPON.GIVE_WEAPON_TO_PED(players.user_ped(), launcherThrowable, 9999, false, false)
                         end
                         util.yield_once()
-                        MISC.SHOOT_SINGLE_BULLET_BETWEEN_COORDS(pos1.x, pos1.y, pos1.z, pos2.x, pos2.y, pos2.z, 200, true, launcherThrowable, players.user_ped(), true, false, 2000.0)
+                        MISC.SHOOT_SINGLE_BULLET_BETWEEN_COORDS(pos1, pos2, 200, true, launcherThrowable, players.user_ped(), true, false, 2000.0)
                     end)
                 else
                     remove_projectiles = false
@@ -2362,19 +2349,19 @@ do
                         local hash = util.joaat(exp_animal)
                         loadModel(hash)
 
-                        local dir, c1 = direction()
-                        local animal = entities.create_ped(28, hash, c1, 0)
+                        local dir, pos = direction(10)
+                        local animal = entities.create_ped(28, hash, pos, 0)
                         local cam_rot = CAM.GET_FINAL_RENDERED_CAM_ROT(2)
 
-                        ENTITY.APPLY_FORCE_TO_ENTITY(animal, 0, dir.x, dir.y, dir.z, 0.0, 0.0, 0.0, 0, true, false, true, false, true)
-                        ENTITY.SET_ENTITY_ROTATION(animal, cam_rot.x, cam_rot.y, cam_rot.z, 1, true)
+                        ENTITY.APPLY_FORCE_TO_ENTITY(animal, 1, dir, 0.0, 0.0, 0.0, 0, true, false, true, false, true)
+                        ENTITY.SET_ENTITY_ROTATION(animal, cam_rot, 2, true)
 
                         while not ENTITY.HAS_ENTITY_COLLIDED_WITH_ANYTHING(animal) do
                             util.yield_once()
                         end
                         local animalPos = ENTITY.GET_ENTITY_COORDS(animal, true)
                         entities.delete_by_handle(animal)
-                        FIRE.ADD_EXPLOSION(animalPos.x, animalPos.y,animalPos.z, 1, 10.0, true, false, 1.0, false)
+                        FIRE.ADD_EXPLOSION(animalPos, 1, 10.0, true, false, 1.0, false)
                     end)
                 end
             else
@@ -2408,7 +2395,7 @@ do
     local impactCords = v3()
     local blocks = {}
     JSlang.toggle_loop(_LR['Minecraft gun'], 'Minecraft gun', {'JSminecraftGun'}, 'Spawns blocks where you shoot.', function()
-        if WEAPON.GET_PED_LAST_WEAPON_IMPACT_COORD(players.user_ped(), impactCords) then
+        if WEAPON.GET_PED_LAST_WEAPON_IMPACT_COORD(players.user_ped(), memory.addrof(impactCords)) then
             local hash = util.joaat('prop_mb_sandblock_01')
             loadModel(hash)
             blocks[#blocks + 1] = entities.create_object(hash, impactCords)
