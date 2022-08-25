@@ -13,55 +13,55 @@
 local LOADING_START = util.current_time_millis()
 LOADING_SCRIPT = true
 
-util.ensure_package_is_installed("lua/ScaleformLib")
+util.ensure_package_is_installed('lua/ScaleformLib')
 util.require_natives('1660775568-uno')
 
 local nativeNameSpaces = {
-	"SYSTEM",
-    "APP",
-    "AUDIO",
-    "BRAIN",
-    "CAM",
-    "CLOCK",
-    "CUTSCENE",
-    "DATAFILE",
-    "DECORATOR",
-    "DLC",
-    "ENTITY",
-    "EVENT",
-    "FILES",
-    "FIRE",
-    "GRAPHICS",
-    "HUD",
-    "INTERIOR",
-    "ITEMSET",
-    "LOADINGSCREEN",
-    "LOCALIZATION",
-    "MISC",
-    "MOBILE",
-    "MONEY",
-    "NETSHOPPING",
-    "NETWORK",
-    "OBJECT",
-    "PAD",
-    "PATHFIND",
-    "PED",
-    "PHYSICS",
-    "PLAYER",
-    "RECORDING",
-    "REPLAY",
-    "SAVEMIGRATION",
-    "SCRIPT",
-    "SECURITY",
-    "SHAPETEST",
-    "SOCIALCLUB",
-    "STATS",
-    "STREAMING",
-    "TASK",
-    "VEHICLE",
-    "WATER",
-    "WEAPON",
-    "ZONE"
+    'SYSTEM',
+    'APP',
+    'AUDIO',
+    'BRAIN',
+    'CAM',
+    'CLOCK',
+    'CUTSCENE',
+    'DATAFILE',
+    'DECORATOR',
+    'DLC',
+    'ENTITY',
+    'EVENT',
+    'FILES',
+    'FIRE',
+    'GRAPHICS',
+    'HUD',
+    'INTERIOR',
+    'ITEMSET',
+    'LOADINGSCREEN',
+    'LOCALIZATION',
+    'MISC',
+    'MOBILE',
+    'MONEY',
+    'NETSHOPPING',
+    'NETWORK',
+    'OBJECT',
+    'PAD',
+    'PATHFIND',
+    'PED',
+    'PHYSICS',
+    'PLAYER',
+    'RECORDING',
+    'REPLAY',
+    'SAVEMIGRATION',
+    'SCRIPT',
+    'SECURITY',
+    'SHAPETEST',
+    'SOCIALCLUB',
+    'STATS',
+    'STREAMING',
+    'TASK',
+    'VEHICLE',
+    'WATER',
+    'WEAPON',
+    'ZONE'
 }
 local nativesIntact = true
 for _, nameSpace in ipairs(nativeNameSpaces) do
@@ -108,8 +108,8 @@ local JSlang = require 'JSlangLib'
 
 local JSkey = require 'JSkeyLib'
 
-local scaleForm = require("ScaleformLib")
-local SF = scaleForm("instructional_buttons")
+local scaleForm = require'ScaleformLib'
+local SF = scaleForm('instructional_buttons')
 
 --list refs
 local _LR = {}
@@ -420,7 +420,7 @@ do
         [joaat('vehicle_weapon_turret_insurgent')] = vehWeaponLabels.machineGun,
         [joaat('vehicle_weapon_jb700_mg')] = 'WT_V_COM_MG',
         [joaat('vehicle_weapon_patrolboat_dualmg')] = 'WT_V_PAT_DUAL',
-        [joaat("vehicle_weapon_turret_dinghy5_50cal")] = 'WT_V_PAT_TURRET',
+        [joaat('vehicle_weapon_turret_dinghy5_50cal')] = 'WT_V_PAT_TURRET',
         [joaat('vehicle_weapon_turret_patrolboat_50cal')] = 'WT_V_PAT_TURRET',
         [joaat('vehicle_weapon_bruiser_50cal')] = vehWeaponLabels.dual50cal,
         [joaat('vehicle_weapon_bruiser2_50cal_laser')] = vehWeaponLabels.dualLasers,
@@ -508,7 +508,7 @@ end
     end
 
     local function startBusySpinner(message)
-        HUD.BEGIN_TEXT_COMMAND_BUSYSPINNER_ON("STRING")
+        HUD.BEGIN_TEXT_COMMAND_BUSYSPINNER_ON('STRING')
         HUD.ADD_TEXT_COMPONENT_SUBSTRING_PLAYER_NAME(message)
         HUD.END_TEXT_COMMAND_BUSYSPINNER_ON(5)
     end
@@ -1046,7 +1046,7 @@ local levitationCommand = menu.ref_by_path('Self>Movement>Levitation>Levitation'
                 l += 5 - math.abs(math.floor(l / 10))
             end
 
-            AUDIO.PLAY_SOUND(-1, "signal_on", "DLC_GR_Ambushed_Sounds", 0, 0, 1)
+            AUDIO.PLAY_SOUND(-1, 'signal_on', 'DLC_GR_Ambushed_Sounds', 0, 0, 1)
 
             for i = 1, 360 do
                 directx.draw_rect_with_rounded_corner(0.4, 0.8, 0.2, 0.06, darkBlue)
@@ -1788,8 +1788,8 @@ do
             loadProfiles(root)
         end
 
-        JSlang.action(_LR['Face features'], 'Create face feature profile', {"JSsaveFaceFeatures"}, 'Saves your customized face in a file so you can load it.', function()
-            menu.show_command_box("JSsaveFaceFeatures ")
+        JSlang.action(_LR['Face features'], 'Create face feature profile', {'JSsaveFaceFeatures'}, 'Saves your customized face in a file so you can load it.', function()
+            menu.show_command_box('JSsaveFaceFeatures ')
         end, function(fileName)
             local f = assert(io.open(face_profiles_dir .. fileName ..'.txt', 'w'))
             for i = 0, #faceFeatures do
@@ -1799,7 +1799,7 @@ do
             reloadProfiles(_LR['Face features'])
         end)
 
-        JSlang.action(_LR['Face features'], 'Reload profiles', {"JSreLoadFaceFeatureProfiles"}, 'Refreshes your profiles without having to restart the script.', function()
+        JSlang.action(_LR['Face features'], 'Reload profiles', {'JSreLoadFaceFeatureProfiles'}, 'Refreshes your profiles without having to restart the script.', function()
             reloadProfiles(_LR['Face features'])
         end)
 
@@ -2916,7 +2916,7 @@ do
                 description = 'Monitors agency safe cash, this does NOT affect income.\nMaximum daily earnings is 20k.',
                 toggle = true,
                 displayText = function()
-                    return JSlang.str_trans('Agency Cash') ..': '.. STAT_GET_INT("FIXER_SAFE_CASH_VALUE") / 1000  ..'k / 250k'
+                    return JSlang.str_trans('Agency Cash') ..': '.. STAT_GET_INT('FIXER_SAFE_CASH_VALUE') / 1000  ..'k / 250k'
                 end
             },
             {
@@ -3812,7 +3812,7 @@ local function creditsPlaying(toggle)
     AUDIO.SET_FRONTEND_RADIO_ACTIVE(toggle)
     AUDIO.SET_RADIO_STATION_MUSIC_ONLY('RADIO_18_90S_ROCK', true)
     AUDIO.SET_RADIO_TO_STATION_NAME('RADIO_16_SILVERLAKE')
-    AUDIO._FORCE_RADIO_TRACK_LIST_POSITION("RADIO_16_SILVERLAKE", "MIRRORPARK_LOCKED", 3 * 61000)
+    AUDIO._FORCE_RADIO_TRACK_LIST_POSITION('RADIO_16_SILVERLAKE', 'MIRRORPARK_LOCKED', 3 * 61000)
 end
 
 local function scrollCreditsLine(textTable, index)
