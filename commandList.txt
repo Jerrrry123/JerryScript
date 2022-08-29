@@ -32,7 +32,6 @@ Settings
 			Seconds (0 to 59) — The delay is the added total of ms, sec and min values. — Command: JSLoop delayDelaySec  [0 to 59]
 			Minutes (0 to 60) — The delay is the added total of ms, sec and min values. — Command: JSLoop delayDelayMin  [0 to 60]
 		FX explosions — Lets you choose effects instead of explosion type. — Command: JSfxExp
-		Explosion type: Grenade
 			FX type: none — Choose a fx explosion type. — Command: JSfxExpType
 			FX colour — Only works on some pfx's. — Command: JSPfxColour
 		Camera shake (0 to 1000) — How much explosions shake the camera. — Command: JSexpCamShake  [0 to 1000]
@@ -108,7 +107,6 @@ Weapons — Command: JSweapons
 	Thermal guns — Makes it so when you aim any gun you can toggle thermal vision on "E". — Command: JSthermalGuns [on/off]
 	Weapon settings
 		Disable recoil — Disables the camera shake when shooting guns. — Command: JSnoRecoil [on/off]
-		Infinite range — Command: JSinfiniteRange [on/off]
 		Disable spread — Command: JSnoSpread [on/off]
 		Remove spin-up time — Removes the spin-up from both the minigun and the widowmaker. — Command: JSnoSpinUp [on/off]
 		Bullet force multiplier — Works best when shooting vehicles from the front. Displayed value is in percent. — Command: JSbulletForceMultiplier [on/off]

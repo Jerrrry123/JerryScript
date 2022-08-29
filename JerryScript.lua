@@ -133,6 +133,9 @@ do
 
     local joaat = util.joaat
     JS_tbls.effects = {
+        ['Explosion'] = {
+            exp = 1
+        },
         ['Clown Explosion'] = {
             asset  	= 'scr_rcbarry2',
             name	= 'scr_exp_clown',
@@ -772,7 +775,7 @@ end
                 addFx(pos, expSettings.currentFx, expSettings.colour)
             end
         else
-            FIRE.ADD_EXPLOSION(pos, expSettings.expType, 10.0, expSettings.audible, expSettings.invisible, expSettings.camShake, expSettings.noDamage)
+            FIRE.ADD_EXPLOSION(pos, 1, 10.0, expSettings.audible, expSettings.invisible, expSettings.camShake, expSettings.noDamage)
         end
     end
 
@@ -788,7 +791,7 @@ end
                 addFx(pos, expSettings.currentFx, expSettings.colour)
             end
         else
-            FIRE.ADD_OWNED_EXPLOSION(ped, pos, expSettings.expType, 10.0, expSettings.audible, expSettings.invisible, expSettings.camShake)
+            FIRE.ADD_OWNED_EXPLOSION(ped, pos, 1, 10.0, expSettings.audible, expSettings.invisible, expSettings.camShake)
         end
     end
 
@@ -1243,107 +1246,13 @@ local whitelistedName = false
         -- Fx explosion settings
         -----------------------------------
             local expSettings = {
-                camShake = 0, invisible = false, audible = true, noDamage = false, owned = false, blamed = false, blamedPlayer = false, expType = 0,
+                camShake = 0, invisible = false, audible = true, noDamage = false, owned = false, blamed = false, blamedPlayer = false,
                 --stuff for fx explosions
                 currentFx = JS_tbls.effects['Clown_Explosion'],
                 colour = new.colour( 255, 0, 255 )
             }
 
             JSlang.list(_LR['Explosion settings'], 'FX explosions', {'JSfxExp'}, 'Lets you choose effects instead of explosion type.')
-            local exp_fx_type_root
-
-            local exp_type_root
-            exp_type_root = menu.list_action(_LR['Explosion settings'], JSlang.str_trans('Explosion type') ..': Grenade', {}, '', {
-                {'Grenade'},
-                {'Grenadelauncher'},
-                {'Stickybomb'},
-                {'Molotov'},
-                {'Rocket'},
-                {'Tankshell'},
-                {'Hi octane'},
-                {'Car'},
-                {'Plan'},
-                {'Petrol pump'},
-                {'Bike'},
-                {'Dir steam'},
-                {'Dir flame'},
-                {'Water hydran'},
-                {'Dir gas canister'},
-                {'Boat'},
-                {'Ship destroy'},
-                {'Truck'},
-                {'Bullet'},
-                {'Smokegrenadelauncher'},
-                {'Smokegrenade'},
-                {'Bzgas'},
-                {'Flare'},
-                {'Gas canister'},
-                {'Extinguisher'},
-                {'Programmablear'},
-                {'Train'},
-                {'Barrel'},
-                {'Propane'},
-                {'Blimp'},
-                {'Dir flame explode'},
-                {'Tanker'},
-                {'Plane rocket'},
-                {'Vehicle bullet'},
-                {'Gas tank'},
-                {'Bird crap'},
-                {'Railgun'},
-                {'Blimp2'},
-                {'Firework'},
-                {'Snowball'},
-                {'Proxmine'},
-                {'Valkyrie cannon'},
-                {'Air defence'},
-                {'Pipebomb'},
-                {'Vehiclemine'},
-                {'Explosiveammo'},
-                {'Apcshell'},
-                {'Bomb cluster'},
-                {'Bomb gas'},
-                {'Bomb incendiary'},
-                {'Bomb standard'},
-                {'Torpedo'},
-                {'Torpedo underwater'},
-                {'Bombushka cannon'},
-                {'Bomb cluster secondary'},
-                {'Hunter barrage'},
-                {'Hunter cannon'},
-                {'Rogue cannon'},
-                {'Mine underwater'},
-                {'Orbital cannon'},
-                {'Bomb standard wide'},
-                {'Explosiveammo shotgun'},
-                {'Oppressor2 cannon'},
-                {'Mortar kinetic'},
-                {'Vehiclemine kinetic'},
-                {'Vehiclemine emp'},
-                {'Vehiclemine spike'},
-                {'Vehiclemine slick'},
-                {'Vehiclemine tar'},
-                {'Script drone'},
-                {'Up-n-atomizer'},
-                {'Buriedmine'},
-                {'Script missile'},
-                {'Rctank rocket'},
-                {'Bomb water'},
-                {'Bomb water secondary'},
-                {'Unknown1'},
-                {'Unknown2'},
-                {'Flashgrenade'},
-                {'Stungrenade'},
-                {'Unknown3'},
-                {'Script missile large'},
-                {'Submarine big'},
-                {'Emplauncher emp'},
-            }, function(index, text)
-                if expSettings.currentFx then expSettings.currentFx = nil end
-                menu.set_menu_name(exp_type_root, JSlang.str_trans('Explosion type') ..': '.. text)
-                menu.set_menu_name(exp_fx_type_root, JSlang.str_trans('FX type') ..': '.. JSlang.str_trans('none'))
-                expSettings.expType = index - 1
-            end)
 
             local function getEffectLabelTableFromKeys(keyTable)
                 local labelTable = {}
@@ -1361,10 +1270,12 @@ local whitelistedName = false
                 return labelTable
             end
 
-            exp_fx_type_root = menu.list_action(_LR['FX explosions'], JSlang.str_trans('FX type') ..': '.. JSlang.str_trans('none'), {'JSfxExpType'}, JSlang.str_trans('Choose a fx explosion type.'), getEffectLabelTableFromKeys(JS_tbls.effects), function(index, name)
-                expSettings.currentFx = JS_tbls.effects[name]
-                menu.set_menu_name(exp_type_root, JSlang.str_trans('Explosion type') ..': '.. JSlang.str_trans('Fx active'))
-                menu.set_menu_name(exp_fx_type_root, JSlang.str_trans('FX type') ..': '.. name)
+            JSlang.list_select(_LR['FX explosions'], 'FX type', {'JSfxExpType'}, 'Choose a fx explosion type.', getEffectLabelTableFromKeys(JS_tbls.effects), 5, function(index, name)
+                if name == 'Explosion' then
+                    expSettings.currentFx = nil
+                else
+                    expSettings.currentFx = JS_tbls.effects[name]
+                end
             end)
 
             menu.rainbow(JSlang.colour(_LR['FX explosions'], 'FX colour', {'JSPfxColour'}, 'Only works on some pfx\'s.',  new.colour( 255, 0, 255 ), false, function(colour)
@@ -1983,38 +1894,6 @@ do
             resetWeapons(modifiedRecoil)
         end)
 
-        local modifiedRange = {}
-        JSlang.toggle_loop(_LR['Weapon settings'], 'Infinite range', {'JSinfiniteRange'}, '', function()
-            if util.is_session_transition_active() then return end
-            local userPed = players.user_ped()
-            local weaponHash, vehicleWeapon = getWeaponHash(userPed)
-            if modifiedRange[weaponHash] then return end
-            local pointer = (vehicleWeapon and 0x70 or 0x20)
-            local userPedPointer = entities.handle_to_pointer(userPed)
-            modifiedRange[weaponHash] = {
-                minAddress   = address_from_pointer_chain(userPedPointer, {0x10D8, pointer, 0x298}),
-                maxAddress   = address_from_pointer_chain(userPedPointer, {0x10D8, pointer, 0x29C}),
-                rangeAddress = address_from_pointer_chain(userPedPointer, {0x10D8, pointer, 0x28C}),
-            }
-
-            if modifiedRange[weaponHash].minAddress == 0 or modifiedRange[weaponHash].maxAddress == 0 or modifiedRange[weaponHash].rangeAddress == 0 then JSlang.toast('Failed to find memory address.') return end
-
-            modifiedRange[weaponHash].originalMin   = memory.read_float(modifiedRange[weaponHash].minAddress)
-            modifiedRange[weaponHash].originalMax   = memory.read_float(modifiedRange[weaponHash].maxAddress)
-            modifiedRange[weaponHash].originalRange = memory.read_float(modifiedRange[weaponHash].rangeAddress)
-
-            memory.write_float(modifiedRange[weaponHash].minAddress,   150000)  --because the map is about 15km tall
-            memory.write_float(modifiedRange[weaponHash].maxAddress,   150000)
-            memory.write_float(modifiedRange[weaponHash].rangeAddress, 150000)
-        end, function()
-            for hash, _ in pairs(modifiedRange) do
-                memory.write_float(modifiedRange[hash].minAddress, modifiedRange[hash].originalMin)
-                memory.write_float(modifiedRange[hash].maxAddress, modifiedRange[hash].originalMax)
-                memory.write_float(modifiedRange[hash].rangeAddress, modifiedRange[hash].originalRange)
-                modifiedRange[hash] = nil
-            end
-        end)
-
         local modifiedSpread = {}
         JSlang.toggle_loop(_LR['Weapon settings'], 'Disable spread', {'JSnoSpread'}, '', function()
             local weaponHash = readWeaponAddress(modifiedSpread, 0x74, true)
@@ -2319,8 +2198,7 @@ do
         ['Ball']  = util.joaat('weapon_ball'),
         ['Pipe Bomb'] = util.joaat('weapon_pipebomb'),
     }
-    local throwables_launcher_list throwables_launcher_list = menu.list_action(_LR['Throwables launcher'], JSlang.str_trans('Current throwable') ..': Grenade', {}, JSlang.trans('Choose what throwable the grenade launcher has.'), getLabelTableFromKeys(throwablesTable), function(index, text)
-        menu.set_menu_name(throwables_launcher_list, JSlang.str_trans('Current throwable') ..': '.. text)
+    JSlang.list_select(_LR['Throwables launcher'], 'Current throwable', {'JSthrowablesLauncher'}, 'Choose what throwable the grenade launcher has.', getLabelTableFromKeys(throwablesTable), 4, function(index, text)
         launcherThrowable = throwablesTable[text]
     end)
 
@@ -2385,8 +2263,7 @@ do
         ['Retriever'] = 'a_c_retriever',
         ['Rottweiler'] = 'a_c_rottweiler',
     }
-    local exp_animal_gun_list exp_animal_gun_list = menu.list_action(_LR['Explosive animal gun'], JSlang.str_trans('Current animal') ..': Killerwhale', {}, JSlang.trans('Choose what animal the explosive animal gun has.'), getLabelTableFromKeys(animalsTable), function(index, text)
-        menu.set_menu_name(exp_animal_gun_list, JSlang.str_trans('Current animal') ..': '.. text)
+    JSlang.list_select(_LR['Explosive animal gun'], 'Current animal', {'JSexplosiveAnimalGun'}, 'Choose what animal the explosive animal gun has.', getLabelTableFromKeys(animalsTable), 6, function(index, text)
         exp_animal = animalsTable[text]
     end)
 
@@ -2569,40 +2446,34 @@ do
 
             local nitroSettings = {level = new.delay(500, 2, 0), power = 1, rechargeTime = new.delay(200, 1, 0)}
 
-            local nitroBoostActive = false
-            JSlang.toggle(_LR['Boosts'], 'Enable nitro', {'JSnitro'}, 'Enable nitro boost on any vehicle, use it by pressing "X".', function(toggle)
-                nitroBoostActive = toggle
+            JSlang.toggle_loop(_LR['Boosts'], 'Enable nitro', {'JSnitro'}, 'Enable nitro boost on any vehicle, use it by pressing "X".', function(toggle)
+                if JSkey.is_control_just_pressed(2, 'INPUT_VEH_TRANSFORM') and PED.IS_PED_IN_ANY_VEHICLE(players.user_ped(), true) then
+                    repeat
+                        util.yield_once()
+                    until not JSkey.is_control_just_pressed(2, 'INPUT_VEH_TRANSFORM')
 
-                --request the nitro ptfx because _SET_VEHICLE_NITRO_ENABLED does not load it
-                if not STREAMING.HAS_NAMED_PTFX_ASSET_LOADED('veh_xs_vehicle_mods') then
-                    STREAMING.REQUEST_NAMED_PTFX_ASSET('veh_xs_vehicle_mods')
-                    while not STREAMING.HAS_NAMED_PTFX_ASSET_LOADED('veh_xs_vehicle_mods') do
+                    --request the nitro ptfx because _SET_VEHICLE_NITRO_ENABLED does not load it
+                    if not STREAMING.HAS_NAMED_PTFX_ASSET_LOADED('veh_xs_vehicle_mods') then
+                        STREAMING.REQUEST_NAMED_PTFX_ASSET('veh_xs_vehicle_mods')
+                        while not STREAMING.HAS_NAMED_PTFX_ASSET_LOADED('veh_xs_vehicle_mods') do
+                            util.yield_once()
+                        end
+                    end
+
+                    VEHICLE._SET_VEHICLE_NITRO_ENABLED(my_cur_car, true, getTotalDelay(nitroSettings.level) / 10, nitroSettings.power, 999999999999999999, false)
+
+                    local startTime = util.current_time_millis()
+                    while util.current_time_millis() < startTime + getTotalDelay(nitroSettings.level) do
+                        if JSkey.is_control_just_pressed(2, 'INPUT_VEH_TRANSFORM') then
+                            break
+                        end
                         util.yield_once()
                     end
-                end
-
-                while nitroBoostActive do
-                    if JSkey.is_control_just_pressed(2, 'INPUT_VEH_TRANSFORM') and PED.IS_PED_IN_ANY_VEHICLE(players.user_ped(), true) then
-                        repeat
-                            util.yield_once()
-                        until not JSkey.is_control_just_pressed(2, 'INPUT_VEH_TRANSFORM')
-
-                        VEHICLE._SET_VEHICLE_NITRO_ENABLED(my_cur_car, true, getTotalDelay(nitroSettings.level) / 10, nitroSettings.power, 999999999999999999, false)
-
-                        local startTime = util.current_time_millis()
-                        while util.current_time_millis() < startTime + getTotalDelay(nitroSettings.level) do
-                            if JSkey.is_control_just_pressed(2, 'INPUT_VEH_TRANSFORM') then
-                                break
-                            end
-                            util.yield_once()
-                        end
-                        VEHICLE._SET_VEHICLE_NITRO_ENABLED(my_cur_car, false, getTotalDelay(nitroSettings.level) / 10, nitroSettings.power, 999999999999999999, false)
-                        startTime = util.current_time_millis()
-                        while util.current_time_millis() < startTime + getTotalDelay(nitroSettings.rechargeTime) do
-                            util.yield_once()
-                        end
+                    VEHICLE._SET_VEHICLE_NITRO_ENABLED(my_cur_car, false)
+                    startTime = util.current_time_millis()
+                    while util.current_time_millis() < startTime + getTotalDelay(nitroSettings.rechargeTime) do
+                        util.yield_once()
                     end
-                    util.yield_once()
                 end
             end)
 
@@ -3760,36 +3631,36 @@ JSlang.hyperlink(menu_root, 'Join the discord server', 'https://discord.gg/QzqBd
 
 local credTxt = {}
 
-credTxt[#credTxt + 1]  = {line = JSlang.str_trans('Coded by') ..' Jerry123#4508', bold = true, wait = 85}
-credTxt[#credTxt + 1]  = {line = JSlang.str_trans('Some contributions made by'), bold = false, wait = 25}
+credTxt[#credTxt + 1]  = {line = function() return JSlang.str_trans('Coded by') ..' Jerry123#4508' end, bold = true, wait = 85}
+credTxt[#credTxt + 1]  = {line = function() return JSlang.str_trans('Some contributions made by') end, bold = false, wait = 25}
 credTxt[#credTxt + 1]  = {line = 'scriptcat#6566', bold = true, wait = 90}
 
-credTxt[#credTxt + 1] = {line = JSlang.str_trans('Thanks to') ..' zjz#9999 '.. JSlang.str_trans('for helping me with the discord and also donating $5 of BTC'), bold = true, wait = 100}
+credTxt[#credTxt + 1] = {line = function() return JSlang.str_trans('Thanks to') ..' zjz#9999 '.. JSlang.str_trans('for helping me with the discord and also donating $5 of BTC') end, bold = true, wait = 100}
 
-credTxt[#credTxt + 1] = {line = JSlang.str_trans('Translations made possible with help from:'), bold = true, wait = 35}
+credTxt[#credTxt + 1] = {line = function() return JSlang.str_trans('Translations made possible with help from:') end, bold = true, wait = 35}
 credTxt[#credTxt + 1] = {line = 'zzzz#5116', bold = false, wait = 25}
 credTxt[#credTxt + 1] = {line = 'DumbBird#9143', bold = false, wait = 25}
 credTxt[#credTxt + 1] = {line = 'HIPASS#4090', bold = false, wait = 100}
 
-credTxt[#credTxt + 1]  = {line = JSlang.str_trans('Skids from:'), bold = true, wait = 35}
-credTxt[#credTxt + 1]  = {line = 'LanceScript '.. JSlang.str_trans('by') ..' lance#8213', bold = false, wait = 25}
-credTxt[#credTxt + 1]  = {line = 'WiriScript '.. JSlang.str_trans('by') ..' Nowiry#2663', bold = false, wait = 25}
-credTxt[#credTxt + 1]  = {line = 'KeramisScript '.. JSlang.str_trans('by') ..' scriptCat#6566', bold = false, wait = 25}
-credTxt[#credTxt + 1]  = {line = 'Heist control '.. JSlang.str_trans('by') ..' IceDoomfist#0001', bold = false, wait = 25}
-credTxt[#credTxt + 1]  = {line = 'Meteor '.. JSlang.str_trans('by') ..' RulyPancake the 5th#1157', bold = false, wait = 100}
+credTxt[#credTxt + 1]  = {line = function() return JSlang.str_trans('Skids from:') end, bold = true, wait = 35}
+credTxt[#credTxt + 1]  = {line = function() return 'LanceScript '.. JSlang.str_trans('by') ..' lance#8213' end, bold = false, wait = 25}
+credTxt[#credTxt + 1]  = {line = function() return 'WiriScript '.. JSlang.str_trans('by') ..' Nowiry#2663' end, bold = false, wait = 25}
+credTxt[#credTxt + 1]  = {line = function() return 'KeramisScript '.. JSlang.str_trans('by') ..' scriptCat#6566' end, bold = false, wait = 25}
+credTxt[#credTxt + 1]  = {line = function() return 'Heist control '.. JSlang.str_trans('by') ..' IceDoomfist#0001' end, bold = false, wait = 25}
+credTxt[#credTxt + 1]  = {line = function() return 'Meteor '.. JSlang.str_trans('by') ..' RulyPancake the 5th#1157' end, bold = false, wait = 100}
 
-credTxt[#credTxt + 1] = {line = JSlang.str_trans('Thanks to'), bold = false, wait = 25}
-credTxt[#credTxt + 1] = {line = 'Ren#5219 and JayMontana36#9565', bold = true, wait = 35}
-credTxt[#credTxt + 1] = {line = JSlang.str_trans('for reviewing my code'), bold = false, wait = 100}
+credTxt[#credTxt + 1] = {line = function() return JSlang.str_trans('Thanks to') end, bold = false, wait = 25}
+credTxt[#credTxt + 1] = {line = function() return 'Ren#5219 and JayMontana36#9565' end, bold = true, wait = 35}
+credTxt[#credTxt + 1] = {line = function() return JSlang.str_trans('for reviewing my code') end, bold = false, wait = 100}
 
-credTxt[#credTxt + 1] = {line = JSlang.str_trans('Big thanks to all the cool people who helped me in #programming in the stand discord'), bold = false, wait = 25}
+credTxt[#credTxt + 1] = {line = function() return JSlang.str_trans('Big thanks to all the cool people who helped me in #programming in the stand discord') end, bold = false, wait = 25}
 credTxt[#credTxt + 1] = {line = 'Sapphire#1053', bold = false, wait = 25}
 credTxt[#credTxt + 1] = {line = 'aaronlink127#0127', bold = false, wait = 25}
 credTxt[#credTxt + 1] = {line = 'Fwishky#4980', bold = false, wait = 25}
 credTxt[#credTxt + 1] = {line = 'Prism#7717', bold = false, wait = 100}
 
 credTxt[#credTxt + 1] = {line = 'Goddess Sainan#0001', bold = true, wait = 35}
-credTxt[#credTxt + 1] = {line = JSlang.str_trans('For making stand and providing such a great api and documentation'), bold = false, wait = 25}
+credTxt[#credTxt + 1] = {line = function() return JSlang.str_trans('For making stand and providing such a great api and documentation') end, bold = false, wait = 25}
 
 local playingCredits = false
 local creditsSpeed = 1
@@ -3820,7 +3691,8 @@ local function scrollCreditsLine(textTable, index)
     while i <= 1000 do
         if not playingCredits then return end
         i += creditsSpeed
-        directx.draw_text(0.5, 1  - i / 1000, textTable.line, 1, textTable.bold and  0.7 or 0.5, white, false)
+        local text = if type(textTable.line) == 'function' then textTable.line() else textTable.line
+        directx.draw_text(0.5, 1  - i / 1000, text, 1, textTable.bold and  0.7 or 0.5, white, false)
         util.yield_once()
     end
     if index == #credTxt then
@@ -4165,7 +4037,10 @@ util.create_tick_handler(function()
     -- car stuff
     if TASK.GET_IS_TASK_ACTIVE(players.user_ped(), 2) then --when exiting a car
         setCarOptions(false)
+    elseif TASK.GET_IS_TASK_ACTIVE(players.user_ped(), 160) then --when entering a vehicle
+        setCarOptions(true)
     end
+
     local carCheck = entities.get_user_vehicle_as_handle()
     if my_cur_car != carCheck then
         my_cur_car = carCheck
