@@ -1841,7 +1841,7 @@ do
 
     local thermal_command = menu.ref_by_path('Game>Rendering>Thermal Vision', 37)
     JSlang.toggle_loop(_LR['Weapons'], 'Thermal guns', {'JSthermalGuns'}, 'Makes it so when you aim any gun you can toggle thermal vision on "E".', function()
-        local aiming = PLAYER.IS_PLAYER_FREE_AIMING(players.user_ped())
+        local aiming = PLAYER.IS_PLAYER_FREE_AIMING(players.user())
         if GRAPHICS.GET_USINGSEETHROUGH() and not aiming then
             menu.trigger_command(thermal_command, 'off')
             GRAPHICS._SEETHROUGH_SET_MAX_THICKNESS(1) --default value is 1
