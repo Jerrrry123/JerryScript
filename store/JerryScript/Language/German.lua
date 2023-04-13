@@ -1,7 +1,10 @@
 lang.set_translate('de')
 
-local f = lang.find
-local t = lang.translate
+local f = lang.find_registered
+local t = function(registered_label, translated_text)
+  if (registered_label == 0) then return end
+  lang.translate(registered_label, translated_text)
+end
 
 t(f('Failed to get latest release.'), 'Neueste Version konnte nicht abgerufen werden.')
 t(f('Notifications on'), 'Benachrichtigungen an')
