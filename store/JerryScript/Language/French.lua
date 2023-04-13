@@ -1,10 +1,7 @@
 lang.set_translate('fr')
 
 local f = lang.find_registered
-local t = function(registered_label, translated_text)
-  if (registered_label == 0) then return end
-  lang.translate(registered_label, translated_text)
-end
+local t = lang.translate
 
 t(f('Failed to get latest release.'), 'Impossible d\'obtenir la dernière version.')
 t(f('Notifications on'), 'Notifications sur')
