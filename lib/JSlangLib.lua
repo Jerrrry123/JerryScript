@@ -88,7 +88,7 @@ if GENERATE_TEMPLATE then
 
     if not filesystem.exists(LANG_DIR .. 'template.lua') then
         local f = assert(io.open(LANG_DIR .. 'template.lua', 'a'))
-        f:write('lang.set_translate(\'\') --insert lang code here e.x. fr en or de\n\nlocal f = lang.find\nlocal t = lang.translate\n\n')
+        f:write('lang.set_translate(\'\') --insert lang code here e.x. fr en or de\n\nlocal f = lang.find_registered\nlocal t = lang.translate\n\n')
         f:close()
     end
 
