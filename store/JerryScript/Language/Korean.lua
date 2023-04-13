@@ -1,7 +1,10 @@
 lang.set_translate('ko') --thank you ΗΙΡΑSS#4090 for improving this translation ^-^
 
-local f = lang.find
-local t = lang.translate
+local f = lang.find_registered
+local t = function(registered_label, translated_text)
+  if (registered_label == 0) then return end
+  lang.translate(registered_label, translated_text)
+end
 
 t(f('Failed to get latest release.'), '최신 릴리스를 가져오지 못했습니다.')
 t(f('Notifications on'), '알림')
