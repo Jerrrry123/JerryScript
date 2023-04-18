@@ -70,7 +70,15 @@ local JSlang = {}
 function JSlang.trans(txt)
     if txt == nil or #txt < 1 then return '' end
 
-    local label = lang.find_registered(txt)
+    local label = lang.find_builtin(txt)
+    if label != 0 then
+        if lang.find_registered(txt) == 0 then
+            lang.register(txt)
+        end
+        return label
+    end
+
+    label = lang.find_registered(txt)
     if label == 0 then
         label = lang.register(txt)
     end
@@ -145,7 +153,7 @@ for _, filePath in pairs(STRING_FILES) do
 end
 
 function JSlang.str_trans(string)
-    return lang.get_string(JSlang.trans(string), lang.get_current())
+    return lang.get_localised(JSlang.trans(string))
 end
 
 function JSlang.toast(string, ...)
