@@ -226,8 +226,8 @@ function JSlang.action_slider(root, name, link, description, ...)
     return menu.action_slider(root, JSlang.trans(name), link, JSlang.trans(description), ...)
 end
 
-function JSlang.slider_text(root, name, tableCommands, description, ...)
-    return menu.slider_text(root, JSlang.trans(name), tableCommands, JSlang.trans(description), ...)
+function JSlang.textslider_stateful(root, name, tableCommands, description, ...)
+    return menu.textslider_stateful(root, JSlang.trans(name), tableCommands, JSlang.trans(description), ...)
 end
 
 return JSlang
