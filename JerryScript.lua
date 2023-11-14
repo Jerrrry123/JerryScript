@@ -10,6 +10,8 @@
     thx to Sai, ren, aaron, Nowry, JayMontana, IceDoomfist and scriptCat and everyone else that helped me in #programming :)
 ]]
 
+pluto_use "0.5.0"
+
 local LOADING_START = util.current_time_millis()
 LOADING_SCRIPT = true
 
@@ -2514,7 +2516,7 @@ do
             ['Silent'] = 'MINITANK',
             ['Electric'] = 'CYCLONE',
         }
-        JSlang.slider_text(_LR['Vehicle sounds'], 'Engine sound', {'JSengineSound'}, '', {'Default', 'Silent', 'Electric'}, function(index, value)
+        JSlang.textslider_stateful(_LR['Vehicle sounds'], 'Engine sound', {'JSengineSound'}, '', {'Default', 'Silent', 'Electric'}, function(index, value)
             AUDIO._FORCE_VEHICLE_ENGINE_AUDIO(entities.get_user_vehicle_as_handle(), if type(car_sounds[value]) == 'string' then car_sounds[value] else car_sounds[value]())
         end)
 
